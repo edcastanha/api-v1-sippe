@@ -1,0 +1,10 @@
+*.pem
+configs/*
+docker-compose.yml
+Dockerfile
+Dockerfile-*
+*.tar
+*.gz
+.gitignore
+pyproject.toml
+
