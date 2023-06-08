@@ -29,7 +29,7 @@ services:
       - PGPASSWORD=sippe
       - PGHOST=api-db
       - PGPORT=5433
-      - MYSECRET=ejiujídjaonduagduoadyouiaydbiyu23y768705*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
+      - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
       - MYDEBUG=False
     depends_on:
       - api-db
