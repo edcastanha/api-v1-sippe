@@ -6,7 +6,7 @@ from core.cameras.models import Cameras, Locais
 class CamerasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cameras
-        fields = ['id', 'descricao', 'ip', 'modelo', 'usuario', 'senha']
+        fields = ['id', 'descricao', 'ip', 'modelo']
 
 class LocaisSerializer(serializers.ModelSerializer):
     class Meta:
