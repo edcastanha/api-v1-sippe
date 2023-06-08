@@ -7,9 +7,9 @@ services:
       volumes:
         - './configs/db/dbApi/:/var/lib/postgresql/data'
       environment:
-        - POSTGRES_DB=postgres
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_DB=sippe
+        - POSTGRES_USER=sippe
+        - POSTGRES_PASSWORD=sippe2023
       ports:
         - "54333:5433"
 
@@ -24,12 +24,12 @@ services:
     ports:
       - "8282:8000"
     environment:
-      - PGDATABASE=postgres
-      - PGUSER=postgres
-      - PGPASSWORD=postgres
+      - PGDATABASE=sippe
+      - PGUSER=sippe
+      - PGPASSWORD=sippe
       - PGHOST=api-db
-      - PGPORT=54333
+      - PGPORT=5433
       - MYSECRET=ejiujídjaonduagduoadyouiaydbiyu23y768705*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
-      - MYDEBUG=True
+      - MYDEBUG=False
     depends_on:
       - api-db
