@@ -4,15 +4,16 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR /code
+WORKDIR /app
 
 RUN pip install --upgrade pip
 
-COPY ./requirements.txt /code/
+COPY ./requirements.txt /app/
 
 RUN pip install -r requirements.txt
 
-COPY ./ /code/
+COPY ./manage.py /app/
+COPY ./core /app/core
 
 CMD [ "python", "manage.py", "makemigrations"]
 
