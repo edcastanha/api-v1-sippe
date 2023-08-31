@@ -15,14 +15,9 @@ SECRET_KEY = os.environ.get('MYSECRET', 'insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l
 # DEBUG = True
 DEBUG = os.environ.get('MYDEBUG', False)
 
-ALLOWED_HOSTS = [
-    'http://sippe.sa-east-1.elasticbeanstalk.com/', 
-    '127.0.0.1',
-]
-
+ALLOWED_HOSTS = ['localhost']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
