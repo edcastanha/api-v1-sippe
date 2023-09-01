@@ -8,14 +8,14 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
-COPY ./requirements.txt /app/
+COPY ./app/requirements.txt /app/
 
 RUN pip install -r requirements.txt
 
-COPY ./manage.py /app
-
-COPY ./core/ /app/core
+COPY ./app/ /app
 
 CMD [ "python", "manage.py", "makemigrations"]
 
 CMD [ "python", "manage.py", "migrate"]
+
+CMD [ "python", "manage.py", "runserver", "port=8000",]

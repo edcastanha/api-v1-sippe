@@ -1,5 +1,4 @@
 *.pem
-configs/*
 docker-compose.yml
 Dockerfile
 Dockerfile-*
