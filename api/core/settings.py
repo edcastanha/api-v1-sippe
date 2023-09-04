@@ -9,12 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('MYSECRET', 'insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8')
+SECRET_KEY = os.environ.get('MYSECRET', 'insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&29o*_gf^dp*_%zb^8')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = os.environ.get('MYDEBUG', True)
-print(DEBUG)
 ALLOWED_HOSTS = [
     'localhost',
     'sippeserver01.ddns.net',
@@ -68,6 +64,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+# DEBUG = True
+DEBUG = os.environ.get('MYDEBUG', True)
+print(DEBUG)
 
 if DEBUG:
     DATABASES = {
@@ -77,13 +76,14 @@ if DEBUG:
         }
     }
 else:
+    import psycopg2
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': os.environ.get('PGDATABASE', 'sippe'),
             'USER': os.environ.get('PGUSER', 'sippe'),
             'PASSWORD': os.environ.get('PGPASSWORD', 'sippe'),
-            'HOST': os.environ.get('PGHOST', 'api-db'),
+            'HOST': os.environ.get('PGHOST', 'postgres'),
             'PORT': os.environ.get('PGPORT', '5432') ,
         }
     }
@@ -123,6 +123,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+# MEDIAS PATH
+MEDIA_URL = '/medias/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'medias')
 
 
 # Static files (CSS, JavaScript, Images)

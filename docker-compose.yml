@@ -1,35 +1,48 @@
 version: '3.7'
 
 services:
-  api-db:
-      image: postgres
-      container_name: api-db
-      volumes:
-        - './configs/db/dbApi/:/var/lib/postgresql/data'
-      environment:
-        - POSTGRES_DB=sippe
-        - POSTGRES_USER=sippe
-        - POSTGRES_PASSWORD=sippe2023
-      ports:
-        - "54333:5433"
+  postgres:
+    image: postgres
+    container_name: Postgres-api
+    volumes:
+      - './configs/db/postgres/:/var/lib/postgresql/data'
+    environment:
+      - POSTGRES_DB=sippe
+      - POSTGRES_USER=sippe
+      - POSTGRES_PASSWORD=sippe2023
+    ports:
+      - "54333:5433"
+    restart: always
 
-  api-server:
+  django:
     build:
       context: .
-      dockerfile: Dockerfile-develop
-    container_name: api-server
-    command: python manage.py runserver 0.0.0.0:8000
+      dockerfile: Dockerfile.Develop
+    container_name: Django-api
+    command: python setup.py && python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./app/:/app/
+      - ./api/:/api/
     ports:
       - "8282:8000"
     environment:
+      - DJANGO_SETTINGS_MODULE=
       - PGDATABASE=sippe
       - PGUSER=sippe
       - PGPASSWORD=sippe2023
-      - PGHOST=api-db
+      - PGHOST=postgres
       - PGPORT=5433
       - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
       - MYDEBUG=False
     depends_on:
-      - api-db
+      - postgres
+      - redis
+    restart: always
+
+  redis:
+    image: redis
+    container_name: Redis-api
+    volumes:
+      - "./configs/db/redis/:/data"
+    ports:
+      - "6379:6379"
+    restart: always

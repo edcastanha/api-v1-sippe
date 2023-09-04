@@ -315,5 +315,6 @@ $RECYCLE.BIN/
 
 # Docker
 configs
-app/assets
+api/assets
 db.sqlite3
+configs/db
