@@ -4,6 +4,7 @@ services:
   api-db:
       image: postgres
       container_name: api-db
+      restart: always
       volumes:
         - './configs/db/dbApi/:/var/lib/postgresql/data'
       environment:
@@ -33,3 +34,4 @@ services:
       - MYDEBUG=False
     depends_on:
       - api-db
+

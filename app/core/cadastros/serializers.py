@@ -21,4 +21,4 @@ class PresencasSerializer(serializers.ModelSerializer):
 class FotosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fotos
-        fields = ['pessoa', 'foto1', 'foto2', 'foto3']
+        fields = ['pessoa', 'foto']
