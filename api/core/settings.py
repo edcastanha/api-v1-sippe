@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+import psycopg2
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -65,28 +67,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 # DEBUG = True
-DEBUG = os.environ.get('MYDEBUG', True)
-print(DEBUG)
+DEBUG = os.environ.get('MYDEBUG', False)
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('PGDATABASE', 'sippe'),
+        'USER': os.environ.get('PGUSER', 'sippe'),
+        'PASSWORD': os.environ.get('PGPASSWORD', 'sippe'),
+        'HOST': os.environ.get('PGHOST', 'postgres'),
+        'PORT': os.environ.get('PGPORT', '5432') ,
     }
-else:
-    import psycopg2
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ.get('PGDATABASE', 'sippe'),
-            'USER': os.environ.get('PGUSER', 'sippe'),
-            'PASSWORD': os.environ.get('PGPASSWORD', 'sippe'),
-            'HOST': os.environ.get('PGHOST', 'postgres'),
-            'PORT': os.environ.get('PGPORT', '5432') ,
-        }
-    }
+}
 
 
 # Password validation
