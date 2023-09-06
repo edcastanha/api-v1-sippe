@@ -1,4 +1,5 @@
 Django
 djangorestframework
 Pillow
-psycopg2
+psycopg2-binary
+django-admin-adminlte

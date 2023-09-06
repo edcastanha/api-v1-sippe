@@ -24,7 +24,7 @@ class Contratos(baseModel):
         verbose_name = "Contrato"
 
     def __str__(self):
-        return f"{self.numero} - {self.data}"
+        return f"{self.protocolo} - {self.responsavel}"
 
 class Escolas(baseModel):
     nome = models.CharField(max_length=100)

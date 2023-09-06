@@ -9,6 +9,7 @@ router.registry.extend(cadastros_router.registry)
 router.registry.extend(cameras_router.registry)
 
 urlpatterns = [
+    path('', include('admin_adminlte.urls')),
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
 ]
