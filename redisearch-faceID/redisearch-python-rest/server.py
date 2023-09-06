@@ -25,18 +25,20 @@ redis_password = environ.get('REDIS_PASSWORD', "")
 
 # conn = redis.StrictRedis(redis_server, redis_port)
 if redis_password is not None:
+    print("REDIS CONNECTION is not None PASSWORD")
     conn = redis.Redis(redis_server, redis_port, password=redis_password, charset="utf-8", decode_responses=True)
 else:
+    print("REDIS CONNECTION PASSWORD")
     conn = redis.Redis(redis_server, redis_port, charset="utf-8", decode_responses=True)
 
 app = Flask(__name__)
 CORS(app)
 
 
-# @app.before_request
-# @app.route('/')
-# def home():
-#     return {"status": "Python REST Servicve is UP", "api": "/api/1.0/search"}
+@app.before_request
+@app.route('/')
+def home():
+    return {"status": "Python REST Servicve is UP", "api": "/api/1.0/search"}
 
 
 @app.route('/api/1.0/movies/search')

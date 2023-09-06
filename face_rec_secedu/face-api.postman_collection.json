@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "4c0b144e-4294-4bdd-8072-bcb326b1fed2",
-		"name": "deepface-api",
+		"name": "face-api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
