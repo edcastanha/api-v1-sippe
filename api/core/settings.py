@@ -5,22 +5,23 @@ import psycopg2
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-#print(BASE_DIR)
+# print(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('MYSECRET', 'insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&29o*_gf^dp*_%zb^8')
+SECRET_KEY = os.environ.get(
+    'MYSECRET', 'insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&29o*_gf^dp*_%zb^8')
 
 ALLOWED_HOSTS = [
     'localhost',
     'sippeserver01.ddns.net',
-    ]
+]
 
 # Application definition
 INSTALLED_APPS = [
-    'admin_adminlte.apps.AdminAdminlteConfig',
+    #'admin_adminlte.apps.AdminAdminlteConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -28,10 +29,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Libs
-    'rest_framework',
+    'rest_framework.apps.RestFrameworkConfig',
     # Apps
-    'core.cadastros',
-    'core.cameras',
+    'core.cadastros.apps.CadastrosConfig',
+    'core.cameras.apps.CamerasConfig',
 ]
 
 LOGIN_REDIRECT_URL = '/'
@@ -81,7 +82,7 @@ DATABASES = {
         'USER': os.environ.get('PGUSER', 'sippe'),
         'PASSWORD': os.environ.get('PGPASSWORD', 'sippe'),
         'HOST': os.environ.get('PGHOST', 'postgres'),
-        'PORT': os.environ.get('PGPORT', '5432') ,
+        'PORT': os.environ.get('PGPORT', '5432'),
     }
 }
 
@@ -121,24 +122,22 @@ USE_I18N = True
 
 USE_TZ = True
 
-# MEDIAS PATH
-MEDIA_URL = '/medias/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'medias')
+
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 STATIC_URL = 'static/'
+MEDIA_URL = 'medias/'
 
 STATICFILES_DIRS = [
-        os.path.join(BASE_DIR,'static'),
-        ]
+    os.path.join(BASE_DIR, 'static'),
+]
 # python manage.py collectstatic
-STATIC_ROOT = os.path.join(BASE_DIR,'assets')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'medias')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-

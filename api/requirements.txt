@@ -2,4 +2,5 @@ Django
 djangorestframework
 Pillow
 psycopg2-binary
-django-admin-adminlte
+django-admin-soft-dashboard==1.0.11
+gunicorn
