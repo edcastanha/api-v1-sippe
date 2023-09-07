@@ -4,6 +4,51 @@ version: '3.7'
 
 services:
 
+# Autenticacao e Autirizacao
+  secude-mysql-auth:
+    image: mysql:8.0.30-debian
+    container_name: secude-mysql-auth
+    restart: always
+    environment:
+      - MYSQL_DATABASE=keycloak
+      - MYSQL_PASSWORD=ep4X1!br
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - secedu_dj_network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 1
+      #start_period: 10s
+
+  secedu-auth-api:
+    image: quay.io/keycloak/keycloak:22.0.1
+    command: start-dev
+    container_name: secedu-auth-api
+    depends_on:
+      secedu-mysql-auth:
+        condition: service_healthy
+    #restart: always
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=ep4X1!br
+      # altere estes valores para apontar para uma instância postgres em execução
+      - KC_DB=mysql
+      - KC_DB_URL=jbdc:mysql://secedu-mysql-auth:3306/keycloak
+      - KC_DB_USERNAME=root
+      - KC_DB_PASSWORD=ep4X1!br
+      #- KC_HOSTNAME=localhost
+    volumes:
+      - ./volumes/auth/realm/:opt/keycloak/data/import
+    ports:
+      - "8000:8000"
+    networks:
+      - secedu_dj_network
+
 # Start api-web-django:
   secedu-pg-api:
     image: postgres
@@ -15,8 +60,6 @@ services:
       - POSTGRES_PASSWORD=sippe2023
     volumes:
       - './postgres:/var/lib/postgresql/data'
-    ports:
-      - "5432:5432"
     networks:
       - secedu_dj_network
 
@@ -37,13 +80,12 @@ services:
       - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
       - MYDEBUG=False
     volumes:
-      - ./api:/api
+      - ./secedu-dj-api:/api
     ports:
       - "8000:8000"
     networks:
-      - api-sippe
-    
-
+      - secedu_dj_networkv
+  
 # Start api-face-flask:
   secedu-fk-api:
     build: 

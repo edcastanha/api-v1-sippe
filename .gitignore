@@ -317,4 +317,6 @@ $RECYCLE.BIN/
 */api/configs
 */api/assets
 */api/db.sqlite3
+*/volumes
+volumes/*
 
