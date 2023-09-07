@@ -1,3 +1,8 @@
-FROM bitnami/keycloak:21.1.1-debian-11-r6
+FROM quay.io/keycloak/keycloak:22.0.1 
+
+COPY ./realm-export.json /tmp/realm-export.json
 
 EXPOSE 8080
+
+ENV KEYCLOAK_ADMIN_PASSWORD=admin 
+ENV KEYCLOAK_ADMIN=admin

@@ -37,8 +37,8 @@ services:
       - MYDEBUG=False
     depends_on:
       - postgres-api
-
-
+    restart: always
+    
 networks:
   api-sippe:
     driver: bridge

@@ -1,0 +1,118 @@
+#DOCKER COMPOSE
+#docker-compose up -d
+version: '3.7'
+
+services:
+
+# Start api-web-django:
+  secedu-pg-api:
+    image: postgres
+    container_name: secedu-pg-api
+    restart: always
+    environment:
+      - POSTGRES_DB=sippe
+      - POSTGRES_USER=sippe
+      - POSTGRES_PASSWORD=sippe2023
+    volumes:
+      - './postgres:/var/lib/postgresql/data'
+    ports:
+      - "5432:5432"
+    networks:
+      - secedu_dj_network
+
+  secedu-dj-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.Develop
+    container_name: secedu-dj-api
+    depends_on:
+      - secedu-pg-api
+    restart: always
+    environment:
+      - PGDATABASE=sippe
+      - PGUSER=sippe
+      - PGPASSWORD=sippe2023
+      - PGHOST=secedu-pg-api
+      - PGPORT=5432
+      - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
+      - MYDEBUG=False
+    volumes:
+      - ./api:/api
+    ports:
+      - "8000:8000"
+    networks:
+      - api-sippe
+    
+
+# Start api-face-flask:
+  secedu-fk-api:
+    build: 
+      context: ./api/
+      dockerfile: Dockerfile.Django
+    container_name: secedu-fk-api
+    depends_on:
+      - redis-stack
+      - secedu-rmq-task
+    restart: always
+    volumes:
+      - ./api/app:/app
+    ports:
+      - "5000:5000"
+    networks:
+      - secedu_fk_network
+      - secedu_task_network
+
+  secedu-rmq-task:
+    image: rabbitmq:3-management
+    container_name: secedu-rmq-task
+    restart: always
+    volumes:
+      - ./volumes/rabbitMQ:/var/lib/rabbitmq/mnesia
+    environment:
+      - RABBITMQ_DEFAULT_USER=sippe
+      - RABBITMQ_DEFAULT_PASS=ep4X1!br
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - secedu_task_network
+  
+  # Start Redis-Stack RediSearch 
+  secedu-rds-tack:
+    image:  redis/redis-stack:latest
+    container_name: secedu-rds-tack
+    restart: always
+    volumes:
+        - ./volumes/redisearch-docker/dataset:/dataset
+        - ./volumes/redis:/data
+    ports:
+        - "6379:6379" 
+        - "8001:8001" 
+    networks:
+        - face_task_network
+  
+  jobs-videos:
+    build: 
+      context: ./jobs/
+      dockerfile: Dockerfile.Jobs
+    container_name: jobs-videos
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./api/app:/app
+    depends_on:
+      - redis-stack
+      - rabbitmq
+    networks:
+      - face_task_network
+
+networks:
+  secedu_fk_network:
+    driver: bridge
+  secedu_task_network:
+    driver: bridge
+  secedu_dj_network:
+    driver: bridge
+
+
+
