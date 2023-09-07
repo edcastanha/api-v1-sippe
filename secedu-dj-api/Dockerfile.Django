@@ -8,14 +8,13 @@ WORKDIR /api
 
 RUN pip install --upgrade pip
 
-COPY ./api/requirements.txt /api/
+COPY ./requirements.txt /api/
 
 RUN pip install -r requirements.txt
 
-COPY ./api /api
+COPY ./ /api/
 
-ADD ./configs/scripts/django_init.sh /docker-entrypoint.sh
+CMD python manage.py migrate --noinput || exit 1 && \
+    python manage.py collectstatic --noinput || exit 1 && 
 
-RUN chmod a+x /docker-entrypoint.sh
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD gunicorn --workers=1 --timeout=3600 --bind=0.0.0.0:8000 core.wsgi

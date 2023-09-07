@@ -8,3 +8,5 @@ Dockerfile-*
 pyproject.toml
 
 .ebextensions/*
+
+*/db/postgres/*

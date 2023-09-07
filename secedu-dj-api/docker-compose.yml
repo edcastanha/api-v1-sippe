@@ -15,16 +15,22 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "sippe"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
 
   django-api:
     build:
       context: .
-      dockerfile: Dockerfile.Develop
+      dockerfile: Dockerfile.Django
     container_name: django-api
+    #entrypoint: [ "/entrypoint.sh" ]
     networks:
       - api-sippe
     volumes:
-      - ./api:/api
+      - ./:/api
     ports:
       - "8000:8000"
     environment:
@@ -36,8 +42,10 @@ services:
       - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
       - MYDEBUG=False
     depends_on:
-      - postgres-api
-    restart: always
+      postgres-api:
+        condition: service_healthy
+    #restart: always
+
     
 networks:
   api-sippe:

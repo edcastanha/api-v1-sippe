@@ -13,14 +13,13 @@ router.registry.extend(cameras_router.registry)
 
 #URLS DE ADMIN e SITE
 urlpatterns = [
-    #path('', include('admin_adminlte.urls')),
+    path('', include('admin_soft.urls')),
     path('admin/', admin.site.urls), #ADMIN
     path('api/', include(router.urls)), #API REST
 ]
 
 # INCLUDES static e media
-urlpatterns += [ 
-    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
-    static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
-]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 

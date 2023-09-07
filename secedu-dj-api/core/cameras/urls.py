@@ -11,5 +11,4 @@ router.register(r'frequencias', FrequenciasViewSet, basename='frequencias')
 
 urlpatterns = [
     path('api/v1/', include(router.urls)), #API REST
-    path('', views.index, name='index'),
 ]
