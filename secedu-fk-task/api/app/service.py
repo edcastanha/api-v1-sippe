@@ -1,6 +1,5 @@
 from deepface import DeepFace
 
-
 def represent(img_path, model_name, detector_backend, enforce_detection, align):
     result = {}
     embedding_objs = DeepFace.represent(
@@ -12,7 +11,6 @@ def represent(img_path, model_name, detector_backend, enforce_detection, align):
     )
     result["results"] = embedding_objs
     return result
-
 
 def verify(
     img1_path, img2_path, model_name, detector_backend, distance_metric, enforce_detection, align
@@ -27,7 +25,6 @@ def verify(
         enforce_detection=enforce_detection,
     )
     return obj
-
 
 def analyze(img_path, actions, detector_backend, enforce_detection, align):
     result = {}

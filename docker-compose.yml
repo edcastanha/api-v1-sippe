@@ -13,7 +13,7 @@ services:
     restart: always
     environment:
       - MYSQL_DATABASE=secedu
-      - MYSQL_PASSWORD=ep4X1!br
+      - MYSQL_ROOT_PASSWORD=ep4X1!br
     volumes:
       - ./volumes/mysql:/var/lib/mysql
     networks:
@@ -38,15 +38,11 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD=ep4X1!br
       # altere estes valores para apontar para uma instância postgres em execução
       - KC_DB=mysql
-      - KC_DB_ADDR=secedu-mysql-auth
-      - KC_DB_HOST=secedu-mysql-auth
-      - KC_DB_PORT=3306
-      - KC_DB_NAME=secedu
-      - KC_DB_URL=jbdc:mysql://secedu-mysql-auth:3306/secedu
-      - KC_DB_USERNAME=secedu
+      - KC_DB_URL=jdbc:mysql://secedu-mysql-auth:3306/secedu
+      - KC_DB_USERNAME=root
       - KC_DB_PASSWORD=ep4X1!br
     volumes:
-      - ./volumes/auth/realm/:opt/keycloak/data/import
+        - ./volumes/auth/realm/:/opt/keycloak/data/realm
     ports:
       - "8000:8000"
     networks:
@@ -95,6 +91,7 @@ services:
   
   # Flask
   secedu-fk-task:
+    #image: secedu-fk-task:latest
     build: 
       context: ./secedu-fk-task/api/
       dockerfile: Dockerfile

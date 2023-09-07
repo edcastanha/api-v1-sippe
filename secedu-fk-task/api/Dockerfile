@@ -23,15 +23,15 @@ COPY ./secedu-fk-task.md /app/secedu-fk-task.md
 #RUN pip install torch torchvision  --index-url https://download.pytorch.org/whl/cu118
 # -----------------------------------
 # instalar o deepface a partir do lançamento do pypi (pode estar desatualizado)
-#RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
 # -----------------------------------
 # install deepface from source code (always up-to-date)
 #RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
 # -----------------------------------
 # alguns pacotes são opcionais no deepface. active se a sua tarefa depender de um deles.
- #RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org cmake==3.24.1.1
- #RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org dlib==19.20.0
- #RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org lightgbm==2.3.1
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org cmake==3.24.1.1
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org dlib==19.20.0
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org lightgbm==2.3.1
 # -----------------------------------
 
 COPY app/requirements.txt /app/requirements.txt
