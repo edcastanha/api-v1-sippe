@@ -1,12 +1,8 @@
 *.pem
 docker-compose.yml
-Dockerfile
+Dockerfile*
 Dockerfile-*
 *.tar
 *.gz
 .gitignore
 pyproject.toml
-
-.ebextensions/*
-
-*/db/postgres/*

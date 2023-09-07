@@ -1,0 +1,24 @@
+FROM quay.io/keycloak/keycloak:22.0.1 as builder
+
+# Permitir o apoio à saúde e às métricas
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
+
+# Configurar um fornecedor de base de dados
+ENV KC_DB=postgres
+ENV KC_DB_ADDR=postgres
+ENV KC_DB_PORT=5432
+ENV KC_DB_USER=keycloak
+ENV KC_DB_PASSWORD=password
+ENV KC_DB_DATABASE=keycloak
+
+
+WORKDIR /opt/keycloak
+# apenas para efeitos de demonstração, certifique-se de que utiliza certificados adequados na produção
+RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA -keysize 2048 -dname "CN=server" -alias server -ext "SAN:c=DNS:localhost,IP:127.0.0.1" -keystore conf/server.keystore
+RUN /opt/keycloak/bin/kc.sh build
+
+FROM quay.io/keycloak/keycloak:22.0.1
+COPY --from=builder /opt/keycloak/ /opt/keycloak/
+
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]

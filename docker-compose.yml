@@ -4,28 +4,28 @@ version: '3.7'
 
 services:
 
-# Autenticacao e Autirizacao
-  secude-mysql-auth:
+## Autenticacao e Autirizacao
+
+  # MySQL
+  secedu-mysql-auth:
     image: mysql:8.0.30-debian
     container_name: secude-mysql-auth
     restart: always
     environment:
-      - MYSQL_DATABASE=keycloak
+      - MYSQL_DATABASE=secedu
       - MYSQL_PASSWORD=ep4X1!br
     volumes:
       - ./volumes/mysql:/var/lib/mysql
-    ports:
-      - "3306:3306"
     networks:
-      - secedu_dj_network
+      - secedu_kc_network
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 10s
-      retries: 1
-      #start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 3
 
-  secedu-auth-api:
+  # Keycloak
+  secedu-key-auth:
     image: quay.io/keycloak/keycloak:22.0.1
     command: start-dev
     container_name: secedu-auth-api
@@ -34,76 +34,85 @@ services:
         condition: service_healthy
     #restart: always
     environment:
-      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN=secedu
       - KEYCLOAK_ADMIN_PASSWORD=ep4X1!br
       # altere estes valores para apontar para uma instância postgres em execução
       - KC_DB=mysql
-      - KC_DB_URL=jbdc:mysql://secedu-mysql-auth:3306/keycloak
-      - KC_DB_USERNAME=root
+      - KC_DB_ADDR=secedu-mysql-auth
+      - KC_DB_HOST=secedu-mysql-auth
+      - KC_DB_PORT=3306
+      - KC_DB_NAME=secedu
+      - KC_DB_URL=jbdc:mysql://secedu-mysql-auth:3306/secedu
+      - KC_DB_USERNAME=secedu
       - KC_DB_PASSWORD=ep4X1!br
-      #- KC_HOSTNAME=localhost
     volumes:
       - ./volumes/auth/realm/:opt/keycloak/data/import
     ports:
       - "8000:8000"
     networks:
       - secedu_dj_network
+      - secedu_kc_network
 
-# Start api-web-django:
+  # Postgres
   secedu-pg-api:
     image: postgres
     container_name: secedu-pg-api
     restart: always
     environment:
-      - POSTGRES_DB=sippe
-      - POSTGRES_USER=sippe
-      - POSTGRES_PASSWORD=sippe2023
+      - POSTGRES_DB=secedu
+      - POSTGRES_USER=secedu
+      - POSTGRES_PASSWORD=ep4X1!br
     volumes:
-      - './postgres:/var/lib/postgresql/data'
+      - './volumes/postgres:/var/lib/postgresql/data'
     networks:
       - secedu_dj_network
 
+  # Django
   secedu-dj-api:
     build:
-      context: .
-      dockerfile: Dockerfile.Develop
+      context: ./secedu-dj-api/
+      dockerfile: Dockerfile
     container_name: secedu-dj-api
     depends_on:
       - secedu-pg-api
+      - secedu-rmq-task
     restart: always
     environment:
-      - PGDATABASE=sippe
-      - PGUSER=sippe
-      - PGPASSWORD=sippe2023
+      - PGDATABASE=secedu
+      - PGUSER=secedu
+      - PGPASSWORD=ep4X1!br
       - PGHOST=secedu-pg-api
       - PGPORT=5432
       - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
       - MYDEBUG=False
     volumes:
       - ./secedu-dj-api:/api
+      - ./volumes/dataset:/api/medias/dataset
     ports:
-      - "8000:8000"
+      - "9000:9000"
     networks:
-      - secedu_dj_networkv
+      - secedu_dj_network
   
-# Start api-face-flask:
-  secedu-fk-api:
+  # Flask
+  secedu-fk-task:
     build: 
-      context: ./api/
-      dockerfile: Dockerfile.Django
-    container_name: secedu-fk-api
+      context: ./secedu-fk-task/api/
+      dockerfile: Dockerfile
+    container_name: secedu-fk-task
     depends_on:
-      - redis-stack
+      - secedu-rds-tack
       - secedu-rmq-task
     restart: always
     volumes:
-      - ./api/app:/app
+      - ./secedu-fk-task/api/app:/app
+      - ./volumes/dataset:/app/dataset
     ports:
       - "5000:5000"
     networks:
-      - secedu_fk_network
-      - secedu_task_network
-
+      - secedu_rmq_network
+      - secedu_rds_network
+  
+  # RabbitMQ
   secedu-rmq-task:
     image: rabbitmq:3-management
     container_name: secedu-rmq-task
@@ -111,49 +120,35 @@ services:
     volumes:
       - ./volumes/rabbitMQ:/var/lib/rabbitmq/mnesia
     environment:
-      - RABBITMQ_DEFAULT_USER=sippe
+      - RABBITMQ_DEFAULT_USER=secedu
       - RABBITMQ_DEFAULT_PASS=ep4X1!br
     ports:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - secedu_task_network
+      - secedu_rmq_network
   
-  # Start Redis-Stack RediSearch 
+  # Redis-Stack RediSearch 
   secedu-rds-tack:
     image:  redis/redis-stack:latest
     container_name: secedu-rds-tack
     restart: always
     volumes:
-        - ./volumes/redisearch-docker/dataset:/dataset
         - ./volumes/redis:/data
     ports:
         - "6379:6379" 
         - "8001:8001" 
     networks:
-        - face_task_network
-  
-  jobs-videos:
-    build: 
-      context: ./jobs/
-      dockerfile: Dockerfile.Jobs
-    container_name: jobs-videos
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./api/app:/app
-    depends_on:
-      - redis-stack
-      - rabbitmq
-    networks:
-      - face_task_network
+        - secedu_rds_network
 
 networks:
-  secedu_fk_network:
-    driver: bridge
-  secedu_task_network:
+  secedu_kc_network:
     driver: bridge
   secedu_dj_network:
+    driver: bridge
+  secedu_rds_network:
+    driver: bridge
+  secedu_rmq_network:
     driver: bridge
 
 
