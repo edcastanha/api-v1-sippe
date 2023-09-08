@@ -44,7 +44,7 @@ services:
     volumes:
         - ./volumes/auth/realm/:/opt/keycloak/data/realm
     ports:
-      - "8000:8000"
+      - "8000:8080"
     networks:
       - secedu_dj_network
       - secedu_kc_network
@@ -93,7 +93,7 @@ services:
   secedu-fk-task:
     #image: secedu-fk-task:latest
     build: 
-      context: ./secedu-fk-task/api/
+      context: ./secedu-fk-task/app/
       dockerfile: Dockerfile
     container_name: secedu-fk-task
     depends_on:
@@ -101,7 +101,7 @@ services:
       - secedu-rmq-task
     restart: always
     volumes:
-      - ./secedu-fk-task/api/app:/app
+      - ./secedu-fk-task/app/api/:/app
       - ./volumes/dataset:/app/dataset
     ports:
       - "5000:5000"
