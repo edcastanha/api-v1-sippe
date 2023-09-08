@@ -13,6 +13,7 @@ router.registry.extend(cameras_router.registry)
 
 #URLS DE ADMIN e SITE
 urlpatterns = [
+    path('', include('admin_soft.urls')),
     path('admin/', admin.site.urls), #ADMIN
     path('api/', include(router.urls)), #API REST
 ]

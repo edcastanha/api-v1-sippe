@@ -1,0 +1,11 @@
+#Script para makemigrations e migrate do Django
+# Autor: Edson Lourenço
+# Data: 07/09/2023
+
+python manage.py makemigrations --noinput 
+
+python manage.py migrate --noinput 
+
+python manage.py collectstatic --noinput 
+
+gunicorn --workers=1 --timeout=3600 --bind=0.0.0.0:9000 core.wsgi

@@ -1,7 +1,5 @@
 *.pem
-docker-compose.yml
-Dockerfile*
-Dockerfile-*
+Dockerfile
 *.tar
 *.gz
 .gitignore

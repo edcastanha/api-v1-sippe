@@ -16,7 +16,4 @@ RUN pip install -r requirements.txt
 
 COPY ./ /api/
 
-CMD python manage.py migrate --noinput || exit 1 && \
-    python manage.py collectstatic --noinput || exit 1 && 
-
-CMD gunicorn --workers=1 --timeout=3600 --bind=0.0.0.0:9000 core.wsgi
+CMD ["python", " setup.py "]

@@ -1,16 +1,16 @@
-{% load i18n static  %}
+{% load i18n static admin_soft %}
 {% get_current_language as LANGUAGE_CODE %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 {% get_direction as direction %}
 {% get_admin_setting as admin_setting %}
 
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}">
+<html lang="{{ LANGUAGE_CODE|default:"pt-br" }}">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>
-      Soft UI Dashboard - {% block title %}{% endblock %}
+      SeEdu Dashboard - {% block title %}{% endblock %}
     </title>
 
     <!-- Favicon -->
