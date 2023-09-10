@@ -10,5 +10,5 @@ router.register(r'locais', LocaisViewSet, basename='locais')
 router.register(r'frequencias', FrequenciasViewSet, basename='frequencias')
 
 urlpatterns = [
-    path('api/v1/', include(router.urls)), #API REST
+    path('', include(router.urls)), #API REST
 ]

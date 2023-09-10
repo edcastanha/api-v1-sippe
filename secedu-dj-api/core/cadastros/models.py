@@ -7,12 +7,15 @@ from django.dispatch import receiver
 import os
 
 # MODELO BASE
+
+
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
+
 
 class Contratos(baseModel):
     protocolo = models.CharField(max_length=100)
@@ -26,10 +29,11 @@ class Contratos(baseModel):
     def __str__(self):
         return f"{self.protocolo} - {self.responsavel}"
 
+
 class Escolas(baseModel):
     nome = models.CharField(max_length=100)
     contrato = models.ForeignKey(Contratos, on_delete=models.CASCADE)
-    
+
     class Meta:
         verbose_name_plural = "Escolas"
         verbose_name = "Escola"
@@ -37,14 +41,26 @@ class Escolas(baseModel):
     def __str__(self):
         return self.nome
 
+
 class Turmas(baseModel):
-    CHOICE_PERIODO = (
+    CHOICE_PERIODOS = (
         ('M', 'Matutino'),
         ('V', 'Vespertino'),
         ('O', 'Outros'),
     )
+
     nome = models.CharField(max_length=50)
-    periodo = models.CharField(max_length=12, choices=CHOICE_PERIODO)
+    periodo = models.CharField(max_length=12, choices=CHOICE_PERIODOS)
+    escola = models.ForeignKey(
+        Escolas, on_delete=models.CASCADE, blank=False, null=False)
+
+    class Meta:
+        verbose_name_plural = "Turmas"
+        verbose_name = "Turma"
+
+    def __str__(self):
+        return f"{self.nome} - {self.periodo}"
+
 
 class Pessoas(baseModel):
     CHOICE_SEXO = (
@@ -59,11 +75,11 @@ class Pessoas(baseModel):
         ('E', 'Estudante'),
     )
 
-    turma = models.ForeignKey(Turmas, on_delete=models.CASCADE)
     nome = models.CharField(max_length=100)
     sexo = models.CharField(max_length=1, choices=CHOICE_SEXO)
     perfil = models.CharField(max_length=1, choices=CHOICE_PERFIL)
     ra = models.CharField(max_length=10, blank=True, null=True)
+    turma = models.ForeignKey(Turmas, on_delete=models.CASCADE)
 
     def clean(self):
         super().clean()
@@ -76,14 +92,16 @@ class Pessoas(baseModel):
         verbose_name = "Pessoa"
 
     def __str__(self):
-        return f"{self.nome} - {self.turma.nome}"
+        return f"{self.nome} - {self.ra} - {self.turma.nome} - {self.turma.periodo}"
+
 
 class Fotos(models.Model):
     def get_upload_path(instance, filename):
         return f'fotos/{instance.pessoa.ra}/{filename}'
-    
+
     pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE,)
-    foto = models.ImageField(blank=False, null=False, upload_to=get_upload_path)
+    foto = models.ImageField(blank=False, null=False,
+                             upload_to=get_upload_path)
 
     class Meta:
         verbose_name_plural = "Fotos"
@@ -91,10 +109,11 @@ class Fotos(models.Model):
 
     def __str__(self):
         return f"{self.pessoa.nome} - {self.foto}"
-    
+
     def save(self, *args, **kwargs):
         if Fotos.objects.filter(pessoa=self.pessoa).count() >= 10:
-            raise ValidationError('Este cadastro já possui o limite de 10 fotos.')
+            raise ValidationError(
+                'Este cadastro já possui o limite de 10 fotos.')
         super().save(*args, **kwargs)
 
 
@@ -105,6 +124,7 @@ def foto_pre_delete(sender, instance, **kwargs):
     if instance.foto:
         if os.path.isfile(instance.foto.path):
             os.remove(instance.foto.path)
+
 
 @receiver(pre_save, sender=Fotos)
 def foto_pre_save(sender, instance, **kwargs):
