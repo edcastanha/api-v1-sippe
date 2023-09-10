@@ -113,8 +113,8 @@ body.dark-page label, body.dark-page .form-label {
   color: #d7d7d7 !important;
 }
 body.dark-page input {
-  background-color: rgba(40, 49, 73, 0.6);
-  border-color: rgba(64, 75, 105, 0.6);
+  background-color: rgb(223, 225, 233);
+  border-color: rgba(132, 120, 116, 0.6);
 }
 body.dark-page input.form-control:focus {
   color: #d7d7d7 !important;

@@ -10,12 +10,12 @@ class ContratosSerializer(serializers.ModelSerializer):
 class EscolasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Escolas
-        fields = ['nome', 'cnpj']
+        fields = ['nome', 'contrato']
 
 class PessoasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pessoas
-        fields = ['nome', 'cpf', 'escola', 'sexo', 'perfil']   
+        fields = ['nome', 'turma', 'sexo', 'perfil']   
 
 class FotosSerializer(serializers.ModelSerializer):
     class Meta:

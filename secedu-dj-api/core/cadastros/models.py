@@ -37,6 +37,15 @@ class Escolas(baseModel):
     def __str__(self):
         return self.nome
 
+class Turmas(baseModel):
+    CHOICE_PERIODO = (
+        ('M', 'Matutino'),
+        ('V', 'Vespertino'),
+        ('O', 'Outros'),
+    )
+    nome = models.CharField(max_length=50)
+    periodo = models.CharField(max_length=12, choices=CHOICE_PERIODO)
+
 class Pessoas(baseModel):
     CHOICE_SEXO = (
         ('M', 'Masculino'),
@@ -50,7 +59,7 @@ class Pessoas(baseModel):
         ('E', 'Estudante'),
     )
 
-    escola = models.ForeignKey(Escolas, on_delete=models.CASCADE)
+    turma = models.ForeignKey(Turmas, on_delete=models.CASCADE)
     nome = models.CharField(max_length=100)
     sexo = models.CharField(max_length=1, choices=CHOICE_SEXO)
     perfil = models.CharField(max_length=1, choices=CHOICE_PERFIL)
