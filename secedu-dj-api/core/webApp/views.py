@@ -5,12 +5,12 @@ from core.cadastros.models import Contratos, Pessoas
 
 
 def index(request):
-    latest_contratos_list = Contratos.objects
-    context = {"latest_contratos_list": latest_contratos_list}
+    contratos_list = Contratos.objects
+    context = {"contratos": contratos_list}
     return render(request, "cadastros/index.html", context)
 
 
-# ...
+
 def detail(request, pessoa_id):
     try:
         queryObject = Pessoas.objects.get(pk=question_id)
