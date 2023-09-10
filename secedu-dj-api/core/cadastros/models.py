@@ -76,7 +76,7 @@ class Pessoas(baseModel):
         verbose_name = "Pessoa"
 
     def __str__(self):
-        return f"{self.nome} - {self.escola.nome}"
+        return f"{self.nome} - {self.turma.nome}"
 
 class Fotos(models.Model):
     def get_upload_path(instance, filename):

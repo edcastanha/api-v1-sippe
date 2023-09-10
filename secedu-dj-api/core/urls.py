@@ -5,6 +5,7 @@ from django.conf import settings
 from rest_framework import routers
 from core.cadastros.urls import router as cadastros_router
 from core.cameras.urls import router as cameras_router
+from core.cadastros import urls as CadastrosUrl
 
 #URLs DE API
 router = routers.DefaultRouter()
@@ -15,6 +16,7 @@ router.registry.extend(cameras_router.registry)
 urlpatterns = [
     path('admin/', admin.site.urls), #ADMIN
     path('api/', include(router.urls)), #API REST
+    path('cadastros/', include(CadastrosUrl)),
 ]
 
 # INCLUDES static e media
