@@ -16,7 +16,6 @@ class baseModel(models.Model):
     class Meta:
         abstract = True
 
-
 class Contratos(baseModel):
     protocolo = models.CharField(max_length=100)
     assinado_em = models.DateTimeField()
@@ -41,45 +40,28 @@ class Escolas(baseModel):
     def __str__(self):
         return self.nome
 
-
-class Turmas(baseModel):
-    CHOICE_PERIODOS = (
-        ('M', 'Matutino'),
-        ('V', 'Vespertino'),
-        ('O', 'Outros'),
-    )
-
-    nome = models.CharField(max_length=50)
-    periodo = models.CharField(max_length=12, choices=CHOICE_PERIODOS)
-    escola = models.ForeignKey(
-        Escolas, on_delete=models.CASCADE, blank=False, null=False)
-
-    class Meta:
-        verbose_name_plural = "Turmas"
-        verbose_name = "Turma"
-
-    def __str__(self):
-        return f"{self.nome} - {self.periodo}"
-
-
 class Pessoas(baseModel):
     CHOICE_SEXO = (
-        ('M', 'Masculino'),
-        ('F', 'Feminino'),
-        ('O', 'Outros'),
+        ('Masculino', 'Masculino'),
+        ('Feminino', 'Feminino'),
+        ('Outros', 'Outros'),
     )
 
     CHOICE_PERFIL = (
-        ('T', 'Tutor'),
-        ('C', 'Colaborador'),
-        ('E', 'Estudante'),
+        ('Tutor', 'Tutor'),
+        ('Colaborador', 'Colaborador'),
+        ('Estudante', 'Estudante'),
     )
 
     nome = models.CharField(max_length=100)
-    sexo = models.CharField(max_length=1, choices=CHOICE_SEXO)
-    perfil = models.CharField(max_length=1, choices=CHOICE_PERFIL)
+    sexo = models.CharField(max_length=10, choices=CHOICE_SEXO)
+    perfil = models.CharField(max_length=11, choices=CHOICE_PERFIL)
     ra = models.CharField(max_length=10, blank=True, null=True)
-    turma = models.ForeignKey(Turmas, on_delete=models.CASCADE)
+    #turma = models.ForeignKey(Turmas,
+    #                          on_delete=models.CASCADE,
+    #                          verbose_name='turma',
+    #                          related_name='pessoas',
+    #                          )
 
     def clean(self):
         super().clean()
@@ -92,9 +74,38 @@ class Pessoas(baseModel):
         verbose_name = "Pessoa"
 
     def __str__(self):
-        return f"{self.nome} - {self.ra} - {self.turma.nome} - {self.turma.periodo}"
+        return f"{self.nome} - {self.perfil} - {self.ra}"
+    
+class Turmas(baseModel):
+    CHOICE_PERIODOS = (
+        ('Morning', 'Morning'),
+        ('Afternoon', 'Afternoon'),
+        ('Outros', 'Outros'),
+    )
+
+    nome = models.CharField(max_length=50)
+    periodo = models.CharField(max_length=10, choices=CHOICE_PERIODOS)
+    escola = models.ForeignKey(Escolas, on_delete=models.CASCADE, blank=False, null=False)
+    alunos =models.ManyToManyField(Pessoas, through='Aluno')
+    
+    class Meta:
+        verbose_name_plural = "Turmas"
+        verbose_name = "Turma"
+
+    def __str__(self):
+        return f"{self.nome} - {self.periodo}"
 
 
+class Aluno(baseModel):
+    pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE)
+    turma = models.ForeignKey(Turmas, on_delete=models.CASCADE)
+    
+    class Meta:
+        verbose_name_plural = "Alunos"
+        verbose_name = "Alunos"
+
+    def __str__(self):
+        return f"{self.pessoa.nome} - {self.turma.nome}"
 class Fotos(models.Model):
     def get_upload_path(instance, filename):
         return f'fotos/{instance.pessoa.ra}/{filename}'

@@ -1,5 +1,5 @@
 from django.db import models
-from core.cadastros.models import Escolas, Pessoas
+from core.cadastros.models import Escolas, Aluno
 
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
@@ -32,13 +32,14 @@ class Cameras(baseModel):
         verbose_name = "Câmera"
 
     def __str__(self):
-        return f"{self.descricao} - {self.acesso}"
+        return f"{self.descricao} - {self.modelo}"
 
 class Locais(baseModel):
     ponto = models.ForeignKey(Escolas, on_delete=models.CASCADE)
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
     nome = models.CharField(max_length=100)
     descricao = models.CharField(max_length=100)
+
 
     class Meta:
         verbose_name_plural = "Locais"
@@ -47,15 +48,14 @@ class Locais(baseModel):
     def __str__(self):
         return f"{self.nome} - {self.ponto} - {self.descricao} - {self.camera.descricao}"
 
-class Frequencias(baseModel):
-    pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE)
+class FrequenciasEscolar(baseModel):
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)
     local = models.ForeignKey(Locais, on_delete=models.CASCADE)
     data = models.DateField()
-    hora = models.TimeField()
 
     class Meta:
-        verbose_name_plural = "Frequências"
-        verbose_name = "Frequência"
+        verbose_name_plural = "Frequências Escolar"
+        verbose_name = "Frequência Escolar"
 
     def __str__(self):
-        return f"{self.pessoa.nome} - {self.local.nome} - {self.data} - {self.hora}"
+        return f"{self.aluno.pessoa.nome} - {self.local.nome} - {self.data} - {self.aluno.turma.nome}"
