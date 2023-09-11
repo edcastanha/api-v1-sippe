@@ -40,9 +40,6 @@ def represent():
     except Exception as e:
         return {"error": str(e)}
 
-    
-
-
 @blueprint.route("/verify", methods=["POST"])
 def verify():
     input_args = request.get_json()
@@ -105,3 +102,11 @@ def analyze():
     )
 
     return demographies
+
+@blueprint.route("/trainning", methods=["GET"])
+def trainning():
+    print('trainning route')
+    train = service.trainning()
+
+    return train
+

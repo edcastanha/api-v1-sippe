@@ -21,3 +21,7 @@ prefetch_related('nome do related_name da relacao):
 Ex: pessoas = Pessoas.objects.all()
 for pessoa in pessoas:
     turma = pessoa.turma.all()
+
+
+COMMAND Celery:
+python -m celery -A core worker -l info

@@ -6,9 +6,10 @@ from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 import os
 
+from celery import shared_task
+
+
 # MODELO BASE
-
-
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
@@ -95,7 +96,6 @@ class Turmas(baseModel):
     def __str__(self):
         return f"{self.nome} - {self.periodo}"
 
-
 class Aluno(baseModel):
     pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE)
     turma = models.ForeignKey(Turmas, on_delete=models.CASCADE)
@@ -106,6 +106,7 @@ class Aluno(baseModel):
 
     def __str__(self):
         return f"{self.pessoa.nome} - {self.turma.nome}"
+
 class Fotos(models.Model):
     def get_upload_path(instance, filename):
         return f'fotos/{instance.pessoa.ra}/{filename}'
@@ -127,7 +128,6 @@ class Fotos(models.Model):
                 'Este cadastro já possui o limite de 10 fotos.')
         super().save(*args, **kwargs)
 
-
 # Atualiza files de fotos ao Atualizar ou Excluir Fotos
 @receiver(pre_delete, sender=Fotos)
 def foto_pre_delete(sender, instance, **kwargs):
@@ -136,7 +136,7 @@ def foto_pre_delete(sender, instance, **kwargs):
         if os.path.isfile(instance.foto.path):
             os.remove(instance.foto.path)
 
-
+@shared_task()
 @receiver(pre_save, sender=Fotos)
 def foto_pre_save(sender, instance, **kwargs):
     # Atualiza o arquivo de imagem quando o registro é atualizado
