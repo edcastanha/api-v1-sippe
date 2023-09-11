@@ -4,7 +4,7 @@ from tqdm import tqdm
 import redis
 
 class Trainning:
-    def __init__(self, dir_db_img, redis_host='localhost', redis_port=6379, redis_pass=None, redis_db=0, img_path='dataset'):
+    def __init__(self, dir_db_img, redis_host='localhost', redis_port=6379, redis_pass='ep4X1!br', redis_db=0, img_path='dataset'):
         self.dir_db_img = dir_db_img
         self.redis_host = redis_host
         self.redis_port = redis_port

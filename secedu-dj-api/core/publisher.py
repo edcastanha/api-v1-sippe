@@ -1,7 +1,7 @@
 import pika
 import json
 
-class RabbitMQPublisher:
+class TrainPublisher:
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
@@ -11,9 +11,7 @@ class RabbitMQPublisher:
             )
         )
         self.channel = self.connection.channel()
-
         self.queue_name = 'face'
-        #self.channel.queue_declare(queue=self.queue_name)
 
     def publish(self, snapshot_path, timestamp):
         # Cria um dicionário com as chaves "snapshot_path", "timestamp" e "url"

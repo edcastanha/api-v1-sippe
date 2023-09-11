@@ -18,7 +18,7 @@ sys.stdout.write("redis port em " + str(redis_port))
 server_port = int(environ.get('SERVER_PORT', "8087"))
 sys.stdout.write("server port em " + str(server_port))
 
-redis_index = environ.get('REDIS_INDEX', "idx:movie")
+redis_index = environ.get('REDIS_INDEX', "idx:movies")
 sys.stdout.write("redis index em " + redis_index)
 
 redis_password = environ.get('REDIS_PASSWORD', "")

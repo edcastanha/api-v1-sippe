@@ -4,7 +4,6 @@ version: '3.7'
 
 services:
 
-## Autenticacao e Autirizacao
   # Postgres
   secedu-pg-api:
     image: postgres
@@ -86,7 +85,7 @@ services:
   
   # Redis-Stack RediSearch 
   secedu-rds-tack:
-    image:  redis/redis-stack-server:latest
+    image:  redis/redis-stack
     container_name: secedu-rds-tack
     restart: always
     volumes:

@@ -54,12 +54,6 @@ class Pessoas(baseModel):
     nome = models.CharField(max_length=100)
     sexo = models.CharField(max_length=10, choices=CHOICE_SEXO)
     perfil = models.CharField(max_length=11, choices=CHOICE_PERFIL)
-    ra = models.CharField(max_length=10, blank=True, null=True)
-    #turma = models.ForeignKey(Turmas,
-    #                          on_delete=models.CASCADE,
-    #                          verbose_name='turma',
-    #                          related_name='pessoas',
-    #                          )
 
     def clean(self):
         super().clean()
@@ -81,10 +75,16 @@ class Turmas(baseModel):
         ('Outros', 'Outros'),
     )
 
+    CHOICE_ENSINO =(
+        ('Children', 'Infantil'),
+        ('Elementary School', 'Fundamental I'),
+    )
+
     nome = models.CharField(max_length=50)
     periodo = models.CharField(max_length=10, choices=CHOICE_PERIODOS)
     escola = models.ForeignKey(Escolas, on_delete=models.CASCADE, blank=False, null=False)
-    alunos =models.ManyToManyField(Pessoas, through='Aluno')
+    alunos = models.ManyToManyField(Pessoas, through='Aluno')
+    ensino = models.CharField(max_length=20, choices=CHOICE_ENSINO)
     
     class Meta:
         verbose_name_plural = "Turmas"
@@ -96,13 +96,14 @@ class Turmas(baseModel):
 class Aluno(baseModel):
     pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE)
     turma = models.ForeignKey(Turmas, on_delete=models.CASCADE)
-    
+    matricula = models.CharField(max_length=10)
+
     class Meta:
         verbose_name_plural = "Alunos"
         verbose_name = "Alunos"
 
     def __str__(self):
-        return f"{self.pessoa.nome} - {self.turma.nome}"
+        return f"{self.pessoa.nome} - {self.matricula} - {self.turma.nome}"
 
 class Fotos(models.Model):
     def get_upload_path(instance, filename):

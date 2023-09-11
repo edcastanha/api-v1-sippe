@@ -6,22 +6,12 @@ from redis.commands.search.field import VectorField, TagField
 from redis.commands.search.query import Query
 import numpy as np
 from tqdm import tqdm
-#import matplotlib.pyplot as plt
 import cv2
 
 DIR_PATH = 'dataset/'
-
-#r = redis.Redis(
-#    host='redis-10400.c228.us-central1-1.gce.cloud.redislabs.com',
-#    port=10400,
-#    password='V4ISEGUOOBESRpSmNnmutxF5K58vbjZ2',
-#    ssl = False,
-#)
-r = redis.Redis(
-    host='secedu-rds-tack',
-    port=6379,
-    db=0
-    )
+DIR_CAP = 'capturas/'
+NAME_MOD = "DeepFace"
+BACK_DETECTOT = "opencv"
 
 def represent(img_path, model_name, detector_backend, enforce_detection, align):
     result = {}
@@ -62,9 +52,10 @@ def analyze(img_path, actions, detector_backend, enforce_detection, align):
     return result
 
 def trainning():
+    r = redis.Redis( host='secedu-rds-tack', port=6379)
     message =  [ DIR_PATH ]
-    name_model = "DeepFace"
-    backend_detector = "opencv"
+    name_model = NAME_MOD
+    backend_detector = BACK_DETECTOT
     peso , dims = findThreshold(name_model)
     keysDB = r.keys()
     if len(keysDB) > 0:
@@ -133,37 +124,55 @@ def findThreshold(model_name):
     threshold = 64
   return [threshold, dims]
 
-def validation():
-    k = 1
-    base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
-    query = Query(base_query).return_fields("path", "distance").sort_by("distance").dialect(2)
-    results = r.ft().search(query, query_params={"query_vector": query_vector})
+def validation(img):
+    result = {}
+    name_model = NAME_MOD
+    backend_detector = BACK_DETECTOT
+    peso , dims = findThreshold(name_model)
+    target_img = img
+    r = redis.Redis( host='secedu-rds-tack', port=6379)
+    
+    if target_img.endswith((".png", ".jpg", ".jpeg")):
 
-    for idx, result in enumerate(results.docs):
-        id = result.id
-        foto = f"{DIR_PATH}/{result.id}/{result.path}"
-        distancia = float(result.distance)
-        print(
-            f"{idx + 1}* vizinho mais próximo é {id} com distância {distancia}"
-            )
-        if distancia >= peso:
-            resultado = DeepFace.verify(target_img,
-                                        foto,
-                                        model_name=name_model,
-                                        detector_backend=backend_detector
-                                        )
-            print(resultado)
-            verify = resultado['verified']
-            distancia = resultado['distance']
-            thresh = resultado['threshold']
+        target_embedding = DeepFace.represent(
+            img_path=target_path,
+            model_name=name_model,
+            detector_backend=backend_detector,
+            )[0]["embedding"]
 
-            print(f"Verify: {verify} e distancia: {distancia} / {thresh} x {peso}")
-            if verify == True:
-                img2 = cv2.imread(foto)
-                plt.imshow(img2[:, :, ::-1])
-                plt.axis("off")
-                plt.show()
+        query_vector = np.array(target_embedding).astype(np.float32).tobytes()
 
-                print("----------<<>>-----------")
+        k = 1
+        base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
+        query = Query(base_query).return_fields("path", "distance").sort_by("distance").dialect(2)
+        results = r.ft().search(query, query_params={"query_vector": query_vector})
+
+        for idx, result in enumerate(results.docs):
+            id = result.id
+            foto = f"{DIR_PATH}/{result.id}/{result.path}"
+            distancia = float(result.distance)
+            print(
+                f"{idx + 1}* vizinho mais próximo é {id} com distância {distancia}"
+                )
+            if distancia >= peso:
+                resultado = DeepFace.verify(target_img,
+                                            foto,
+                                            model_name=name_model,
+                                            detector_backend=backend_detector
+                                            )
+                print(resultado)
+                verify = resultado['verified']
+                distancia = resultado['distance']
+                thresh = resultado['threshold']
+
+                print(f"Verify: {verify} e distancia: {distancia} / {thresh} x {peso}")
+                if verify == True:
+                    img2 = cv2.imread(foto)
+                    plt.imshow(img2[:, :, ::-1])
+                    plt.axis("off")
+                    plt.show()
+
+            result["results"] = verify
+    return result
 
 

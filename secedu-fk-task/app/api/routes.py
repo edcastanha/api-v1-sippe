@@ -76,7 +76,6 @@ def verify():
 
     return verification
 
-
 @blueprint.route("/analyze", methods=["POST"])
 def analyze():
     input_args = request.get_json()
@@ -110,3 +109,9 @@ def trainning():
 
     return train
 
+@blueprint.route("/validation", methods=["GET"])
+def trainning():
+    print('validation route')
+    train = service.validation()
+
+    return train
