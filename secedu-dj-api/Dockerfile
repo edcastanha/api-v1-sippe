@@ -16,4 +16,4 @@ RUN pip install -r requirements.txt
 
 COPY ./ /api/
 
-CMD ["python", " setup.py "]
+RUN chmod +x entrypoint.sh

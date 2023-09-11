@@ -63,12 +63,28 @@ services:
     networks:
       - secedu_dj_network
 
+  # PROXY
+  secedu-nginx:
+    build:
+      context: ./secedu-nginx/
+      dockerfile: Dockerfile
+    container_name: secedu-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./secedu-dj-api/static:/static
+    depends_on:
+      - secedu-dj-api
+    networks:
+      - secedu_dj_network
+
   # Django
   secedu-dj-api:
     build:
       context: ./secedu-dj-api/
       dockerfile: Dockerfile
     container_name: secedu-dj-api
+    command: "./entrypoint.sh"
     depends_on:
       - secedu-pg-api
       - secedu-rmq-task
@@ -88,8 +104,7 @@ services:
       - "9000:9000"
     networks:
       - secedu_dj_network
-    #command: ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:9000", "core.wsgi"]
-    command: ["python", "manage.py", "runserver", "0.0.0.0:9000"]
+
   # Flask
   secedu-fk-task:
     #image: secedu-fk-task:latest
