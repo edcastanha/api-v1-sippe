@@ -25,10 +25,10 @@ redis_password = environ.get('REDIS_PASSWORD', "")
 
 # conn = redis.StrictRedis(redis_server, redis_port)
 if redis_password is not None:
-    print("REDIS CONNECTION is not None PASSWORD")
+    print("REDIS CONNECTION não é None PASSWORD")
     conn = redis.Redis(redis_server, redis_port, password=redis_password, charset="utf-8", decode_responses=True)
 else:
-    print("REDIS CONNECTION PASSWORD")
+    print("SENHA DE LIGAÇÃO AO REDIS")
     conn = redis.Redis(redis_server, redis_port, charset="utf-8", decode_responses=True)
 
 app = Flask(__name__)
@@ -38,11 +38,39 @@ CORS(app)
 @app.before_request
 @app.route('/')
 def home():
-    return {"status": "Python REST Servicve is UP", "api": "/api/1.0/search"}
+    return {"status": "Python REST Servicve é UP", "api": "/api/1.0/search"}
 
 
-@app.route('/api/1.0/movies/search')
-def search():
+@app.route('/api/1.0/detection')
+def detection():
+
+LIST_KEY = "detections"
+
+JOBS = [
+    "sippe1",
+    "sippe2",
+    "sippe3",
+]
+
+r = redis.Redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"), decode_responses = True)
+
+r.delete(LIST_KEY)
+
+while True:
+    job = {
+        "room": random.randint(100, 500),
+        "job": random.choice(JOBS)
+    }
+
+    payload = json.dumps(job)
+    list_length = r.lpush(LIST_KEY, payload)
+
+    print("Added:")
+    print(payload)
+    print(f"Queue length is {list_length}")
+    time.sleep(random.randint(1, 8))
+
+### <<<----    ---->>>
     offset = 0;
     limit = 10;
     queryString = "";
