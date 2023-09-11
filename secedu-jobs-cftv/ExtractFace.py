@@ -95,5 +95,5 @@ class ExtractFace:
             print("Erro:", e)
 
 if __name__ == '__main__':
-    job = ExtractFace(intervalo=10, url="B:/SIPPE/Videos/SimPlay20230829135807.dav", camera_id="Sippe3")
+    job = ExtractFace(intervalo=10, url=rtsp, camera_id="Sippe3")
     job.run_task()

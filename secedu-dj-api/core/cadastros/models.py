@@ -6,9 +6,6 @@ from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 import os
 
-from celery import shared_task
-
-
 # MODELO BASE
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
@@ -136,7 +133,6 @@ def foto_pre_delete(sender, instance, **kwargs):
         if os.path.isfile(instance.foto.path):
             os.remove(instance.foto.path)
 
-@shared_task()
 @receiver(pre_save, sender=Fotos)
 def foto_pre_save(sender, instance, **kwargs):
     # Atualiza o arquivo de imagem quando o registro é atualizado
