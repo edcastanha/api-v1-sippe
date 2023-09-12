@@ -57,4 +57,11 @@ conda activate tensoflow-gpu
 
 conda install -c conda-forge cudatoolkit=11.2 cudnn=8.1.0
 
-conda install tensorflow==2.10
+pip install tensorflow==2.10
+
+## Exporta requerimentos do projeto
+conda env export > environment.yml
+
+
+conda install -c conda-forge  ....
+
