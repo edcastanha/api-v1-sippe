@@ -12,10 +12,12 @@ class RabbitMQPublisher:
         )
         self.channel = self.connection.channel()
 
-        self.queue_name = 'face'
+        self.queue_name = ''
         #self.channel.queue_declare(queue=self.queue_name)
 
-    def publish(self, snapshot_path, timestamp):
+    def call(self, snapshot_path, timestamp, queue_name ):
+
+        self.queue_name = queue_name
         # Cria um dicionário com as chaves "snapshot_path", "timestamp" e "url"
         message_dict = {
             "snapshot_path": snapshot_path,

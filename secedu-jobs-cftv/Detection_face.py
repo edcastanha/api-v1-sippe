@@ -2,18 +2,21 @@ import cv2
 import os
 import time
 import datetime
-from RabbitMQPublisher import RabbitMQPublisher
+
+#Class Local
+import Publisher
+
 #import tensorflow as tf
 from retinaface import RetinaFace
 
 # Configurando uso de GPU e limites de memória
 # https://www.tensorflow.org/guide/gpu
 # https://www.tensorflow.org/guide/gpu#limiting_gpu_memory_growth
-publisher = RabbitMQPublisher()
+publisher = Publisher()
 
 #gpus = tf.config.list_physical_devices('GPU')
 
-dir_img = "B:\SIPPE\Capturas\Snapshot"
+dir_img = "capturas/"
 video = "B:/SIPPE/Videos/SimPlay20230829135807.dav"
 rtsp = "rtsp://admin:ep4X1!br@192.168.15.200:554/user=admin_password=ep4X1!br_channel=0_stream=0.sdp?real_stream"
 
