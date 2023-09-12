@@ -50,14 +50,15 @@ conda activate env1  ------->>>>> nome do ambiente criar
 conda list  ----->>>> Lista os pacotes do ambiente
 
 
-
+# Iniciando 
 conda create --name tensorflow-gpu python = 3.10
 
 conda activate tensoflow-gpu
-
-conda install -c conda-forge cudatoolkit=11.2 cudnn=8.1.0
-
+### Install
+conda install -c conda-forge cudatoolkit=11.2.2 cudnn=8.1.0
 pip install tensorflow==2.10
+conda install -c esgf-forge pika
+conda install -c conda-forge retina-face
 
 ## Exporta requerimentos do projeto
 conda env export > environment.yml

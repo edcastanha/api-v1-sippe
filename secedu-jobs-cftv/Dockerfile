@@ -15,7 +15,7 @@ COPY ./ /app/
 # update image os
 RUN apt-get update
 
-RUN pip install requirements.txt
+RUN pip install cudatoolkit=11.2
 # -----------------------------------
 # environment variables
 ENV PYTHONUNBUFFERED=1

@@ -2,7 +2,7 @@ import cv2
 import os
 import time
 import datetime
-from RabbitMQPublisher import RabbitMQPublisher
+import Publisher
 import tensorflow as tf
 from deepface import DeepFace
 
