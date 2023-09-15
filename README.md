@@ -66,3 +66,6 @@ conda env export > environment.yml
 
 conda install -c conda-forge  ....
 
+
+
+# Escolha o número de réplicas conforme necessário

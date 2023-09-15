@@ -15,6 +15,8 @@ services:
       - POSTGRES_PASSWORD=ep4X1!br
     volumes:
       - './volumes/postgres:/var/lib/postgresql/data'
+    ports:
+      - 54329:5432
     networks:
       - secedu_dj_network
 
@@ -41,28 +43,26 @@ services:
       - ./secedu-dj-api:/api
       - ./volumes/dataset:/api/medias/fotos/
     ports:
-      - "9000:9000"
+      - "7000:9000"
     networks:
       - secedu_dj_network
       - secedu_rmq_network
       - secedu_rds_network
 
   # Flask
-  secedu-fk-task:
-    #image: secedu-fk-task:latest
-    build: 
-      context: ./secedu-fk-task/app/
-      dockerfile: Dockerfile
-    container_name: secedu-fk-task
+  secedu-task:
+    image: extrator-face:0.0.4
+    command: python consumer-extrair-faces-files.py
+    deploy:
+      mode: replicas # Escolha o número de réplicas conforme necessário
+      replicas: 2
     depends_on:
       - secedu-rds-tack
       - secedu-rmq-task
     restart: always
     volumes:
-      - ./secedu-fk-task/app/api/:/app
-      - ./volumes/dataset/:/app/dataset
-    ports:
-      - "5000:5000"
+      - ./volumes/capturas/:/app/capturas
+      - ./volumes/ftp/:/app/ftp
     networks:
       - secedu_rmq_network
       - secedu_rds_network
@@ -91,14 +91,12 @@ services:
     volumes:
         - ./volumes/redis:/data
     ports:
-        - "6379:6379" 
-        - "8001:8001" 
+        - "63799:6379" 
+        - "80019:8001" 
     networks:
         - secedu_rds_network
 
 networks:
-  secedu_kc_network:
-    driver: bridge
   secedu_dj_network:
     driver: bridge
   secedu_rds_network:

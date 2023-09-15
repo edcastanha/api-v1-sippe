@@ -31,6 +31,10 @@ else:
     print("SENHA DE LIGAÇÃO AO REDIS")
     conn = redis.Redis(redis_server, redis_port, charset="utf-8", decode_responses=True)
 
+r = redis.Redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"), decode_responses = True)
+
+r.delete(LIST_KEY)
+
 app = Flask(__name__)
 CORS(app)
 
@@ -52,9 +56,6 @@ JOBS = [
     "sippe3",
 ]
 
-r = redis.Redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"), decode_responses = True)
-
-r.delete(LIST_KEY)
 
 while True:
     job = {
