@@ -8,3 +8,6 @@ Dockerfile-*
 pyproject.toml
 
 .ebextensions/*
+
+**/volumes/
+**/ftp/

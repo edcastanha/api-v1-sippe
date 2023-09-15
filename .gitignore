@@ -10,7 +10,7 @@ __pycache__/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media
+**/media
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
@@ -314,6 +314,12 @@ $RECYCLE.BIN/
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
 # Docker
-configs
+**/configs/
 app/assets
 db.sqlite3
+**/ftp/
+**/secedu-fk-task/ftp/
+
+**volumes/
+**/volumes/
+**./volumes/
