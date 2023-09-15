@@ -1,0 +1,11 @@
+*.pem
+Dockerfile
+*.tar
+*.gz
+.gitignore
+pyproject.toml
+
+.ebextensions/*
+
+**/volumes/
+**/ftp/

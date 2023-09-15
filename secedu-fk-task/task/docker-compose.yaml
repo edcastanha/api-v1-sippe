@@ -1,0 +1,27 @@
+#DOCKER COMPOSE
+#docker-compose up -d
+version: '3.7'
+
+services:
+  task:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python consumer-extrair-faces-files.py
+  #  deploy:
+  #    mode: replicas # Escolha o número de réplicas conforme necessário
+  #    replicas: 2
+    restart: always
+    volumes:
+      - ./:/app
+      - ../volumes/capturas/:/app/capturas
+      - ../volumes/ftp/:/app/ftp
+      - ../volumes/dataset/:/app/dataset
+    networks:
+      - task-net
+    ports:
+      - 8888:8888
+      
+networks:
+  task-net:
+

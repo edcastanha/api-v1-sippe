@@ -1,6 +1,0 @@
-Django
-djangorestframework
-Pillow
-psycopg2
-djongo
-dnspython

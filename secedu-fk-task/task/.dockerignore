@@ -1,0 +1,19 @@
+# Arquivos de build e cache do Python
+__pycache__
+*.pyc
+*.pyo
+
+# Arquivos de sistema
+.DS_Store
+
+# Arquivos e diretórios específicos do seu projeto
+venv/
+*.log
+*.db
+*.log
+capturas/
+ftp/
+dataset/
+
+# Diretórios específicos para outras ferramentas
+node_modules/

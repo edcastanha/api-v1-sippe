@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  
+  # RabbitMQ
+  rmq-task:
+    image: rabbitmq:3-management
+    container_name: rmq-task
+    restart: always
+    volumes:
+      - ./volumes/rabbitMQ:/var/lib/rabbitmq/mnesia
+    environment:
+      - RABBITMQ_DEFAULT_USER=secedu
+      - RABBITMQ_DEFAULT_PASS=ep4X1!br
+    networks:
+      - task-net  
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  
+  # Redis-Stack RediSearch 
+  rds-tack:
+    image:  redis/redis-stack
+    container_name: rds-tack
+    restart: always
+    volumes:
+        - ./volumes/redis:/data
+    networks:
+      - task-net  
+    ports:
+        - "6379:6379" 
+        - "8005:8001" 
+
+networks:
+  task-net:

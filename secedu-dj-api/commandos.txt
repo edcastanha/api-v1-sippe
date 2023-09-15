@@ -1,0 +1,33 @@
+#Script para makemigrations e migrate do Django
+# Autor: Edson Lourenço
+# Data: 07/09/2023
+
+python manage.py makemigrations --noinput 
+
+python manage.py migrate --noinput 
+
+python manage.py collectstatic --noinput 
+
+gunicorn --workers=1 --timeout=3600 --bind=0.0.0.0:9000 core.wsgi
+
+
+QUERYS:
+select_related('nome do campo que recebe a ForeignKey):
+(JOIN) Objetivo e realizar uma unica query de moduls relacionado
+
+
+# Relacionamento Reverso:
+prefetch_related('nome do related_name da relacao):
+Ex: pessoas = Pessoas.objects.all()
+for pessoa in pessoas:
+    turma = pessoa.turma.all()
+
+
+COMMAND Celery:
+python -m celery -A core worker -l info
+
+
+
+Tensorflow-gpu-jupter:::
+
+docker run -it --rm tensorflow/tensorflow:latest-gpu-jupyter python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"

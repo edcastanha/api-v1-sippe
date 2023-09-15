@@ -1,37 +1,60 @@
+#DOCKER COMPOSE
+#docker-compose up -d
 version: '3.7'
 
 services:
-  api-db:
-      image: postgres
-      container_name: api-db
-      restart: always
-      volumes:
-        - './configs/db/dbApi/:/var/lib/postgresql/data'
-      environment:
-        - POSTGRES_DB=sippe
-        - POSTGRES_USER=sippe
-        - POSTGRES_PASSWORD=sippe2023
-      ports:
-        - "54333:5433"
 
-  api-server:
-    build:
-      context: .
-      dockerfile: Dockerfile-develop
-    container_name: api-server
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./app/:/app/
-    ports:
-      - "8282:8000"
+  # Postgres
+  secedu-pg-api:
+    image: postgres
+    container_name: secedu-pg-api
+    restart: always
     environment:
-      - PGDATABASE=sippe
-      - PGUSER=sippe
-      - PGPASSWORD=sippe2023
-      - PGHOST=api-db
-      - PGPORT=5433
+      - POSTGRES_DB=secedu
+      - POSTGRES_USER=secedu
+      - POSTGRES_PASSWORD=ep4X1!br
+    volumes:
+      - './volumes/postgres:/var/lib/postgresql/data'
+    ports:
+      - 54329:5432
+    networks:
+      - secedu_dj_network
+
+  # Django
+  secedu-dj-api:
+    build:
+      context: ./secedu-dj-api/
+      dockerfile: Dockerfile
+    container_name: secedu-dj-api
+    command: "./entrypoint.sh"
+    depends_on:
+      - secedu-pg-api
+      - secedu-rmq-task
+    restart: always
+    environment:
+      - PGDATABASE=secedu
+      - PGUSER=secedu
+      - PGPASSWORD=ep4X1!br
+      - PGHOST=secedu-pg-api
+      - PGPORT=5432
       - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
       - MYDEBUG=False
+    volumes:
+      - ./secedu-dj-api:/api
+      - ./volumes/dataset:/api/medias/fotos/
+    ports:
+      - "7000:9000"
+    networks:
+      - secedu_dj_network
+      - secedu_rmq_network
+      - secedu_rds_network
+
+  # Flask
+  secedu-task:
+    image: extrator-face:0.0.4
+    command: python consumer-extrair-faces-files.py
+    deploy:
+      mode: replicas # Escolha o número de réplicas conforme necessário
+      replicas: 2
     depends_on:
       - api-db
-

@@ -323,3 +323,13 @@ db.sqlite3
 **volumes/
 **/volumes/
 **./volumes/
+*/api/configs
+*/api/assets
+*/api/db.sqlite3
+*/volumes
+volumes/*
+
+
+**volumes/
+**/volumes/
+**./volumes/
