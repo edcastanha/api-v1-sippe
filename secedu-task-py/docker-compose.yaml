@@ -1,0 +1,29 @@
+#DOCKER COMPOSE
+#docker-compose up -d
+version: '3.10'
+
+services:
+  task-py:
+    build:
+      context: .
+      dockerfile: Dockerfile
+  #  command: python consumer-extrair-faces-files.py
+  #  deploy:
+  #    mode: replicas # Escolha o número de réplicas conforme necessário
+  #    replicas: 2
+    restart: always
+    volumes:
+      - ./task:/app/
+      - ../volumes/capturas/:/app/capturas/
+      - ../volumes/db_file/:/app/db_file/
+      - ../volumes/ftp/:/app/ftp/
+
+    networks:
+      - secedu_rmq_network
+      - secedu_rds_network
+    ports:
+      - 8888:8888
+      
+networks:
+    secedu_rmq_network:
+    secedu_rds_network:

@@ -317,19 +317,6 @@ $RECYCLE.BIN/
 **/configs/
 app/assets
 db.sqlite3
-**/ftp/
-**/secedu-fk-task/ftp/
-
 **volumes/
-**/volumes/
-**./volumes/
-*/api/configs
-*/api/assets
-*/api/db.sqlite3
-*/volumes
-volumes/*
-
-
-**volumes/
-**/volumes/
-**./volumes/
+**/dataset/
+**/Modelo Redis e Keycloak HTML/repo/app/icon/
