@@ -16,7 +16,7 @@ services:
     volumes:
       - '../volumes/postgres/data:/var/lib/postgresql/data'
     ports:
-      - 54329:5432
+      - 5432:5432
     networks:
       - secedu_pg_network
 
@@ -26,10 +26,9 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: secedu-dj-api
-    command: "./entrypoint.sh"
+    command: "sh entrypoint.sh"
     depends_on:
       - secedu-pg-api
-      - secedu-rmq-task
     restart: always
     environment:
       - PGDATABASE=secedu
@@ -40,7 +39,7 @@ services:
       - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
       - MYDEBUG=False
     volumes:
-      - ./:/api
+      - ./:/api/
       - ../volumes/db_file:/api/medias/db_file/
     ports:
       - "7000:9000"

@@ -7,4 +7,8 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt /api/requirements.txt
 RUN pip install -r requirements.txt
 COPY ./ /api/
+COPY ./entrypoint.sh /api/entrypoint.sh
+
 RUN chmod +x entrypoint.sh
+
+CMD ["python", "manage.py", "migrate", "--no-input"]

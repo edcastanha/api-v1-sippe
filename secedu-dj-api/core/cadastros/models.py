@@ -66,7 +66,7 @@ class Pessoas(baseModel):
         verbose_name = "Pessoa"
 
     def __str__(self):
-        return f"{self.nome} - {self.perfil} - {self.ra}"
+        return f"{self.nome} - {self.perfil}"
     
 class Turmas(baseModel):
     CHOICE_PERIODOS = (
