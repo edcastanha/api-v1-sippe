@@ -28,5 +28,4 @@ RUN pip install -e ./lib/
 RUN pip install -r requirements.txt
 #CMD ["python", "consumer-extrair-faces-files.py" ]
 
-
-CMD ["python", "main.py"]
+#CMD ["python", "main.py"]

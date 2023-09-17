@@ -3,11 +3,12 @@
 version: '3.10'
 
 services:
+# TASK PYTHON
   task-py:
     build:
       context: .
       dockerfile: Dockerfile
-  #  command: python consumer-extrair-faces-files.py
+    command: python3 main.py
   #  deploy:
   #    mode: replicas # Escolha o número de réplicas conforme necessário
   #    replicas: 2
@@ -17,13 +18,52 @@ services:
       - ../volumes/capturas/:/app/capturas/
       - ../volumes/db_file/:/app/db_file/
       - ../volumes/ftp/:/app/ftp/
-
     networks:
       - secedu_rmq_network
       - secedu_rds_network
+
+  redis-stack:
+    image:  redis/redis-stack:latest
     ports:
-      - 8888:8888
+        - "6379:6379" 
+        - "8081:8001" 
+    networks:
+        - secedu_rds_network
+    volumes:
+        - ../volumes/redis/data:/data
+    deploy:
+        replicas: 1
+        restart_policy:
+            condition: on-failure
+    restart: always
+#      healthcheck:
+#        test: ["CMD", "pg_isready", "-U", "sippe"]
+#        interval: 5s
+#        timeout: 10s
+#        retries: 3
+
+  # RabbitMQ
+  rmq-task:
+    image: rabbitmq:3-management
+    container_name: rmq-task
+    restart: always
+    volumes:
+      - ../volumes/rabbitMQ/mnesia:/var/lib/rabbitmq/mnesia
+    environment:
+      - RABBITMQ_DEFAULT_USER=secedu
+      - RABBITMQ_DEFAULT_PASS=ep4X1!br
+    networks:
+      - secedu_rmq_network
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+#    healthcheck:
+#      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 3
+
       
 networks:
-    secedu_rmq_network:
+    secedu_rmq_network:    
     secedu_rds_network:

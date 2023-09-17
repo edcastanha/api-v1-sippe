@@ -12,16 +12,16 @@ class Publisher:
             )
         )
         self.channel = self.connection.channel()
-        logger.info('<**_**> Inicializado Main: encaminha pastas de devices')
+        logger.info('<**_**> Publisher:: Inicializado ')
 
     def start_publisher(self, exchange, routing_name, message):
         self.channel.basic_publish(exchange=exchange, 
                                    routing_key=routing_name, 
                                    body=message)
-        logger.info(f' <**_**> PUBLISHER : encaminha pastas de devices -ROUTER_KEY: {routing_name}')
+        logger.info(f' <**_**> PUBLISHER : Publicado ROUTER_KEY: {routing_name}')
 
     def close(self):
-        logger.info(f' <**_**> CLOSE: Main')
+        logger.info(f' <**_**> CLOSE: Publisher')
         self.connection.close()
 
 #if __name__ == '__main__':
