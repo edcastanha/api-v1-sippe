@@ -15,7 +15,7 @@ class CamerasSerializer(serializers.ModelSerializer):
 class LocaisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Locais
-        fields = ['id', 'nome', 'descricao', 'camera', 'ponto']
+        fields = ['id', 'nome', 'descricao', 'camera', 'contrato']
 
 class FrequenciasEscolarSerializer(serializers.ModelSerializer):
     class Meta:
