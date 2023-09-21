@@ -10,7 +10,7 @@ class NotaFiscalSerializer(serializers.ModelSerializer):
 class CamerasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cameras
-        fields = ['id', 'nf', 'descricao', 'acesso', 'modelo']
+        fields = ['id', 'nf', 'descricao', 'acesso', 'usuario','senha', 'modelo']
 
 class LocaisSerializer(serializers.ModelSerializer):
     class Meta:

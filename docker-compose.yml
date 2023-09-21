@@ -45,4 +45,6 @@ services:
 
 networks:
     secedu_rmq_network:
+      driver: bridge    
     secedu_rds_network:
+      driver: bridge

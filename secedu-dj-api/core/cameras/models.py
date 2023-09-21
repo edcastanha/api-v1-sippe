@@ -32,7 +32,7 @@ class Cameras(baseModel):
         verbose_name = "Câmera"
 
     def __str__(self):
-        return f"{self.descricao} - {self.modelo}"
+        return f" {self.usuario} -  {self.senha} - {self.descricao} - {self.modelo} - {self.acesso}"
 
 class Locais(baseModel):
     contrato = models.ForeignKey(Escolas, on_delete=models.CASCADE)
@@ -46,7 +46,7 @@ class Locais(baseModel):
         verbose_name = "Local"
 
     def __str__(self):
-        return f"{self.nome} - {self.contrato} - {self.contrato.nome} - {self.descricao} - {self.camera.descricao}"
+        return f"{self.nome} - {self.contrato} - {self.descricao} - {self.camera.acesso}@{self.camera.usuario}:{self.camera.senha}"
 
 class FrequenciasEscolar(baseModel):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)

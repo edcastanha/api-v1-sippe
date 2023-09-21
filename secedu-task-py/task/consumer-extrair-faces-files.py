@@ -10,13 +10,14 @@ from publicar import Publisher
 from loggingMe import logger
 
 RMQ_SERVER = 'localhost'
+#RMQ_SERVER = '0.0.0.0'
 EXCHANGE='secedu'
 QUEUE_PUBLISHIR='faces'
 ROUTE_KEY='extractor'
 QUEUE_CONSUMER='files'
 ASK_DEBUG = True
 
-DIR_CAPS ='../volumes/capturas'
+DIR_CAPS ='capturas'
 
 #BACKEND_DETECTOR='retinaface'
 BACKEND_DETECTOR='Facenet'
@@ -25,11 +26,8 @@ LIMITE_DETECTOR = 0.99
 
 from os import environ
 
-logger.info(f' <**_**> RMQ_SERVER::{RMQ_SERVER} #################')
-
 class ConsumerExtractor:
     def __init__(self):
-        logger.info(f' <**_**> ConsumerExtractor ####################################')
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,
@@ -38,12 +36,13 @@ class ConsumerExtractor:
             )
         )
         self.channel = self.connection.channel()
+        logger.info(f' <**_INIT_**> Channel Open::{self.channel.is_open}')
         self.channel.queue_bind(
             queue=QUEUE_PUBLISHIR,
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        logger.info(f' <**_**> ConsumerExtractor: {self.connection}')
+        logger.info(f' <**_INIT_**> ConsumerExtractor: {self.connection.is_open}')
 
     def run(self):
         self.channel.basic_consume(
@@ -52,21 +51,22 @@ class ConsumerExtractor:
             auto_ack=ASK_DEBUG
         )
 
-        logger.info(f' <**_**> ConsumerExtractor: Aguardando {QUEUE_CONSUMER}')
+        logger.info(f' <**_RUN_**> ConsumerExtractor - FILA:: {QUEUE_CONSUMER}')
         try:
             self.channel.start_consuming()
-            logger.info(f' <**_**> ConsumerExtractor: start_consumer')
+            logger.info(f' <**_TRY_**> ConsumerExtractor - start_consumer:: {self.channel.is_open}')
         finally:
             self.connection.close()
-            logger.info(f' <**_**> ConsumerExtractor: close')
+            logger.info(f' <**_FINALLY_**> ConsumerExtractor - close:: {self.connection.is_closed}')
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
         file = data['caminho_do_arquivo']
-        logger.info(f' <**_**> ConsumerExtractor: process_message')
+        logger.info(f' <**_MESSAGE_**> ConsumerExtractor - process_message:: {file}')
 
         if file.lower().endswith(('.jpg', '.jpeg', '.png')):
             now = dt.now()
+            hh,mm,ss ='','',''
             equipamento =data['nome_equipamento']
             data_captura=data['data_captura']
             proccess = now.strftime("%Y-%m-%d %H:%M:%S")
