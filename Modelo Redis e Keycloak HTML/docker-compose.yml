@@ -1,0 +1,94 @@
+version: '3.7'
+
+services:
+  postgres-api:
+    image: postgres
+    container_name: postgres-api
+    volumes:
+      - './configs/db/postgres:/var/lib/postgresql/data'
+    networks:
+      - api-sippe
+    environment:
+      - POSTGRES_DB=sippe
+      - POSTGRES_USER=sippe
+      - POSTGRES_PASSWORD=sippe2023
+    ports:
+      - "5432:5432"
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "sippe"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+  django-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.Django
+    container_name: django-api
+    #entrypoint: [ "/entrypoint.sh" ]
+    networks:
+      - api-sippe
+    volumes:
+      - ./:/api
+    ports:
+      - "8000:8000"
+    environment:
+      - PGDATABASE=sippe
+      - PGUSER=sippe
+      - PGPASSWORD=sippe2023
+      - PGHOST=postgres-api
+      - PGPORT=5432
+      - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
+      - MYDEBUG=False
+    depends_on:
+      postgres-api:
+        condition: service_healthy
+    #restart: always
+
+      # MySQL
+  secedu-mysql-auth:
+    image: mysql:8.0.30-debian
+    container_name: secude-mysql-auth
+    restart: always
+    environment:
+      - MYSQL_DATABASE=secedu
+      - MYSQL_ROOT_PASSWORD=ep4X1!br
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql
+    networks:
+      - secedu_kc_network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  # Keycloak
+  secedu-key-auth:
+    image: quay.io/keycloak/keycloak:22.0.1
+    command: start-dev
+    container_name: secedu-auth-api
+    depends_on:
+      secedu-mysql-auth:
+        condition: service_healthy
+    #restart: always
+    environment:
+      - KEYCLOAK_ADMIN=secedu
+      - KEYCLOAK_ADMIN_PASSWORD=ep4X1!br
+      # altere estes valores para apontar para uma instância postgres em execução
+      - KC_DB=mysql
+      - KC_DB_URL=jdbc:mysql://secedu-mysql-auth:3306/secedu
+      - KC_DB_USERNAME=root
+      - KC_DB_PASSWORD=ep4X1!br
+    volumes:
+        - ./volumes/auth/realm/:/opt/keycloak/data/realm
+    ports:
+      - "8000:8080"
+    networks:
+      - secedu_dj_network
+      - secedu_kc_network
+
+networks:
+  api-sippe:
+    driver: bridge

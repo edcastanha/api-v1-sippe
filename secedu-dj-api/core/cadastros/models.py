@@ -26,6 +26,7 @@ class Contratos(baseModel):
     def __str__(self):
         return f"{self.protocolo} - {self.responsavel}"
 
+
 class Escolas(baseModel):
     nome = models.CharField(max_length=100)
     contrato = models.ForeignKey(Contratos, on_delete=models.CASCADE)
@@ -57,15 +58,15 @@ class Pessoas(baseModel):
     def clean(self):
         super().clean()
 
-        if not self.perfil:
-            raise ValidationError('Os campos sao obrigatório para estudantes.')
+        if not self.ra:
+            raise ValidationError('O campo RA é obrigatório para estudantes.')
 
     class Meta:
         verbose_name_plural = "Pessoas"
         verbose_name = "Pessoa"
 
     def __str__(self):
-        return f"{self.nome} - {self.perfil}"
+        return f"{self.nome} - {self.perfil} - {self.ra}"
     
 class Turmas(baseModel):
     CHOICE_PERIODOS = (

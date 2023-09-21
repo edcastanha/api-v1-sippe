@@ -4,8 +4,3 @@ Dockerfile
 *.gz
 .gitignore
 pyproject.toml
-
-.ebextensions/*
-
-**/volumes/
-**/ftp/

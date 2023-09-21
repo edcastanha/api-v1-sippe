@@ -32,5 +32,5 @@ def detalhesTurma(request, turma_id):
     try:
         queryObject = Turmas.objects.get(pk=turma_id)
     except Turmas.DoesNotExist:
-        raise Http404("N~ao encontramos nenhum turma com essa descricao")
+        raise Http404("Nao encontramos nenhum turma com essa descricao")
     return render(request, "cadastros/detalhesTurma.html", {"turma": queryObject})
