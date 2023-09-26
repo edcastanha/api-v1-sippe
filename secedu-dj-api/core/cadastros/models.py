@@ -58,15 +58,15 @@ class Pessoas(baseModel):
     def clean(self):
         super().clean()
 
-        if not self.ra:
-            raise ValidationError('O campo RA é obrigatório para estudantes.')
+        if not self.perfil:
+            raise ValidationError('O campo Perfil é obrigatório para estudantes.')
 
     class Meta:
         verbose_name_plural = "Pessoas"
         verbose_name = "Pessoa"
 
     def __str__(self):
-        return f"{self.nome} - {self.perfil} - {self.ra}"
+        return f"{self.nome} - {self.perfil}"
     
 class Turmas(baseModel):
     CHOICE_PERIODOS = (
@@ -107,7 +107,7 @@ class Aluno(baseModel):
 
 class Fotos(models.Model):
     def get_upload_path(instance, filename):
-        return f'fotos/{instance.pessoa.ra}/{filename}'
+        return f'fotos/{instance.pessoa.id}/{filename}'
 
     pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE,)
     foto = models.ImageField(blank=False, null=False,

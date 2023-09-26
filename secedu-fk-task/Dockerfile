@@ -1,6 +1,5 @@
 #base image
 FROM python:3.8
-LABEL org.opencontainers.image.source https://github.com/serengil/deepface
 # -----------------------------------
 # create required folder
 RUN mkdir /app

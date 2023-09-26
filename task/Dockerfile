@@ -5,12 +5,6 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-EXPOSE 8888
-
-RUN mkdir /app/capturas/
-RUN mkdir /app/dataset/
-RUN mkdir /app/ftp/
-
 RUN apt-get update
 
 RUN apt-get install ffmpeg libsm6 libxext6 -y

@@ -81,9 +81,9 @@ services:
 # Flask
   secedu-task:
     build:
-        context: ./secedu-fk-task/api/
+        context: ./secedu-fk-task/
         dockerfile: Dockerfile
-    command: python consumer-extrair-faces-files.py
+    #command: python consumer-extrair-faces-files.py
     deploy:
       mode: replicas # Escolha o número de réplicas conforme necessário
       replicas: 2
@@ -95,29 +95,10 @@ services:
       - secedu_rmq_network
       - secedu_rds_network
 
-  task:
-    build:
-      context: ./task/
-      dockerfile: Dockerfile
-    command: python consumer-extrair-faces-files.py
-  #  deploy:
-  #    mode: replicas # Escolha o número de réplicas conforme necessário
-  #    replicas: 2
-    restart: always
-    volumes:
-      - ./task/:/app
-      - B:/workspace/volumes/capturas/:/app/capturas
-      - B:/SIPPE/FTP/:/app/ftp
-      - B:/workspace/volumes/dataset/:/app/dataset
-    networks:
-      - task-net
-
 networks:
   secedu_rds_network:
     driver: bridge
   secedu_rmq_network:
-    driver: bridge
-  task-net:
     driver: bridge
   secedu_dj_network:
     driver: bridge
