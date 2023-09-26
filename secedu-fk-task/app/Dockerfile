@@ -1,6 +1,5 @@
 #base image
 FROM python:3.8
-LABEL org.opencontainers.image.source https://github.com/serengil/deepface
 # -----------------------------------
 # create required folder
 RUN mkdir /app
@@ -14,7 +13,7 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 5000
 # -----------------------------------
 # Copy required files from repo into image
-copy ./api/deepface /app/deepface
+COPY ./api/deepface /app/deepface
 COPY ./api/app.py /app/
 COPY ./api/api.py /app/
 COPY ./api/routes.py /app/

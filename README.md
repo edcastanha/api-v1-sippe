@@ -69,3 +69,25 @@ conda install -c conda-forge  ....
 
 
 # Escolha o número de réplicas conforme necessário
+
+
+
+
+  # Flask
+  secedu-task:
+    image: extrator-face:0.0.4
+    command: python consumer-extrair-faces-files.py
+    deploy:
+      mode: replicas # Escolha o número de réplicas conforme necessário
+      replicas: 2
+    depends_on:
+      - secedu-rds-tack
+      - secedu-rmq-task
+    restart: always
+    volumes:
+      - ./volumes/capturas/:/app/capturas
+      - ./volumes/ftp/:/app/ftp
+    networks:
+      - secedu_rmq_network
+      - secedu_rds_network
+  

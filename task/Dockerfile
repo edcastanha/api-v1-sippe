@@ -21,6 +21,4 @@ RUN pip install -r requirements.txt
 
 RUN pip install -e ./lib/
 
-#CMD ["python", "consumer-extrair-faces-files.py" ]
-
-CMD ["bash", "echo 'Serve Play!'"]
+CMD ["python", "consumer-extrair-faces-files.py" ]

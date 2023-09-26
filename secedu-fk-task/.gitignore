@@ -1,14 +1,3 @@
-ftp
-capturas
-*.whl
-*.cpython-*
-**/volumes/
-**/ftp
-**/capturas
-**/dataset
-ftp
-*.log
-__pycache__
 **/__pycache__
 **/.DS_Store
 build/
@@ -21,6 +10,3 @@ deepface.egg-info/
 tests/dataset/*.pkl
 tests/sandbox.ipynb
 *.pyc
-**/deepface.egg-info/
-**/tests/dataset/*.pkl
-**/tests/sandbox.ipynb

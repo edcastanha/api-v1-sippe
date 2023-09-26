@@ -14,9 +14,9 @@ services:
       - POSTGRES_USER=secedu
       - POSTGRES_PASSWORD=ep4X1!br
     volumes:
-      - './volumes/postgres:/var/lib/postgresql/data'
+      - 'B:/workspace/volumes/postgres:/var/lib/postgresql/data'
     ports:
-      - 54329:5432
+      - 5432:5432
     networks:
       - secedu_dj_network
 
@@ -26,7 +26,7 @@ services:
       context: ./secedu-dj-api/
       dockerfile: Dockerfile
     container_name: secedu-dj-api
-    command: "./entrypoint.sh"
+    command: "bash entrypoint.sh"
     depends_on:
       - secedu-pg-api
       - secedu-rmq-task
@@ -41,7 +41,7 @@ services:
       - MYDEBUG=False
     volumes:
       - ./secedu-dj-api:/api
-      - ./volumes/dataset:/api/medias/fotos/
+      - B:\workspace\volumes\medias:/api/medias/fotos/
     ports:
       - "7000:9000"
     networks:
@@ -49,31 +49,13 @@ services:
       - secedu_rmq_network
       - secedu_rds_network
 
-  # Flask
-  secedu-task:
-    image: extrator-face:0.0.4
-    command: python consumer-extrair-faces-files.py
-    deploy:
-      mode: replicas # Escolha o número de réplicas conforme necessário
-      replicas: 2
-    depends_on:
-      - secedu-rds-tack
-      - secedu-rmq-task
-    restart: always
-    volumes:
-      - ./volumes/capturas/:/app/capturas
-      - ./volumes/ftp/:/app/ftp
-    networks:
-      - secedu_rmq_network
-      - secedu_rds_network
-  
   # RabbitMQ
   secedu-rmq-task:
     image: rabbitmq:3-management
     container_name: secedu-rmq-task
     restart: always
     volumes:
-      - ./volumes/rabbitMQ:/var/lib/rabbitmq/mnesia
+      - B:\workspace\volumes\rabbitMQ:/var/lib/rabbitmq/mnesia
     environment:
       - RABBITMQ_DEFAULT_USER=secedu
       - RABBITMQ_DEFAULT_PASS=ep4X1!br
@@ -89,19 +71,55 @@ services:
     container_name: secedu-rds-tack
     restart: always
     volumes:
-        - ./volumes/redis:/data
+        - B:\workspace\volumes\redis:/data
     ports:
-        - "63799:6379" 
-        - "80019:8001" 
+        - "6379:6379" 
+        - "8001:8001" 
     networks:
         - secedu_rds_network
 
+# Flask
+  secedu-task:
+    build:
+        context: ./secedu-fk-task/api/
+        dockerfile: Dockerfile
+    command: python consumer-extrair-faces-files.py
+    deploy:
+      mode: replicas # Escolha o número de réplicas conforme necessário
+      replicas: 2
+    restart: always
+    volumes:
+      - B:/workspace/volumes/capturas/:/app/capturas
+      - B:/SIPPE/FTP/:/app/ftp
+    networks:
+      - secedu_rmq_network
+      - secedu_rds_network
+
+  task:
+    build:
+      context: ./task/
+      dockerfile: Dockerfile
+    command: python consumer-extrair-faces-files.py
+  #  deploy:
+  #    mode: replicas # Escolha o número de réplicas conforme necessário
+  #    replicas: 2
+    restart: always
+    volumes:
+      - ./task/:/app
+      - B:/workspace/volumes/capturas/:/app/capturas
+      - B:/SIPPE/FTP/:/app/ftp
+      - B:/workspace/volumes/dataset/:/app/dataset
+    networks:
+      - task-net
+
 networks:
-  secedu_dj_network:
-    driver: bridge
   secedu_rds_network:
     driver: bridge
   secedu_rmq_network:
+    driver: bridge
+  task-net:
+    driver: bridge
+  secedu_dj_network:
     driver: bridge
 
 
