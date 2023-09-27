@@ -5,7 +5,7 @@ import os
 import matplotlib.pyplot as plt
 import re
 
-from lib.deepface import DeepFace
+from deepface import DeepFace
 from publicar import Publisher
 from loggingMe import logger
 
@@ -16,20 +16,20 @@ ROUTE_KEY='extractor'
 QUEUE_CONSUMER='files'
 ASK_DEBUG = True
 
-DIR_CAPS ='../volumes/capturas'
+DIR_CAPS ='capturas'
 
-#BACKEND_DETECTOR='retinaface'
-BACKEND_DETECTOR='Facenet'
+BACKEND_DETECTOR='retinaface'
+#BACKEND_DETECTOR='Facenet'
 MODEL_BACKEND ='mtcnn'
 LIMITE_DETECTOR = 0.99
 
 from os import environ
 
-logger.info(f' <**_**> RMQ_SERVER::{RMQ_SERVER} #################')
+logger.info(f' <**_ 1 _**> RMQ_SERVER::{RMQ_SERVER}')
 
 class ConsumerExtractor:
     def __init__(self):
-        logger.info(f' <**_**> ConsumerExtractor ####################################')
+        logger.info(f' <**_**> ConsumerExtractor ')
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,

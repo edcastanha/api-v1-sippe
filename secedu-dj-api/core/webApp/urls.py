@@ -4,8 +4,6 @@ from core.webApp import views
 name_app = 'webApp'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('turmas/', views.listTurmas, name='listTurmas' ),
-    path('alunos/', views.listTurmas, name='listAlunos' ),
-
-   
+    path('turmas/', views.listTurmas, name='listar_turmas'),
+    path('alunos/', views.listAlunos, name='listar_alunos'),
 ]

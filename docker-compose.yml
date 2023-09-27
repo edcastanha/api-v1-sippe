@@ -79,18 +79,48 @@ services:
         - secedu_rds_network
 
 # Flask
+#  secedu-flask:
+#    build:
+#        context: ./secedu-fk-task/
+#        dockerfile: Dockerfile
+#    #command: python consumer-extrair-faces-files.py
+#  #  deploy:
+#  #    mode: replicas # Escolha o número de réplicas conforme necessário
+#  #    replicas: 2
+#    restart: always
+#    volumes:
+#      - B:/workspace/volumes/capturas/:/app/capturas
+#      - B:/SIPPE/FTP/:/app/ftp
+#    networks:
+#      - secedu_rmq_network
+#      - secedu_rds_network
+
+#TASK DeepFace
   secedu-task:
     build:
-        context: ./secedu-fk-task/
+        context: ./task/
         dockerfile: Dockerfile
     #command: python consumer-extrair-faces-files.py
-    deploy:
-      mode: replicas # Escolha o número de réplicas conforme necessário
-      replicas: 2
+  #  deploy:
+  #    mode: replicas # Escolha o número de réplicas conforme necessário
+  #    replicas: 2
     restart: always
+    cap_add:
+      - SYS_NICE  # Permite ajustar limites de recursos
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      stack:
+        soft: 67108864
+        hard: 67108864
     volumes:
-      - B:/workspace/volumes/capturas/:/app/capturas
-      - B:/SIPPE/FTP/:/app/ftp
+      - ./task/:/app
+      - B:\workspace\volumes\capturas:/app/capturas
+      - B:\SIPPE\FTP:/app/ftp
+      - B:\workspace\volumes\dataset:/app/dataset
+    ports:
+      - 5000:5000
     networks:
       - secedu_rmq_network
       - secedu_rds_network

@@ -26,7 +26,6 @@ class Contratos(baseModel):
     def __str__(self):
         return f"{self.protocolo} - {self.responsavel}"
 
-
 class Escolas(baseModel):
     nome = models.CharField(max_length=100)
     contrato = models.ForeignKey(Contratos, on_delete=models.CASCADE)
@@ -100,7 +99,7 @@ class Aluno(baseModel):
 
     class Meta:
         verbose_name_plural = "Alunos"
-        verbose_name = "Alunos"
+        verbose_name = "Aluno"
 
     def __str__(self):
         return f"{self.pessoa.nome} - {self.matricula} - {self.turma.nome}"

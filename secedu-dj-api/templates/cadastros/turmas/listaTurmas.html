@@ -3,14 +3,13 @@
 {% block content %}
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4">Cadastros - Salas</h1>
+    <h2 class="mt-4">Cadastros - Turmas</h2>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="cadastros/index.html">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'index' %}">Dashboard</a></li>
         <li class="breadcrumb-item active">#</li>
     </ol>
     <div class="card mb-4">
         <div class="card-body">
-           
         </div>
     </div>
     <div class="card mb-4">
@@ -26,7 +25,7 @@
                         <th>Período</th>
                         <th>Em aula</th>
                         <th>Qtda. Alunos</th>
-                        <th>Ultima Detecções</th>
+                        <th>Atualizado</th>
                         <th>Qtda. Presentes</th>
                     </tr>
                 </thead>
@@ -36,7 +35,7 @@
                         <th>Período</th>
                         <th>Em aula</th>
                         <th>Qtda. Alunos</th>
-                        <th>Ultima Detecções</th>
+                        <th>Atualizado</th>
                         <th>Qtda. Presentes</th>
                     </tr>
                 </tfoot>
@@ -48,7 +47,7 @@
                         <td>{{turma.periodo}}</td>
                         <td></td>
                         <td>{{turma.count}}</td>
-                        <td>09/09/2023 as 09h:45m</td>
+                        <td>{{turma.atualizado}}</td>
                         <td><i class="fas fa-table me-1"></i></td>
                     </tr>
                 {% endfor%}
