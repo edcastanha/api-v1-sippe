@@ -29,7 +29,7 @@ logger.info(f' <**_ 1 _**> RMQ_SERVER::{RMQ_SERVER}')
 
 class ConsumerExtractor:
     def __init__(self):
-        logger.info(f' <**_**> ConsumerExtractor ')
+        logger.info(f' <**_ INIT _**>')
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,
@@ -46,13 +46,13 @@ class ConsumerExtractor:
         logger.info(f' <**_**> ConsumerExtractor: {self.connection}')
 
     def run(self):
+        logger.info(f' <**_**> ConsumerExtractor: Aguardando {QUEUE_CONSUMER}')
         self.channel.basic_consume(
             queue=QUEUE_CONSUMER,
             on_message_callback=self.process_message,
             auto_ack=ASK_DEBUG
         )
 
-        logger.info(f' <**_**> ConsumerExtractor: Aguardando {QUEUE_CONSUMER}')
         try:
             self.channel.start_consuming()
             logger.info(f' <**_**> ConsumerExtractor: start_consumer')
