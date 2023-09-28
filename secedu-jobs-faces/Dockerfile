@@ -39,4 +39,4 @@ COPY ./consumer-extrair-faces-files.py /app/
 # run the app (re-configure port if necessary)
 EXPOSE 5000
 #CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
-CMD ["python", "consumer-extrair-faces-files.py"]
+#CMD ["python", "consumer-extrair-faces-files.py"]

@@ -19,10 +19,10 @@ date_pattern = re.compile(r'\d{4}-\d{2}-\d{2}')
 # Percorrer a pasta FTP
 for root, dirs, files in os.walk(FTP_PATH):
     components = root.split('/')
-    logger.info(f' <**_ 1 _**> MAIN:: {components}')
+    #logger.info(f' <**_ 1 _**> MAIN:: {components}')
     # verificar se o path tem 4 componentes
     if components and len(components) == 4:
-        logger.info(f' <**_ 2 _**> MAIN:: {components[3]}')
+        #logger.info(f' <**_ 2 _**> MAIN:: {components[3]}')
         # Verificar se a subpasta corresponde ao padrão AAAA-MM-DD
         if date_pattern.match(components[3]):
             try:
@@ -41,8 +41,10 @@ for root, dirs, files in os.walk(FTP_PATH):
                 logger.info(f' <**_ 3 _**> MESSAGE:: {message_str}')
 
                 publisher = Publisher()
-                logger.info(f'MAIN: {EXCHANGE} - {QUEUE_PUBLISHIR}')
+                #logger.info(f'MAIN: {EXCHANGE} - {QUEUE_PUBLISHIR}')
                 publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                 publisher.close()
             except pika.exceptions.AMQPConnectionError as e:
                 logger.error(f'MAIN: {e}')
+
+

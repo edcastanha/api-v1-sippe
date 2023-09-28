@@ -1,6 +1,6 @@
 # from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from core.cameras.models import NotaFiscal, Cameras, Locais, FrequenciasEscolar
+from core.cameras.models import NotaFiscal, Cameras, Locais, FrequenciasEscolar, Tarefas
 
 class NotaFiscalSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,3 +21,8 @@ class FrequenciasEscolarSerializer(serializers.ModelSerializer):
     class Meta:
         model = FrequenciasEscolar
         fields = ['aluno', 'local' ,'data', 'turma', ] 
+
+class TarefasSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tarefas
+        fields = ['id', 'nome', 'descricao', 'status', 'escalas']

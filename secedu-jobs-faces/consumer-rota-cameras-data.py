@@ -8,13 +8,15 @@ import re
 import os
 from loggingMe import logger
 
+
+RMQ_SERVER = 'secedu-rmq-task'
 EXCHANGE='secedu'
 
 QUEUE_PUBLISHIR='files'
 ROUTE_KEY='snapshot'
 
 QUEUE_CONSUMER='ftp'
-ASK_DEBUG = True
+ASK_DEBUG = False
 
 from publicar import Publisher
 
@@ -22,7 +24,7 @@ class ConsumerPath:
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
-                host='localhost',
+                host=RMQ_SERVER,
                 port=5672,
                 credentials=pika.PlainCredentials('secedu', 'ep4X1!br')
             )
@@ -33,25 +35,25 @@ class ConsumerPath:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        logger.info(f' <**_**> ConsumerPath: init')
+        logger.info(f' <**_INIT_**> ConsumerPath: {self.connection}')
     
     def run(self):
         self.channel.basic_consume(
             queue=QUEUE_CONSUMER,
             on_message_callback=self.process_message,
-            auto_ack=True
+            auto_ack=ASK_DEBUG
         )
         
-        logger.info(f' <**_**> ConsumerPath: aguardando fila ...')
+        logger.info(f' <**_1_**> ConsumerPath: aguardando fila ...')
         try:
             self.channel.start_consuming()
-            logger.info(f' <**_**> ConsumerPath: start_consuming')
+            #logger.info(f' <**_**> ConsumerPath: start_consuming')
         finally:
             self.connection.close()
-            logger.info(f' <**_**> ConsumerPath: close')
+            #logger.info(f' <**_**> ConsumerPath: close')
 
     def process_message(self, ch, method, properties, body):
-        logger.info(f' <**_**> ConsumerPath: proccess_message')
+        logger.info(f' <**_ 2 _**> ConsumerPath: proccess_message')
         data = json.loads(body)
         now = dt.now()
         proccess = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -62,7 +64,7 @@ class ConsumerPath:
         }
 
         for index, field_name in data.items():
-            logger.info(f' <**_**> ConsumerPath: Corre messagem')
+            #logger.info(f' <**_**> ConsumerPath: Corre messagem')
             if index == 'caminho_do_arquivo':
                 file_paths = self.find_image_files(field_name)
                 publisher = Publisher()
@@ -70,7 +72,7 @@ class ConsumerPath:
                     message_dict.update({'caminho_do_arquivo': file_path})
                     message_str = json.dumps(message_dict)
                     publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                    logger.info(f' <**_**> ConsumerPath: {file_path}')
+                    logger.info(f' <**_3_**> ConsumerPath: {file_path}')
                 publisher.close()
 
     def find_image_files(self, path):
@@ -80,7 +82,7 @@ class ConsumerPath:
                 if file.lower().endswith(('[0].jpg', '[0].jpeg', '[0].png')):
                     file_path = os.path.join(root, file)
                     file_paths.append(file_path)
-        logger.info(f' <**_**> ConsumerPath: find_image_files')
+        logger.info(f' <**_3_**> ConsumerPath: find_image_files')
         return file_paths
 
 if __name__ == "__main__":

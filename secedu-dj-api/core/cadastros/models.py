@@ -104,6 +104,42 @@ class Aluno(baseModel):
     def __str__(self):
         return f"{self.pessoa.nome} - {self.matricula} - {self.turma.nome}"
 
+class Escalas(baseModel):
+    CHOICE_TURNOS = (
+        ('Morning', 'Morning'),
+        ('Afternoon', 'Afternoon'),
+        ('Night', 'Night'),
+    )
+
+    CHOICE_PERIODOS = (
+        ('Entrada', 'Entrada'),
+        ('Período 1', 'Período 1'),
+        ('Período 2', 'Período 2'),
+        ('Período 3', 'Período 3'),
+        ('Período 4', 'Período 4'),
+        ('Período 5', 'Período 5'),
+        ('Período 6', 'Período 6'),
+        ('Período 7', 'Período 7'),
+        ('Período 8', 'Período 8'),
+        ('Período 9', 'Período 9'),
+        ('Extra', 'Extra'),
+        ('Intervalo', 'Intervalo'),
+        ('Saida', 'Saida'),
+    )
+
+    horario_inicio = models.TimeField()
+    contrato = models.ForeignKey(Contratos, on_delete=models.CASCADE)
+    itinerario = models.CharField(max_length=10, choices=CHOICE_TURNOS, default='Morning')
+    periodo = models.CharField(max_length=10, choices=CHOICE_PERIODOS, default='Entrada')
+    horario_fim = models.TimeField()
+
+    class Meta:
+        verbose_name_plural = "Escalas"
+        verbose_name = "Escala"
+
+    def __str__(self):
+        return f"{self.itinerario} - {self.horario_inicio} - {self.periodo} -  {self.horario_fim}"
+
 class Fotos(models.Model):
     def get_upload_path(instance, filename):
         return f'fotos/{instance.pessoa.id}/{filename}'

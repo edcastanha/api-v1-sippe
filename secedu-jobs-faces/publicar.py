@@ -7,6 +7,7 @@ RMQ_SERVER = 'secedu-rmq-task'
 
 class Publisher:
     def __init__(self):
+        self.routing = ''
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,
@@ -15,16 +16,17 @@ class Publisher:
             )
         )
         self.channel = self.connection.channel()
-        logger.info('<**_ 1 _**> Inicializado Main: encaminha pastas de devices')
+        #logger.info('<**_ 1 _**> Inicializado: encaminha pastas de devices')
 
     def start_publisher(self, exchange, routing_name, message):
+        self.routing = routing_name
         self.channel.basic_publish(exchange=exchange, 
                                    routing_key=routing_name, 
                                    body=message)
-        logger.info(f' <**_**> PUBLISHER : encaminha pastas de devices -ROUTER_KEY: {routing_name}')
+        logger.info(f' <**_PUBLISHER_ **> ROUTER_KEY:: {self.routing}')
 
     def close(self):
-        logger.info(f' <**_**> CLOSE: Main')
+        logger.info(f' <**_CLOSE_**> ROUTER_KEY:: {self.routing}')
         self.connection.close()
 
 #if __name__ == '__main__':

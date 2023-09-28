@@ -1,5 +1,5 @@
 from django.db import models
-from core.cadastros.models import Escolas, Aluno
+from core.cadastros.models import Escolas, Aluno, Escalas
 
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
@@ -59,3 +59,21 @@ class FrequenciasEscolar(baseModel):
 
     def __str__(self):
         return f"{self.aluno.pessoa.nome} - {self.local.nome} - {self.data} - {self.aluno.turma.nome}"
+
+class Tarefas(baseModel):
+    CHOICE_STATUS = (
+        ('Pendente', 'Pendente'),
+        ('Cancelado', 'Cancelado'),
+        ('Erro', 'Erro'),
+        ('Finalizado', 'Finalizado'),
+    )
+    descricao = models.CharField(max_length=100)
+    escalas = models.ForeignKey(Escalas, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=CHOICE_STATUS, default='Pendente')
+
+    class Meta:
+        verbose_name_plural = "Tarefas"
+        verbose_name = "Tarefa"
+
+    def __str__(self):
+        return f"{self.data_cadastro} - {self.descricao} - {self.status} - {self.data_atualizacao}"
