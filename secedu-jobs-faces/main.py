@@ -7,48 +7,42 @@ from loggingMe import logger
 
 from publicar import Publisher
 
-logger.info(f' <**_**> Main - Iniciando FTP')
+QUEUE_PUBLISHIR = 'ftp'
+EXCHANGE = 'secedu'
+ROUTE_KEY = 'path'
 
-QUEUE_PUBLISHIR='ftp'
-#QUEUE_CONSUMER='arquivos'
-EXCHANGE='secedu'
-ROUTE_KEY='path'
-#ASK_DEBUG = False
-
-FTP_PATH = '../volumes/ftp'
+FTP_PATH = 'ftp'
 
 # Expressão regular para o padrão AAAA-MM-DD
 date_pattern = re.compile(r'\d{4}-\d{2}-\d{2}')
 
 # Percorrer a pasta FTP
 for root, dirs, files in os.walk(FTP_PATH):
-    logger.info(f' <**_**> MAIN Listagem de PATH DEVICE')
-    for dir in dirs:
+    components = root.split('/')
+    logger.info(f' <**_ 1 _**> MAIN:: {components}')
+    # verificar se o path tem 4 componentes
+    if components and len(components) == 4:
+        logger.info(f' <**_ 2 _**> MAIN:: {components[3]}')
         # Verificar se a subpasta corresponde ao padrão AAAA-MM-DD
-        if date_pattern.match(dir):
+        if date_pattern.match(components[3]):
             try:
-                components = root.split('/')
-                device_name = components[2]
-                date_capture = dir
+                device_name = components[1]
+                date_capture = components[3]
                 timestamp = datetime.now().isoformat()
-                file_path = os.path.join(root, dir)
+                file_path = os.path.join(root)
                 message_dict = {
                     "data_captura": date_capture,
                     "nome_equipamento": device_name,
                     "caminho_do_arquivo": file_path,
-                    "data_processomento": timestamp,
+                    "data_processamento": timestamp,  # Correção no nome da chave
                 }
-                logger.info(f' <**_**> MAIN : path = {file_path}')
 
                 message_str = json.dumps(message_dict)
+                logger.info(f' <**_ 3 _**> MESSAGE:: {message_str}')
 
-                logger.info(f' <**_**> ')
                 publisher = Publisher()
-                logger.info(f' <**_**> MAIN: {EXCHANGE} - {QUEUE_PUBLISHIR}')
+                logger.info(f'MAIN: {EXCHANGE} - {QUEUE_PUBLISHIR}')
                 publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                 publisher.close()
             except pika.exceptions.AMQPConnectionError as e:
-                logger.error(f' <**_**> MAIN: {e}')
-            
-    
-
+                logger.error(f'MAIN: {e}')

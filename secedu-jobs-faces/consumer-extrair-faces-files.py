@@ -9,7 +9,7 @@ from deepface import DeepFace
 from publicar import Publisher
 from loggingMe import logger
 
-RMQ_SERVER = 'localhost'
+RMQ_SERVER = 'secedu-rmq-task'
 EXCHANGE='secedu'
 QUEUE_PUBLISHIR='faces'
 ROUTE_KEY='extractor'

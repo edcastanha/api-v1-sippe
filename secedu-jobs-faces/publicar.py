@@ -2,17 +2,20 @@ import pika
 import json
 from loggingMe import logger
 
+
+RMQ_SERVER = 'secedu-rmq-task'
+
 class Publisher:
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
-                host='localhost',
+                host=RMQ_SERVER,
                 port=5672,
                 credentials=pika.PlainCredentials('secedu', 'ep4X1!br')
             )
         )
         self.channel = self.connection.channel()
-        logger.info('<**_**> Inicializado Main: encaminha pastas de devices')
+        logger.info('<**_ 1 _**> Inicializado Main: encaminha pastas de devices')
 
     def start_publisher(self, exchange, routing_name, message):
         self.channel.basic_publish(exchange=exchange, 

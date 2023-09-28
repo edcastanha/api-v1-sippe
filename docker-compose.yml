@@ -14,7 +14,7 @@ services:
       - POSTGRES_USER=secedu
       - POSTGRES_PASSWORD=ep4X1!br
     volumes:
-      - 'B:/workspace/volumes/postgres:/var/lib/postgresql/data'
+      - 'B:\workspace\volumes\postgres:/var/lib/postgresql/data'
     ports:
       - 5432:5432
     networks:
