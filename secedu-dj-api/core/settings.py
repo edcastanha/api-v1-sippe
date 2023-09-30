@@ -135,5 +135,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'medias')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
+#CELERY SETTINGS
+CELERY_TIMEZONE = 'America/Sao_Paulo'
+CELERY_BROKER_URL = 'amqp://secedu:ep4X1!br@localhost:5672/'
+CELERY_BACKEND = 'redis://127.0.01:6379'
