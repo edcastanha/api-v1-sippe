@@ -20,7 +20,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 # 'application' code
-# logger.debug('debug message')
+logger.debug('debug message')
 # logger.info('info message')
 # logger.warning('warn message')
 # logger.error('error message')

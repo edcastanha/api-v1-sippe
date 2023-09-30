@@ -18,7 +18,7 @@ ROUTE_KEY='snapshot'
 QUEUE_CONSUMER='ftp'
 ASK_DEBUG = False
 
-from publicar import Publisher
+from core.publisher import Publisher
 
 class ConsumerPath:
     def __init__(self):
