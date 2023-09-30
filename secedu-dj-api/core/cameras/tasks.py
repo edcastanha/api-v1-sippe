@@ -1,8 +1,6 @@
 from __future__ import absolute_import, unicode_literals
-
 from celery import shared_task
-
-from .models import Cameras, Escalas, Escolas, Locais
+from core.cameras.models import Cameras
 
 @shared_task
 def extract_cameras():

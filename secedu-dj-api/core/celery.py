@@ -4,18 +4,20 @@ from celery import Celery
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
-app = Celery('core')
+app = Celery('core',
+             include=[
+                'core.cameras.tasks',
+                'core.cadastros.tasks',
+            ]
+        )
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# Optional configuration, see the application user guide.
 app.conf.update(
     result_expires=3600,
-    broker_url = 'amqp://secedu:ep4X1!br@secedu-rmq-task:5672/',
-    timezone = 'America/Sao_Paulo',
-    queue_name_prefix = 'secedu-task',
-    exchange = 'secedu',
 )
 
-app.autodiscover_tasks()
-
-def debug_task(self):
-    print(f'Request: {self.request!r}')
+if __name__ == '__main__':
+    app.autodiscover_tasks()
+    app.start()

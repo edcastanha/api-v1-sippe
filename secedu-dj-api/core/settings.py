@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Libs
     'rest_framework.apps.RestFrameworkConfig',
+    'django_celery_beat',
     # Apps
     'core.cadastros.apps.CadastrosConfig',
     'core.cameras.apps.CamerasConfig',
@@ -111,11 +112,8 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 LANGUAGE_CODE = 'pt-br'
-
 TIME_ZONE = 'America/Sao_Paulo'
-
 USE_I18N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -137,5 +135,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #CELERY SETTINGS
 CELERY_TIMEZONE = 'America/Sao_Paulo'
-CELERY_BROKER_URL = 'amqp://secedu:ep4X1!br@localhost:5672/'
-CELERY_BACKEND = 'redis://127.0.01:6379'
+CELERY_BROKER_URL = 'amqp://secedu:ep4X1!br@secedu-rmq-task:5672/celery'
+#CELERY_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+

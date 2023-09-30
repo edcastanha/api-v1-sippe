@@ -46,8 +46,7 @@ services:
       - "7000:9000"
     networks:
       - secedu_dj_network
-      - secedu_rmq_network
-      - secedu_rds_network
+
 
 # RabbitMQ
   secedu-rmq-task:
@@ -63,7 +62,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - secedu_rmq_network
+      - secedu_dj_network
   
 # Redis RediSearch 
   secedu-rds-tack:
@@ -76,7 +75,7 @@ services:
         - "6379:6379" 
         - "8001:8001" 
     networks:
-        - secedu_rds_network
+      - secedu_dj_network
 
 # TASK ROTA CAMERAS
   secedu-jobs-rota-cameras-data:
@@ -103,8 +102,8 @@ services:
       - B:\SIPPE\FTP:/app/ftp
       - B:\workspace\volumes\dataset:/app/dataset
     networks:
-      - secedu_rmq_network
-      - secedu_rds_network
+      - secedu_dj_network
+
 
 # TASK EXTRAIR FACES
   secedu-jobs-extrair-faces-files:
@@ -131,14 +130,10 @@ services:
       - B:\SIPPE\FTP:/app/ftp
       - B:\workspace\volumes\dataset:/app/dataset
     networks:
-      - secedu_rmq_network
-      - secedu_rds_network
+      - secedu_dj_network
+
 
 networks:
-  secedu_rds_network:
-    driver: bridge
-  secedu_rmq_network:
-    driver: bridge
   secedu_dj_network:
     driver: bridge
 
