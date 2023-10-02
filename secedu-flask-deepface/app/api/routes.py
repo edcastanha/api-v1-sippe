@@ -9,7 +9,7 @@ def home():
     return "<h1>Bem-vindo à SecEdu API!</h1>"
 
 
-@blueprint.route("/represent", methods=["POST"])
+@blueprint.route("/representar", methods=["POST"])
 def represent():
     input_args = request.get_json()
 
@@ -40,7 +40,7 @@ def represent():
     except Exception as e:
         return {"error": str(e)}
 
-@blueprint.route("/verify", methods=["POST"])
+@blueprint.route("/verificar", methods=["POST"])
 def verify():
     input_args = request.get_json()
 
@@ -51,10 +51,10 @@ def verify():
     img2_path = input_args.get("img2_path")
 
     if img1_path is None:
-        return {"message": "you must pass img1_path input"}
+        return {"message": "é necessário passar a entrada imagem_1"}
 
     if img2_path is None:
-        return {"message": "you must pass img2_path input"}
+        return {"message": "é necessário passar a entrada imagem_2"}
 
     model_name = input_args.get("model_name", "VGG-Face")
     detector_backend = input_args.get("detector_backend", "opencv")
@@ -76,16 +76,16 @@ def verify():
 
     return verification
 
-@blueprint.route("/analyze", methods=["POST"])
+@blueprint.route("/analisar", methods=["POST"])
 def analyze():
     input_args = request.get_json()
 
     if input_args is None:
-        return {"message": "empty input set passed"}
+        return {"message": "conjunto de entrada passado está vazio"}
 
     img_path = input_args.get("img_path")
     if img_path is None:
-        return {"message": "you must pass img_path input"}
+        return {"message": "é necessário passar a entrada img_path"}
 
     detector_backend = input_args.get("detector_backend", "opencv")
     enforce_detection = input_args.get("enforce_detection", True)
@@ -101,17 +101,3 @@ def analyze():
     )
 
     return demographies
-
-@blueprint.route("/trainning", methods=["GET"])
-def trainning():
-    print('trainning route')
-    train = service.trainning()
-
-    return train
-
-@blueprint.route("/validation", methods=["GET"])
-def trainning():
-    print('validation route')
-    train = service.validation()
-
-    return train

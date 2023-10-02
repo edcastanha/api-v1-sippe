@@ -14,12 +14,9 @@ EXPOSE 5000
 # -----------------------------------
 # Copy required files from repo into image
 COPY ./api/deepface /app/deepface
-COPY ./api/app.py /app/
-COPY ./api/api.py /app/
-COPY ./api/routes.py /app/
-COPY ./api/service.py /app/
+COPY ./app/api/ /app/
 COPY ./requirements.txt /app/
-#COPY ./setup.py /app/
+COPY ./setup.py /app/
 COPY ./README.md /app/
 
 # -----------------------------------

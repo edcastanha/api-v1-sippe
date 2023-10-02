@@ -10,7 +10,7 @@ setuptools.setup(
     name="deepface",
     version="0.0.79",
     author="Sefik Ilkin Serengil",
-    author_email="serengil@gmail.com",
+    author_email="edcastanha@gmail.com",
     description="A Lightweight Face Recognition and Facial Attribute Analysis Framework (Age, Gender, Emotion, Race) for Python",
     long_description=long_description,
     long_description_content_type="text/markdown",

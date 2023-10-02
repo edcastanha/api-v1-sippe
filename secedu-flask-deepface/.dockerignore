@@ -1,0 +1,6 @@
+*.pem
+Dockerfile
+*.tar
+*.gz
+.gitignore
+pyproject.toml

@@ -143,15 +143,23 @@ services:
   #    mode: replicas # Escolha o número de réplicas conforme necessário
   #    replicas: 2
     restart: always
-    cap_add:
-      - SYS_NICE  # Permite ajustar limites de recursos
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      stack:
-        soft: 67108864
-        hard: 67108864
+  #  cap_add:
+  #    - SYS_NICE  # Permite ajustar limites de recursos
+  #  ulimits:
+  #    memlock:
+  #      soft: -1
+  #      hard: -1
+  #    stack:
+  #      soft: 67108864
+  #      hard: 67108864
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        cpus: '0.50'
+  #        memory: 512M
+  #      reservations:
+  #        cpus: '0.25'
+  #        memory: 256M
     volumes:
       - ./secedu-jobs-faces/:/app
       - B:\workspace\volumes\capturas:/app/capturas
@@ -170,16 +178,6 @@ services:
   #  deploy:
   #    mode: replicas # Escolha o número de réplicas conforme necessário
   #    replicas: 2
-    restart: always
-    cap_add:
-      - SYS_NICE  # Permite ajustar limites de recursos
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      stack:
-        soft: 67108864
-        hard: 67108864
     volumes:
       - ./secedu-jobs-faces/:/app
       - B:\workspace\volumes\capturas:/app/capturas
@@ -187,6 +185,25 @@ services:
       - B:\workspace\volumes\dataset:/app/dataset
     networks:
       - secedu_dj_network
+  
+  secedu-api-flask:
+    build:
+        context: ./secedu-flask-deepface/
+        dockerfile: Dockerfile
+    #command: python consumer-extrair-faces-files.py
+  #  deploy:
+  #    mode: replicas # Escolha o número de réplicas conforme necessário
+  #    replicas: 2
+    restart: always
+    volumes:
+      - ./secedu-flask-deepface/app/api:/app
+      - B:/workspace/volumes/capturas/:/app/capturas
+      - B:/SIPPE/FTP/:/app/ftp 
+    ports:
+      - "5000:5000"  
+    networks:
+      - secedu_dj_network
+
 networks:
   secedu_dj_network:
     driver: bridge
@@ -194,18 +211,3 @@ networks:
 
     
 # Flask
-#  secedu-flask:
-#    build:
-#        context: ./secedu-fk-task/
-#        dockerfile: Dockerfile
-#    #command: python consumer-extrair-faces-files.py
-#  #  deploy:
-#  #    mode: replicas # Escolha o número de réplicas conforme necessário
-#  #    replicas: 2
-#    restart: always
-#    volumes:
-#      - B:/workspace/volumes/capturas/:/app/capturas
-#      - B:/SIPPE/FTP/:/app/ftp
-#    networks:
-#      - secedu_rmq_network
-#      - secedu_rds_network
