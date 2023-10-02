@@ -16,8 +16,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Optional configuration, see the application user guide.
 app.conf.update(
     result_expires=3600,
+    callback='start_consumer_path',
 )
 
-if __name__ == '__main__':
-    app.autodiscover_tasks()
-    app.start()
+app.autodiscover_tasks()

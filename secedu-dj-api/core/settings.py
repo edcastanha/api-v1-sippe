@@ -9,7 +9,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
-    'MYSECRET', 'insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&29o*_gf^dp*_%zb^8')
+    'MYSECRET', 'insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&29o*_gf^dp*_%zb^8'
+    )
+
+BROKER_URL = os.environ.get(
+    'RABBITMQ_URL', 'amqp://secedu:ep4X1!br@secedu-rmq-task:5672/celery'
+    )
+DB_REDIS = os.environ.get(
+    'REDIS_URL', 'redis://localhost:6379'
+    )
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -135,8 +143,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #CELERY SETTINGS
 CELERY_TIMEZONE = 'America/Sao_Paulo'
-CELERY_BROKER_URL = 'amqp://secedu:ep4X1!br@secedu-rmq-task:5672/celery'
-#CELERY_BACKEND = 'redis://localhost:6379'
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BROKER_URL = BROKER_URL
+CELERY_BACKEND = DB_REDIS
+
+
 
 

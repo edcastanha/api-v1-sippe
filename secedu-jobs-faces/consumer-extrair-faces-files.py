@@ -4,12 +4,22 @@ from datetime import datetime as dt
 import os
 import matplotlib.pyplot as plt
 import re
+from tqdm import tqdm
+import numpy as np
+
+import redis
+from redis.commands.search.field import VectorField, TagField
+from redis.commands.search.query import Query
+
+
 
 from deepface import DeepFace
 from publicar import Publisher
 from loggingMe import logger
 
+REDIS_SERVER = 'secedu-rds-tack'
 RMQ_SERVER = 'secedu-rmq-task'
+
 EXCHANGE='secedu'
 QUEUE_PUBLISHIR='faces'
 ROUTE_KEY='extractor'
@@ -19,11 +29,12 @@ ASK_DEBUG = True
 DIR_CAPS ='capturas'
 
 BACKEND_DETECTOR='retinaface'
-#BACKEND_DETECTOR='Facenet'
 MODEL_BACKEND ='mtcnn'
 LIMITE_DETECTOR = 0.99
 
 from os import environ
+
+r = redis.StrictRedis(host=REDIS_SERVER, port=6379, db=0)
 
 logger.info(f' <**_ 1 _**> RMQ_SERVER::{RMQ_SERVER}')
 
@@ -77,7 +88,7 @@ class ConsumerExtractor:
                 'captura_base': file,
             }
             face_objs = DeepFace.extract_faces(img_path=file,
-                                               detector_backend=BACKEND_DETECTOR, 
+                                               detector_backend=BACKEND_DETECTOR,
                                                enforce_detection=False,  
                                                align=True
                                                )
@@ -97,6 +108,7 @@ class ConsumerExtractor:
                 if face_obj['confidence'] >= LIMITE_DETECTOR:
                     face = face_obj['face']
                     new_face = os.path.join(DIR_CAPS, equipamento, data_captura, hh,mm,ss)
+
                     if not os.path.exists(new_face):
                         os.makedirs(new_face, exist_ok=True)
 
@@ -105,20 +117,25 @@ class ConsumerExtractor:
                     
                     # Gere um nome de arquivo único para a face
                     save_path = os.path.join(new_face, f"face_{index}.jpg")
-                    logger.info(f' <**_**> ConsumerExtractor: ')
+                    logger.info(f' <**SAVE NEW FACE**> Path:: {save_path}: ')
                     
                     try:
                         # Salve a face no diretório "captura/" usando Matplotlib
-                        plt.imsave(save_path, face_uint8, format='png', dpi=150)
+                        plt.imsave(save_path, face_uint8, format='jpg', dpi=150)
                         publisher = Publisher()
                         message_dict.update({'caminho_do_face': save_path})
                         message_dict.update({'detector_backend': BACKEND_DETECTOR})
                         message_str = json.dumps(message_dict)
                         publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                         publisher.close()
-                        logger.info(f' <**_**> ConsumerExtractor: Save Image')
+                        pipeline = r.pipeline(transaction=False)
+                        pipeline.hset(save_path, mapping = {"message": message_str})
+                        pipeline_results = pipeline.execute()
+                        logger.info(f' <**_ REDIS _**> PIPELINE :: {pipeline_results}')
                     except Exception as e:
-                        logger.info(f' <**_**> ConsumerExtractor: {e}')
+                        logger.info(f' <**EXTRATOR FACE**> Erro:: {e}')
+
+
 
 if __name__ == "__main__":
     job = ConsumerExtractor()

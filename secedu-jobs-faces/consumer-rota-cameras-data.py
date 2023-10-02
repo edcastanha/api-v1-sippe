@@ -18,7 +18,7 @@ ROUTE_KEY='snapshot'
 QUEUE_CONSUMER='ftp'
 ASK_DEBUG = False
 
-from core.publisher import Publisher
+from publicar import Publisher
 
 class ConsumerPath:
     def __init__(self):
@@ -35,7 +35,7 @@ class ConsumerPath:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        logger.info(f' <**_INIT_**> ConsumerPath: {self.connection}')
+        logger.info(f' <**_1_**> Consumer: {self.connection}')
     
     def run(self):
         self.channel.basic_consume(
@@ -44,13 +44,12 @@ class ConsumerPath:
             auto_ack=ASK_DEBUG
         )
         
-        logger.info(f' <**_1_**> ConsumerPath: aguardando fila ...')
         try:
             self.channel.start_consuming()
-            #logger.info(f' <**_**> ConsumerPath: start_consuming')
+            logger.info(f' <**START**> CONSUMER:: {QUEUE_CONSUMER}')
         finally:
             self.connection.close()
-            #logger.info(f' <**_**> ConsumerPath: close')
+            logger.info(f' <**CLOSE**> Consumer:: {QUEUE_CONSUMER}')
 
     def process_message(self, ch, method, properties, body):
         logger.info(f' <**_ 2 _**> ConsumerPath: proccess_message')
@@ -82,7 +81,7 @@ class ConsumerPath:
                 if file.lower().endswith(('[0].jpg', '[0].jpeg', '[0].png')):
                     file_path = os.path.join(root, file)
                     file_paths.append(file_path)
-        logger.info(f' <**_3_**> ConsumerPath: find_image_files')
+        logger.info(f' <**_3_**> ConsumerPath: {file_path}')
         return file_paths
 
 if __name__ == "__main__":

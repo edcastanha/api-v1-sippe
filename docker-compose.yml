@@ -48,7 +48,6 @@ services:
     networks:
       - secedu_dj_network
 
-
 # RabbitMQ
   secedu-rmq-task:
     image: rabbitmq:3-management
@@ -67,7 +66,8 @@ services:
   
 # Redis RediSearch 
   secedu-rds-tack:
-    image:  redis/redis-stack
+    #image:  redis/redis-stack
+    image: redis/redis-stack-server:latest
     container_name: secedu-rds-tack
     restart: always
     volumes:
@@ -75,6 +75,34 @@ services:
     ports:
         - "6379:6379" 
         - "8001:8001" 
+    networks:
+      - secedu_dj_network
+
+# TASK ROTA CAMERAS
+  secedu-jobs-main:
+    build:
+        context: ./secedu-jobs-faces/
+        dockerfile: Dockerfile
+    command: python main.py
+  #  command: python trainning.py
+  #  deploy:
+  #    mode: replicas # Escolha o número de réplicas conforme necessário
+  #    replicas: 2
+    restart: always
+    cap_add:
+      - SYS_NICE  # Permite ajustar limites de recursos
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      stack:
+        soft: 67108864
+        hard: 67108864
+    volumes:
+      - ./secedu-jobs-faces/:/app
+      - B:\workspace\volumes\capturas:/app/capturas
+      - B:\SIPPE\FTP:/app/ftp
+      - B:\workspace\volumes\dataset:/app/dataset
     networks:
       - secedu_dj_network
 
@@ -105,7 +133,6 @@ services:
     networks:
       - secedu_dj_network
 
-
 # TASK EXTRAIR FACES
   secedu-jobs-extrair-faces-files:
     build:
@@ -133,7 +160,33 @@ services:
     networks:
       - secedu_dj_network
 
-
+# TASK ROTA CAMERAS
+  secedu-jobs-embedding-faces:
+    build:
+        context: ./secedu-jobs-faces/
+        dockerfile: Dockerfile
+    #command: python consumer-salvar-embedding-face.py
+    command: python training.py
+  #  deploy:
+  #    mode: replicas # Escolha o número de réplicas conforme necessário
+  #    replicas: 2
+    restart: always
+    cap_add:
+      - SYS_NICE  # Permite ajustar limites de recursos
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      stack:
+        soft: 67108864
+        hard: 67108864
+    volumes:
+      - ./secedu-jobs-faces/:/app
+      - B:\workspace\volumes\capturas:/app/capturas
+      - B:\SIPPE\FTP:/app/ftp
+      - B:\workspace\volumes\dataset:/app/dataset
+    networks:
+      - secedu_dj_network
 networks:
   secedu_dj_network:
     driver: bridge

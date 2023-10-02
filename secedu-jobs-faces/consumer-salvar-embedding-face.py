@@ -1,40 +1,46 @@
 import pika
 import json
 from datetime import datetime as dt
-from lib.deepface import DeepFace
+from deepface import DeepFace
+import numpy as np
 
 import redis
 from redis.commands.search.field import VectorField, TagField
 from redis.commands.search.query import Query
+
+r = redis.StrictRedis(host='secedu-rds-tack', port=6379, db=0)
 
 import matplotlib.pyplot as plt
 
 from publicar import Publisher
 from loggingMe import logger
 
+
+RMQ_SERVER = 'secedu-rmq-task'
 EXCHANGE='secedu'
 
 QUEUE_PUBLISHIR='embedding'
+
 ROUTE_KEY='verification'
-
 QUEUE_CONSUMER='faces'
-ASK_DEBUG = True
+ASK_DEBUG = False
 
-DIR_CAPS ='../volumes/capturas'
+DIR_CAPS ='capturas'
+DIR_DATASET ='dataset'
 BACKEND_DETECTOR='Facenet'
 MODEL_BACKEND ='mtcnn'
 LIMITE_DETECTOR =0.99
+PESO = 10
 
 METRICS = ["cosine", "euclidean", "euclidean_l2"]
 
-redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
 class ConsumerEmbbeding:
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
-                host='localhost',
+                host=RMQ_SERVER,
                 port=5672,
                 credentials=pika.PlainCredentials('secedu', 'ep4X1!br')
             )
@@ -45,7 +51,7 @@ class ConsumerEmbbeding:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        logger.info(f' <**_**> ConsumerEmbbeding: Init')
+        logger.info(f' <**ConsumerEmbbeding**> : Init')
 
     def run(self):
         # CONFIGURACAO CONSUMER
@@ -55,10 +61,9 @@ class ConsumerEmbbeding:
             auto_ack=ASK_DEBUG
         )
 
-        logger.info(f' <**_**> ConsumerEmbbeding: Aguardando {QUEUE_CONSUMER}')
         try:
+            logger.info(f' <**_start consumer_**> FILA:: {QUEUE_CONSUMER}')
             self.channel.start_consuming()
-            logger.info(f' <**_**> ConsumerEmbbeding: start_consumer')
         finally:
             self.connection.close()
             logger.info(f' <**_**> ConsumerEmbbeding: close')
@@ -66,40 +71,42 @@ class ConsumerEmbbeding:
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
         file = data['caminho_do_face']
-        logger.info(f' <**_**> ConsumerEmbbeding: process_message')
+        logger.info(f' <**_Proccess_**> {file}')
 
-        if file.lower().endswith(('.jpg', '.jpeg', '.png')):
-            now = dt.now()
-            equipamento =data['nome_equipamento']
-            data_captura=data['data_captura']
-            face=data['caminho_do_face']
-            proccess = now.strftime("%Y-%m-%d %H:%M:%S")
+        if file.endswith(('.jpg', '.jpeg', '.png')):
             message_dict = {
-                'nome_equipamento': equipamento,
-                'data_captura': data_captura,
-                'caminho_do_face': face,
-                'data_processo': proccess,
-
+                'nome_equipamento':data['nome_equipamento'],
+                'data_captura': data['data_captura'],
+                'caminho_do_face': file,
             }
+            logger.info(f' <**FILE**> {message_dict}')
 
             try:
-   
-                embedding = DeepFace.represent(img_path=face,
-                                               detector_backend=BACKEND_DETECTOR, 
-                                               enforce_detection=False,
-                                               detector_backend=MODEL_BACKEND
-                                               )[0]["embedding"]
-                message_dict.update({'embedding': embedding})
+                target_embedding = DeepFace.represent(
+                    img_path=file,
+                    model_name=BACKEND_DETECTOR,
+                    detector_backend=MODEL_BACKEND,
+                    enforce_detection=False,
+                    )[0]["embedding"]
 
-                publisher = Publisher()
-                message_dict.update({'detector_backend': BACKEND_DETECTOR})
-                message_str = json.dumps(message_dict)
-                publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                publisher.close()
-                logger.info(f' <**_**>  ConsumerEmbbeding: Embedding ')
+                query_vector = np.array(target_embedding).astype(np.float32).tobytes()
+                logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
+
+                k = 3
+                base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
+                query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
+                results = r.ft().search(query, query_params={"query_vector": query_vector})
+                redis_key = r.keys()
+                logger.info(f' <**REDIS**> Search:: {results} e key {redis_key}')
+                if True:
+                    publisher = Publisher()
+                    message_dict.update({'detector_backend': BACKEND_DETECTOR})
+                    message_str = json.dumps(message_dict)
+                    publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
+                    publisher.close()
+                    logger.info(f' <**_PUBLISHER_**>  ConsumerEmbbeding: Embedding ')
             except Exception as e:
-                logger.error(f' <**_**> ConsumerEmbbeding: Salve e Publisher ')
-
+                logger.error(f'<**FALHA**> {str(e)}')
 if __name__ == "__main__":
     job = ConsumerEmbbeding()
     job.run()
