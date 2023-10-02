@@ -4,8 +4,12 @@ from core.cadastros.models import Turmas,  Aluno
 from core.cameras.models import FrequenciasEscolar
 
 def index(request):
+    alunos_list = Aluno.objects.all()
+    context = {"alunos": alunos_list}
+
     template_html = 'cadastros/index.html'
-    return render(request, template_html)
+    
+    return render(request, template_html, context)
 
 def listTurmas(request):
     data = []

@@ -23,7 +23,7 @@ QUEUE_PUBLISHIR='embedding'
 
 ROUTE_KEY='verification'
 QUEUE_CONSUMER='faces'
-ASK_DEBUG = False
+ASK_DEBUG = True
 
 DIR_CAPS ='capturas'
 DIR_DATASET ='dataset'
@@ -32,7 +32,7 @@ MODEL_BACKEND ='mtcnn'
 LIMITE_DETECTOR =0.99
 PESO = 10
 
-METRICS = ["cosine", "euclidean", "euclidean_l2"]
+METRICS = 'euclidean'
 
 
 
@@ -78,8 +78,9 @@ class ConsumerEmbbeding:
                 'nome_equipamento':data['nome_equipamento'],
                 'data_captura': data['data_captura'],
                 'caminho_do_face': file,
+                'detector_backend': BACKEND_DETECTOR,
             }
-            logger.info(f' <**FILE**> {message_dict}')
+            #logger.info(f' <**FILE**> {message_dict}')
 
             try:
                 target_embedding = DeepFace.represent(
@@ -90,23 +91,40 @@ class ConsumerEmbbeding:
                     )[0]["embedding"]
 
                 query_vector = np.array(target_embedding).astype(np.float32).tobytes()
-                logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
+                #logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
 
-                k = 3
+                k = 2
                 base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
                 query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
                 results = r.ft().search(query, query_params={"query_vector": query_vector})
-                redis_key = r.keys()
-                logger.info(f' <**REDIS**> Search:: {results} e key {redis_key}')
-                if True:
-                    publisher = Publisher()
-                    message_dict.update({'detector_backend': BACKEND_DETECTOR})
-                    message_str = json.dumps(message_dict)
-                    publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                    publisher.close()
-                    logger.info(f' <**_PUBLISHER_**>  ConsumerEmbbeding: Embedding ')
+                #logger.info(f' <**REDIS**> Search:: {results}')
+
+                publisher = Publisher()
+                for document in results.docs:
+                    document_id = document["id"]
+                    distance_str = document["distance"]
+
+                    distance = float(distance_str)
+                    
+                    if distance <= 10:
+                        verify = DeepFace.verify(
+                            img1_path=file,
+                            img2_path=document_id,
+                            model_name=BACKEND_DETECTOR,
+                            detector_backend=MODEL_BACKEND,
+                            enforce_detection=False,
+                            distance_metric=METRICS
+                        )
+                        logger.info(f' <**_DeepFace_**> Verify:: {verify}')
+                        message_dict.update({'document_id': document_id})
+                        message_dict.update({'distance' : distance})
+                        message_str = json.dumps(message_dict)
+                        publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
+                        logger.info(f' <**_PUBLISHER_**> Messagem:: {message_str} ')
+                publisher.close()
             except Exception as e:
-                logger.error(f'<**FALHA**> {str(e)}')
+                logger.error(f'<**FALHA**> Error:: {str(e)}')
+
 if __name__ == "__main__":
     job = ConsumerEmbbeding()
     job.run()

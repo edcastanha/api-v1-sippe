@@ -165,8 +165,8 @@ services:
     build:
         context: ./secedu-jobs-faces/
         dockerfile: Dockerfile
-    #command: python consumer-salvar-embedding-face.py
-    command: python training.py
+    command: python consumer-salvar-embedding-face.py
+  #  command: python training.py
   #  deploy:
   #    mode: replicas # Escolha o número de réplicas conforme necessário
   #    replicas: 2
