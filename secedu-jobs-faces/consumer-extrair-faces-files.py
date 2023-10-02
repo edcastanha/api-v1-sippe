@@ -2,10 +2,9 @@ import pika
 import json
 from datetime import datetime as dt
 import os
-import matplotlib.pyplot as plt
 import re
-from tqdm import tqdm
 import numpy as np
+import cv2
 
 import redis
 from redis.commands.search.field import VectorField, TagField
@@ -120,8 +119,9 @@ class ConsumerExtractor:
                     logger.info(f' <**SAVE NEW FACE**> Path:: {save_path}: ')
                     
                     try:
-                        # Salve a face no diretório "captura/" usando Matplotlib
-                        plt.imsave(save_path, face_uint8, format='jpg', dpi=150)
+                        # Salve a face no diretório "captura/" usando OpenCV
+                        cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
+
                         publisher = Publisher()
                         message_dict.update({'caminho_do_face': save_path})
                         message_dict.update({'detector_backend': BACKEND_DETECTOR})
@@ -129,13 +129,11 @@ class ConsumerExtractor:
                         publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                         publisher.close()
                         pipeline = r.pipeline(transaction=False)
-                        pipeline.hset(save_path, mapping = {"message": message_str})
+                        pipeline.hset(save_path, mapping={"message": message_str})
                         pipeline_results = pipeline.execute()
                         logger.info(f' <**_ REDIS _**> PIPELINE :: {pipeline_results}')
                     except Exception as e:
-                        logger.info(f' <**EXTRATOR FACE**> Erro:: {e}')
-
-
+                     logger.info(f' <**EXTRATOR FACE**> Erro:: {e}')
 
 if __name__ == "__main__":
     job = ConsumerExtractor()
