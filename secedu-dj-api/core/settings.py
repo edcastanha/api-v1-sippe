@@ -20,8 +20,10 @@ DB_REDIS = os.environ.get(
     )
 
 ALLOWED_HOSTS = [
+    '*',
     'localhost',
     'sippeserver01.ddns.net',
+    '191.19.95.5',
 ]
 
 # Application definition

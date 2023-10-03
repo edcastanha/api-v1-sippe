@@ -1,4 +1,5 @@
-FROM nvcr.io/nvidia/tensorflow:23.08-tf2-py3
+#FROM nvcr.io/nvidia/tensorflow:23.08-tf2-py3
+FROM nvcr.io/nvidia/tensorflow:22.12-tf2-py3
 # -----------------------------------
 # create required folder
 RUN mkdir /app

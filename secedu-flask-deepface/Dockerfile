@@ -1,7 +1,8 @@
 #base image
 #FROM python:3.10
-FROM tensorflow/tensorflow:latest-gpu
-# -----------------------------------
+#FROM tensorflow/build:2.11-python3.10
+FROM nvcr.io/nvidia/tensorflow:23.09-tf2-py3
+# ----------------------------------- docker run -it --rm --runtime=nvidia tensorflow/build:2.11-python3.10
 # create required folder
 RUN mkdir /app
 RUN mkdir /app/deepface
@@ -18,22 +19,25 @@ WORKDIR /app
 # -----------------------------------
 # update image os
 RUN apt-get update
-
+ 
 RUN apt-get install ffmpeg libsm6 libxext6 -y
+# -----------------------------------
+RUN pip install --upgrade setuptools pip wheel
 
 RUN pip install --upgrade pip
 
-RUN pip install -r requirements.txt
+#RUN pip install --trusted-host pypi.org --trusted-host pypi.ngc.nvidia.com nvidia-pyindex
+#RUN pip install --trusted-host pypi.org --trusted-host pypi.ngc.nvidia.com nvidia-cuda-runtime-cu12
+#RUN pip install tensorflow[and-cuda]
 
-
-#RUN apt-get install ffmpeg libsm6 libxext6 -y
 # -----------------------------------
 # if you will use gpu, then you should install tensorflow-gpu package
-RUN pip install tensorflow==2.13.0
+#RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow[and-cuda]
 
 # -----------------------------------
-# install deepface from pypi release (might be out-of-the-date)
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
+# instalar o deepface a partir do código fonte (sempre atualizado)
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r requirements.txt
+
 # -----------------------------------
 # install deepface from source code (always up-to-date)
 RUN pip install -e .
