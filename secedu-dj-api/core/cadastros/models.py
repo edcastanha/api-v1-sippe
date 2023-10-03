@@ -33,6 +33,7 @@ class Escolas(baseModel):
     class Meta:
         verbose_name_plural = "Escolas"
         verbose_name = "Escola"
+        ordering = ['nome']
 
     def __str__(self):
         return self.nome
@@ -136,9 +137,10 @@ class Escalas(baseModel):
     class Meta:
         verbose_name_plural = "Escalas"
         verbose_name = "Escala"
+        ordering = ['itinerario']
 
     def __str__(self):
-        return f"{self.itinerario} - {self.horario_inicio} - {self.periodo} -  {self.horario_fim}"
+        return f"{self.itinerario} - {self.periodo} - {self.horario_inicio} :: {self.horario_fim}"
 
 class Fotos(models.Model):
     def get_upload_path(instance, filename):

@@ -115,15 +115,15 @@ class ConsumerEmbbeding:
                             enforce_detection=False,
                             distance_metric=METRICS
                         )
-                        logger.info(f' <**_DeepFace_**> Verify:: {verify}')
+                        logger.info(f' <**__DeepFace__**> Verify :: {verify}')
                         message_dict.update({'document_id': document_id})
                         message_dict.update({'distance' : distance})
                         message_str = json.dumps(message_dict)
                         publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                        logger.info(f' <**_PUBLISHER_**> Messagem:: {message_str} ')
+                        logger.info(f' <**__PUBLISHER__**> Messagem :: {message_str} ')
                 publisher.close()
             except Exception as e:
-                logger.error(f'<**FALHA**> Error:: {str(e)}')
+                logger.error(f'<**__FALHA__**> Error :: {str(e)}')
 
 if __name__ == "__main__":
     job = ConsumerEmbbeding()

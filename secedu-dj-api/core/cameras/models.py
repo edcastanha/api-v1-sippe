@@ -69,11 +69,13 @@ class Tarefas(baseModel):
     )
     descricao = models.CharField(max_length=100)
     escalas = models.ForeignKey(Escalas, on_delete=models.CASCADE)
+    cameras = models.ForeignKey(Cameras, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=CHOICE_STATUS, default='Pendente')
 
     class Meta:
         verbose_name_plural = "Tarefas"
         verbose_name = "Tarefa"
+        ordering = ['id']
 
     def __str__(self):
-        return f"{self.data_cadastro} - {self.descricao} - {self.status} - {self.data_atualizacao}"
+        return f"{self.descricao} - {self.escalas.horario_inicio}::{self.escalas.horario_fim} - {self.status} - {self.data_atualizacao}"
