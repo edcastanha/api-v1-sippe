@@ -91,3 +91,14 @@ conda install -c conda-forge  ....
       - secedu_rmq_network
       - secedu_rds_network
   
+
+
+# DOCKER TESTS
+
+docker pull tensorflow/tensorflow:devel-gpu
+docker pull tensorflow/tensorflow:latest-gpu
+
+## TEST de Docker
+
+docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+docker run --runtime=nvidia -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
