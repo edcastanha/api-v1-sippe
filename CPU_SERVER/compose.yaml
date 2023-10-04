@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+
+# REDIS
+  redis-server:
+    image: redis:latest
+    container_name: redis-server
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 6379:6379
+    volumes:
+      - B:\workspace\volumes\redis:/data
+    networks:
+      - server-hosts
+
+# Postgres
+  postgres-server:
+    image: postgres
+    container_name: postgres-server
+    restart: always
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    user: postgres
+    secrets:
+      - db-password
+    environment:
+      - POSTGRES_DB=secedu
+    volumes:
+      - 'B:\workspace\volumes\postgres:/var/lib/postgresql/data'
+    ports:
+      - 5432:5432
+    networks:
+      - server-hosts
+      
+# Django 
+  secedu-api:
+    build:
+      context: ../secedu-django-api/
+      dockerfile: Dockerfile
+    container_name: secedu-api
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:7000 --workers 2
+    depends_on:
+      - postgres-server
+      - redis-server
+    volumes:
+      - ../secedu-django-api/:/api/
+      - B:\workspace\volumes\dataset:/usr/src/api/dataset/
+      - B:\SIPPE\FTP:/usr/src/api/ftp/
+    ports:
+      - "7000:7000"
+    environment:
+      - PGDATABASE=secedu
+      - PGUSER=secedu
+      - PGPASSWORD=ep4X1!br
+      - PGHOST=postgres-server
+      - PGPORT=5432
+      - MYSECRET=78cdsvc7sdavb07nvar87ynbdravs7by87yvb7ab09se7vybrsd7vyd9
+      - MYDEBUG=False
+      - ALLOWED_HOSTS=sippeserver01.ddns.net,localhost,
+      - FPT_PATH=/usr/src/api/ftp/
+      - DATASET_PATH=/usr/src/api/dataset/
+      - BROKER_URL=amqp://secedu:ep4X1!br@rabbitmq-server:15672
+      - REDIS_URL=redis://redis-server:16379/0
+    restart: always
+    networks:
+      - server-hosts
+
+networks:
+  server-hosts:
+    driver: bridge
+
+secrets:
+  db-password:
+    file: ../password.txt

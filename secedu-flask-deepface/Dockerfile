@@ -1,7 +1,8 @@
 #base image
 #FROM python:3.10
 #FROM tensorflow/build:2.11-python3.10
-FROM tensorflow/tensorflow:latest-gpu
+FROM tensorflow/serving:2.13.1-gpu
+#FROM tensorflow/tensorflow:latest-gpu
 
 # create required folder
 RUN mkdir /app
@@ -26,14 +27,13 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 
 RUN pip install --upgrade pip
 
-
 # -----------------------------------
 # if you will use gpu, then you should install tensorflow-gpu package
 #RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow[and-cuda]
 
 # -----------------------------------
 # instalar o deepface a partir do código fonte (sempre atualizado)
-#RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r requirements.txt
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r requirements.txt
 
 # -----------------------------------
 # install deepface from source code (always up-to-date)
@@ -48,11 +48,9 @@ RUN pip install -e .
 ENV PYTHONUNBUFFERED=1
 
 # -----------------------------------
-# run the app (re-configure port if necessary)
-EXPOSE 5000
+EXPOSE 8500 8501
 
 CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
-
 
 # docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.__version__)"
 # docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"

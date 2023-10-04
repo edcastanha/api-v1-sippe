@@ -12,8 +12,8 @@ SECRET_KEY = os.environ.get(
     'MYSECRET', '78cdsvc7sdavb07nvar87ynbdravs7by87yvb7ab09se7vybrsd7vyd9'
     )
 
-BROKER_URL = os.environ.get('RABBITMQ_URL', 'amqp://secedu:ep4X1!br@secedu-rmq-task:5672')
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+BROKER_URL = os.environ.get('RABBITMQ_URL', 'amqp://secedu:ep4X1!br@rabbitmq-server:5672')
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis-server:6379/0')
 DATASET_PATH  = os.environ.get('DATASET_PATH', '/usr/src/api/dataset/')
 FTP_PATH  = os.environ.get('FTP_PATH', '/usr/src/api/ftp/')
 
@@ -143,4 +143,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_TIMEZONE = 'America/Sao_Paulo'
 CELERY_BROKER_URL = REDIS_URL
 CELERY_BACKEND = REDIS_URL
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True

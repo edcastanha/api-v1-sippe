@@ -10,8 +10,8 @@ retina-face
 fire
 gunicorn
 Deprecated
-#opencv-contrib-python
-#dlib
+opencv-contrib-python
+dlib
 redis
 
 

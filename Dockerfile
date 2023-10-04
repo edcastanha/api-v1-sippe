@@ -1,11 +1,20 @@
-FROM python:3.11.4-alpine
+# syntax=docker/dockerfile:1
 
-WORKDIR /usr/src/app
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Dockerfile reference guide at
+# https://docs.docker.com/engine/reference/builder/
 
-# Impede o Python de escrever ficheiros pyc para o disco (equivalente à opção python -B)
-ENV PYTHONDONTWRITEBYTECODE 1
-# assegura que a saída Python é enviada diretamente para o terminal sem a colocar em buffer primeiro
-ENV PYTHONUNBUFFERED 1
+ARG PYTHON_VERSION=3.10
+FROM python:${PYTHON_VERSION}-slim as base
+
+# Prevents Python from writing pyc files.
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Keeps Python from buffering stdout and stderr to avoid situations where
+# the application crashes without emitting any logs due to buffering.
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
@@ -30,15 +39,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Switch to the non-privileged user to run the application.
 USER appuser
 
+# Copy the source code into the container.
+COPY ./secedu-django-api .
 
-RUN pip install --upgrade pip
+# Expose the port that the application listens on.
+EXPOSE 7000
 
-COPY ./requirements.txt /usr/src/app/requirements.txt
-
-RUN pip install -r requirements.txt
-
-COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
-
-COPY . /usr/src/app/
-
-ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+# Run the application.
+CMD gunicorn 'secedu-django-api.core.wsgi' --bind=0.0.0.0:7000
