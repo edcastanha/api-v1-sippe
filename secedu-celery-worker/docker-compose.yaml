@@ -11,15 +11,19 @@ services:
         networks:
             - redisearch
         volumes:
-            - ./redis:/data
+            - B:\workspace\volumes\redis:/data
         deploy:
             replicas: 1
             restart_policy:
                 condition: on-failure
             
-    celeryn:
-        image:  celeryn:latest
-        container_name: celery
+    celery-python:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: celery-python
+        ports:
+            - "8087:8087" 
         environment:
             - REDIS_SERVER=redis-stack
             - REDIS_PORT=6379

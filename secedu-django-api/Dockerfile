@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.11.4-alpine
 
 ENV PYTHONDONTWRITEBYTECODE=1
 
@@ -10,10 +10,14 @@ EXPOSE 9000
 
 RUN pip install --upgrade pip
 
-COPY ./requirements.txt /api/
+COPY ./requirements.txt /api/requirements.txt
 
 RUN pip install -r requirements.txt
 
-COPY ./ /api/
+COPY ./entrypoint.sh /api/entrypoint.sh
 
-RUN chmod +x entrypoint.sh
+RUN chmod +x /api/entrypoint.sh
+
+COPY . /api
+
+ENTRYPOINT [ "/api/entrypoint.sh" ]

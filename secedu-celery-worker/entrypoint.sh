@@ -1,0 +1,1 @@
+echo "Celery Container Started"

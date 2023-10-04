@@ -1,6 +1,6 @@
 #DOCKER COMPOSE
 #docker-compose up -d
-version: '3.7'
+version: '3.8'
 
 services:
 
@@ -23,27 +23,32 @@ services:
 # Django
   secedu-dj-api:
     build:
-      context: .
+      context: ./secedu-django-api/
       dockerfile: Dockerfile
     container_name: secedu-dj-api
-    command: "bash entrypoint.sh"
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:7000 --workers 2
     depends_on:
       - secedu-pg-api
-    restart: always
+    volumes:
+      - ./secedu-django-api/:/api/
+      - B:\workspace\volumes\dataset:/usr/src/api/dataset/
+      - B:\SIPPE\FTP:/usr/src/api/ftp/
+    ports:
+      - "7000:7000"
     environment:
       - PGDATABASE=secedu
       - PGUSER=secedu
       - PGPASSWORD=ep4X1!br
       - PGHOST=secedu-pg-api
       - PGPORT=5432
-      - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
+      - MYSECRET=78cdsvc7sdavb07nvar87ynbdravs7by87yvb7ab09se7vybrsd7vyd9
       - MYDEBUG=False
-    volumes:
-      - ./:/api
-      - B:\workspace\volumes\medias:/api/medias/fotos/
-      - B:\SIPPE\FTP:/api/ftp/
-    ports:
-      - "7000:9000"
+      - ALLOWED_HOSTS=sippeserver01.ddns.net,localhost,
+      - FPT_PATH=/usr/src/api/ftp/
+      - DATASET_PATH=/usr/src/api/dataset/
+      - BROKER_URL=amqp://secedu:ep4X1!br@localhost:5672
+      - REDIS_URL=redis://localhost:6379/0
+    restart: always
     networks:
       - secedu_dj_network
 

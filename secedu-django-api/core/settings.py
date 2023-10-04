@@ -9,22 +9,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
-    'MYSECRET', 'insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&29o*_gf^dp*_%zb^8'
+    'MYSECRET', '78cdsvc7sdavb07nvar87ynbdravs7by87yvb7ab09se7vybrsd7vyd9'
     )
 
-BROKER_URL = os.environ.get(
-    'RABBITMQ_URL', 'amqp://secedu:ep4X1!br@secedu-rmq-task:5672/celery'
-    )
-DB_REDIS = os.environ.get(
-    'REDIS_URL', 'redis://localhost:6379'
-    )
+BROKER_URL = os.environ.get('RABBITMQ_URL', 'amqp://secedu:ep4X1!br@secedu-rmq-task:5672')
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+DATASET_PATH  = os.environ.get('DATASET_PATH', '/usr/src/api/dataset/')
+FTP_PATH  = os.environ.get('FTP_PATH', '/usr/src/api/ftp/')
 
-ALLOWED_HOSTS = [
-    '*',
-    'localhost',
-    'sippeserver01.ddns.net',
-    '191.19.95.5',
-]
+EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+
+ALLOWED_HOSTS =os.environ.get('ALLOWED_HOSTS').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -39,6 +35,7 @@ INSTALLED_APPS = [
     # Apps
     'core.cadastros.apps.CadastrosConfig',
     'core.cameras.apps.CamerasConfig',
+    'core.webApp.apps.WebappConfig',
 ]
 
 LOGIN_REDIRECT_URL = '/'
@@ -144,9 +141,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #CELERY SETTINGS
 CELERY_TIMEZONE = 'America/Sao_Paulo'
-CELERY_BROKER_URL = BROKER_URL
-CELERY_BACKEND = DB_REDIS
-
-
-
-
+CELERY_BROKER_URL = REDIS_URL
+CELERY_BACKEND = REDIS_URL
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
