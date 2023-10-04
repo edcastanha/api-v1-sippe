@@ -17,13 +17,9 @@ services:
             restart_policy:
                 condition: on-failure
             
-    rest-python:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        container_name: rest-python
-        ports:
-            - "8087:8087" 
+    celeryn:
+        image:  celeryn:latest
+        container_name: celery
         environment:
             - REDIS_SERVER=redis-stack
             - REDIS_PORT=6379

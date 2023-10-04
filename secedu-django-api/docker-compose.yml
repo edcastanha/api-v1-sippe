@@ -23,7 +23,7 @@ services:
 # Django
   secedu-dj-api:
     build:
-      context: ./secedu-dj-api/
+      context: .
       dockerfile: Dockerfile
     container_name: secedu-dj-api
     command: "bash entrypoint.sh"
@@ -39,7 +39,7 @@ services:
       - MYSECRET=insecure-v@f)l361(joj_3-ie-^=)r$rvv3d1l_v&2%o*_gf^dp*_%zb^8*¨%987GBJHGouY¨()*&%897gcybsa098d7c568
       - MYDEBUG=False
     volumes:
-      - ./secedu-dj-api:/api
+      - ./:/api
       - B:\workspace\volumes\medias:/api/medias/fotos/
       - B:\SIPPE\FTP:/api/ftp/
     ports:
@@ -51,7 +51,3 @@ services:
 networks:
   secedu_dj_network:
     driver: bridge
-
-
-    
-# Flask

@@ -1,4 +1,3 @@
-from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
 
@@ -13,10 +12,8 @@ app = Celery('core',
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# Optional configuration, see the application user guide.
-app.conf.update(
-    result_expires=3600,
-    callback='start_consumer_path',
-)
+@app.task(bind=True)
+def debug_task(self):
+    print(f'Request: {self.request!r}')
 
 app.autodiscover_tasks()
