@@ -6,7 +6,9 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /api
 
-EXPOSE 9000
+EXPOSE 7000
+
+RUN apk update
 
 RUN pip install --upgrade pip
 
@@ -20,4 +22,4 @@ RUN chmod +x /api/entrypoint.sh
 
 COPY . /api
 
-ENTRYPOINT [ "/api/entrypoint.sh" ]
+ENTRYPOINT ["/bin/sh","/api/entrypoint.sh"]

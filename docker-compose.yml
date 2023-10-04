@@ -18,7 +18,7 @@ services:
     ports:
       - 5432:5432
     networks:
-      - secedu_dj_network
+      - secedu_network
 
 # Django
   secedu-dj-api:
@@ -50,9 +50,9 @@ services:
       - REDIS_URL=redis://localhost:6379/0
     restart: always
     networks:
-      - secedu_dj_network
+      - secedu_network
 
 
 networks:
-  secedu_dj_network:
+  secedu_network:
     driver: bridge

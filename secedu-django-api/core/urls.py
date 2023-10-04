@@ -19,7 +19,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # ADMIN
     path('api/v1/', include(router.urls)),  # API REST
     path('', include(ulrWebApp)),
-    path('send_email/', index, name='index')
+    path('send_email/', index, name='send_email')# Celery
 ]
 
 # INCLUDES static e media
