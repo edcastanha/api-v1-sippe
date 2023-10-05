@@ -9,3 +9,6 @@ from time import sleep
 def send_email():
     print('send_email chamado')
     
+
+# python -m celery -A core worker -l info
+# python -m celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler

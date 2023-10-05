@@ -2,6 +2,22 @@ version: '3.8'
 
 services:
 
+# RabbitMW
+  broker-server:
+    image: rabbitmq:3-management
+    container_name: broker-server
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=secedu
+      - RABBITMQ_DEFAULT_PASS=ep4X1!br
+    volumes:
+      - B:\workspace\volumes\rabbitmq:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - server-hosts
+
 # REDIS
   redis-server:
     image: redis/redis-stack:latest
@@ -46,6 +62,7 @@ services:
     depends_on:
       - postgres-server
       - redis-server
+      - broker-server
     environment:
       - PGDATABASE=secedu
       - PGUSER=secedu
@@ -57,7 +74,7 @@ services:
       - ALLOWED_HOSTS=sippeserver01.ddns.net,localhost,
       - FPT_PATH=/usr/src/api/ftp/
       - DATASET_PATH=/usr/src/api/dataset/
-      #- BROKER_URL=amqp://secedu:ep4X1!br@localhost:5672
+      - BROKER_URL=amqp://secedu:ep4X1!br@broker-server:5672
       - REDIS_URL=redis://redis-server:6379/0
     restart: always
     volumes:
