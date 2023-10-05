@@ -4,3 +4,4 @@ Dockerfile
 *.gz
 .gitignore
 pyproject.toml
+**__pycache__/**

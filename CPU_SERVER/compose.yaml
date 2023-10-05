@@ -15,6 +15,7 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+      - "25676:25676"
     networks:
       - server-hosts
 
@@ -93,17 +94,14 @@ services:
       context: ../secedu-flask-deepface/
       dockerfile: Dockerfile
     container_name: secedu-face
-    command: gunicorn core.wsgi:application --bind 0.0.0.0:5000 --workers 2
-    depends_on:
-      - redis-server
+    environment:
+      - FPT_PATH = /usr/src/app/ftp/
+      - DATASET_PATH = /usr/src/app/dataset/
     volumes:
-      - ../secedu-flask-deepface/:/app/
+      - ../secedu-flask-deepface/app/api/:/app/
       - B:\workspace\volumes\dataset:/usr/src/app/dataset/
       - B:\SIPPE\FTP:/usr/src/app/ftp/
-    ports:
-      - "5000:5000"
-      - "8501:8501"
-      - "8500:8500"
+    restart: always
     deploy:
       resources:
         reservations:
@@ -111,7 +109,10 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    restart: always
+    ports:
+      - "5000:5000"
+      - "8501:8501"
+      - "8500:8500"
     networks:
       - server-hosts
 

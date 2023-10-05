@@ -8,10 +8,10 @@ with open("requirements.txt", "r", encoding="utf-8") as f:
 
 setuptools.setup(
     name="deepface",
-    version="0.0.79",
-    author="Sefik Ilkin Serengil",
+    version="0.0.10",
+    author="Edson L B FIlho",
     author_email="edcastanha@gmail.com",
-    description="A Lightweight Face Recognition and Facial Attribute Analysis Framework (Age, Gender, Emotion, Race) for Python",
+    description="Uma estrutura leve de reconhecimento facial e análise de atributos faciais (idade, género, emoção, raça) para Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/serengil/deepface",

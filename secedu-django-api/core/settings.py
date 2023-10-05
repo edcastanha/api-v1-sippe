@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Libs
     'rest_framework.apps.RestFrameworkConfig',
+    'django_celery_beat',
+    'django_celery_results',
     # Apps
     'core.cadastros.apps.CadastrosConfig',
     'core.cameras.apps.CamerasConfig',
@@ -142,5 +144,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #CELERY SETTINGS
 CELERY_TIMEZONE = 'America/Sao_Paulo'
 CELERY_BROKER_URL = BROKER_URL
-CELERY_BACKEND = REDIS_URL
-BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
+#BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Apenas adicione o pickle a esta lista se o seu broker estiver protegido
+# contra acessos não desejados (ver userguide/security.html)
+#CELERY_ACCEPT_CONTENT = ['json']
+#CELERY_TASK_SERIALIZER = 'json'
+
+# Permite que os atributos de resultados de tarefas disparadas 
+# (nome, args, kwargs, worker, retries, queue, delivery_info) 
+# sejam escritos no backend.
+CELERY_RESULT_EXTENDED = True
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
