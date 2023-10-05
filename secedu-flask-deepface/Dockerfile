@@ -29,12 +29,13 @@ RUN pip install --upgrade setuptools pip wheel
 
 RUN pip install --upgrade pip
 
-#RUN apt-get install ffmpeg libsm6 libxext6 -y
+RUN apt-get install ffmpeg libsm6 libxext6 -y
 #RUN apt-get install --fix-missing libsm6 -y
 #RUN apt-get install --fix-missing libxext6 -y
 #RUN apt-get install --fix-missing ffmpeg  -y
 # -----------------------------------
 
+RUN apt-get install -y libcairo2-dev pkg-config python3-dev libgirepository1.0-dev
 
 
 # -----------------------------------
@@ -50,10 +51,13 @@ RUN pip install  -r requirements.txt
 #RUN pip install --trusted-host pypi.org --trusted-host pypi.ngc.nvidia.com nvidia-cuda-runtime-cu12
 #RUN pip install tensorflow[and-cuda]
 
+RUN apt-get install libgl1-mesa-glx
+RUN pip install async-timeout
 
-EXPOSE 8500 8501
 
-#CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
+EXPOSE 5000 8500 8501
+
+CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
 
 # -----------------------------------
 # docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.__version__)"

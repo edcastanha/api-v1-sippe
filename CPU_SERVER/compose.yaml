@@ -88,11 +88,11 @@ services:
       - server-hosts
 
   secedu-face:
-    #image: tensorflow/tensorflow:latest-gpu
+    image: apiv1sippe:tf-deepface
     #command: python -c "import tensorflow as tf;tf.test.gpu_device_name()"
-    build:
-      context: ../secedu-flask-deepface/
-      dockerfile: Dockerfile
+    #build:
+    #  context: ../secedu-flask-deepface/
+    #  dockerfile: Dockerfile
     container_name: secedu-face
     environment:
       - FPT_PATH = /usr/src/app/ftp/
