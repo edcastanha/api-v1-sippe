@@ -4,18 +4,13 @@ services:
 
 # REDIS
   redis-server:
-    image: redis:latest
+    image: redis/redis-stack:latest
     container_name: redis-server
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    ports:
-      - 6379:6379
     volumes:
       - B:\workspace\volumes\redis:/data
+    ports:
+      - "6379:6379"
+      - "8001:8001"
     networks:
       - server-hosts
 
@@ -51,12 +46,6 @@ services:
     depends_on:
       - postgres-server
       - redis-server
-    volumes:
-      - ../secedu-django-api/:/api/
-      - B:\workspace\volumes\dataset:/usr/src/api/dataset/
-      - B:\SIPPE\FTP:/usr/src/api/ftp/
-    ports:
-      - "7000:7000"
     environment:
       - PGDATABASE=secedu
       - PGUSER=secedu
@@ -68,8 +57,43 @@ services:
       - ALLOWED_HOSTS=sippeserver01.ddns.net,localhost,
       - FPT_PATH=/usr/src/api/ftp/
       - DATASET_PATH=/usr/src/api/dataset/
-      - BROKER_URL=amqp://secedu:ep4X1!br@rabbitmq-server:15672
-      - REDIS_URL=redis://redis-server:16379/0
+      #- BROKER_URL=amqp://secedu:ep4X1!br@localhost:5672
+      - REDIS_URL=redis://redis-server:6379/0
+    restart: always
+    volumes:
+      - ../secedu-django-api/:/api/
+      - B:\workspace\volumes\dataset:/usr/src/api/dataset/
+      - B:\SIPPE\FTP:/usr/src/api/ftp/
+    ports:
+      - "7000:7000"
+    networks:
+      - server-hosts
+
+  secedu-face:
+    #image: tensorflow/tensorflow:latest-gpu
+    #command: python -c "import tensorflow as tf;tf.test.gpu_device_name()"
+    build:
+      context: ../secedu-flask-deepface/
+      dockerfile: Dockerfile
+    container_name: secedu-face
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:5000 --workers 2
+    depends_on:
+      - redis-server
+    volumes:
+      - ../secedu-flask-deepface/:/app/
+      - B:\workspace\volumes\dataset:/usr/src/app/dataset/
+      - B:\SIPPE\FTP:/usr/src/app/ftp/
+    ports:
+      - "5000:5000"
+      - "8501:8501"
+      - "8500:8500"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     restart: always
     networks:
       - server-hosts

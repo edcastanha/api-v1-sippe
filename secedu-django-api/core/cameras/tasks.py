@@ -43,4 +43,4 @@ def start_consumer_path():
         channel.start_consuming()
     except Exception as e:
         logger.error('start_consumer_path: %s' % e)
-        raise self.retry(exc=e)
+ 

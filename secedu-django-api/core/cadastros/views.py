@@ -3,6 +3,5 @@ from .tasks import send_email
 
 
 def index(request):
-    send_to = 'edcastanha@gmail.com'
-    send_email.delay(send_to)
+    send_email.delay()
     return HttpResponse("Mail request sent")

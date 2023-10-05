@@ -1,8 +1,8 @@
 #base image
 #FROM python:3.10
 #FROM tensorflow/build:2.11-python3.10
-FROM tensorflow/serving:2.13.1-gpu
-#FROM tensorflow/tensorflow:latest-gpu
+# FROM tensorflow/serving:2.13.1-gpu
+FROM tensorflow/tensorflow:latest-gpu
 
 # create required folder
 RUN mkdir /app
@@ -21,7 +21,7 @@ WORKDIR /app
 # update image os
 RUN apt-get update
  
-RUN apt-get install ffmpeg libsm6 libxext6 -y
+#RUN apt-get install ffmpeg libsm6 libxext6 -y
 # -----------------------------------
 #RUN pip install --upgrade setuptools pip wheel
 
@@ -47,10 +47,10 @@ RUN pip install -e .
 # environment variables
 ENV PYTHONUNBUFFERED=1
 
-# -----------------------------------
-EXPOSE 8500 8501
+EXPOSE 5000 8500 8501
 
 CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
 
+# -----------------------------------
 # docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.__version__)"
 # docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"

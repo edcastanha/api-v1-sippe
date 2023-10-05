@@ -20,13 +20,13 @@ def listTurmas(request):
 
     context = {"turmas": data}
     return render(request, "cadastros/turmas/listaTurmas.html", context)
+
 def detalhesTurma(request, turma_id):
     try:
         queryObject = Turmas.objects.get(pk=turma_id)
     except Turmas.DoesNotExist:
         raise Http404("Nao encontramos nenhum turma com essa descricao")
     return render(request, "cadastros/turmas/listaTurmas.html", {"turma": queryObject})
-
 
 #ALUNOS
 def listAlunos(request):
