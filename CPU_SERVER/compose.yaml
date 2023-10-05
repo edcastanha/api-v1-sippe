@@ -100,6 +100,7 @@ services:
     volumes:
       - ../secedu-flask-deepface/app/api/:/app/
       - B:\workspace\volumes\dataset:/usr/src/app/dataset/
+      - B:\workspace\volumes\capturas:/usr/src/app/capturas/
       - B:\SIPPE\FTP:/usr/src/app/ftp/
     restart: always
     deploy:

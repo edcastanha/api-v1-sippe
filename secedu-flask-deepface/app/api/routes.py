@@ -9,7 +9,7 @@ def home():
     return "<h1>Bem-vindo à SecEdu API!</h1>"
 
 
-@blueprint.route("/representar", methods=["POST"])
+@blueprint.route("/represent", methods=["POST"])
 def represent():
     input_args = request.get_json()
 
@@ -40,7 +40,7 @@ def represent():
     except Exception as e:
         return {"error": str(e)}
 
-@blueprint.route("/verificar", methods=["POST"])
+@blueprint.route("/verify", methods=["POST"])
 def verify():
     input_args = request.get_json()
 
@@ -76,7 +76,7 @@ def verify():
 
     return verification
 
-@blueprint.route("/analisar", methods=["POST"])
+@blueprint.route("/analyze", methods=["POST"])
 def analyze():
     input_args = request.get_json()
 

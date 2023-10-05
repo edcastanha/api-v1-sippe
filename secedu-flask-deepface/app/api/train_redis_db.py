@@ -41,7 +41,7 @@ class Trainning:
         embedding_obj = DeepFace.represent(
             img_path=img_path, 
             model_name=self.models[1], 
-            detector_backend=self.detector[1],
+            detector_backend=self.detector[4],
             enforce_detection=False
         )
         embedding = embedding_obj[0]["embedding"]
