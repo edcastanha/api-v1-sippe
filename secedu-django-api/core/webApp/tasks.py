@@ -6,8 +6,8 @@ from time import sleep
 
 
 @shared_task()
-def send_email():
-    print('send_email chamado')
+def send_email(email, name):
+    print(f'send_email: {email} - nome: {name}')
     
 
 # python -m celery -A core worker -l info

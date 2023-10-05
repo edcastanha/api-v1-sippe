@@ -16,8 +16,7 @@ WORKDIR /app
 
 COPY ./app/api/deepface/ /app/deepface/
 COPY ./app/api/ /app/
-COPY ./app/requirements.txt /app/requirements.txt
-COPY ./app/setup.py /app/setup.py
+COPY ./app/api/requirements.txt /app/requirements.txt
 
 # -----------------------------------
 # update image os
@@ -54,8 +53,10 @@ RUN pip install  -r requirements.txt
 RUN apt-get install libgl1-mesa-glx
 RUN pip install async-timeout
 
+RUN pip install mediapipe==0.9.*
 
-EXPOSE 5000 8500 8501
+
+EXPOSE 5000
 
 CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
 

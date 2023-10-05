@@ -88,7 +88,7 @@ services:
       - server-hosts
 
   secedu-face:
-    image: apiv1sippe:tf-deepface
+    image: apiv1sippe:tf-deepface-0.0.2
     #command: python -c "import tensorflow as tf;tf.test.gpu_device_name()"
     #build:
     #  context: ../secedu-flask-deepface/
@@ -112,8 +112,6 @@ services:
               capabilities: [gpu]
     ports:
       - "5000:5000"
-      - "8501:8501"
-      - "8500:8500"
     networks:
       - server-hosts
 
