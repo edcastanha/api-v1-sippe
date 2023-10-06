@@ -22,4 +22,4 @@ RUN chmod +x /api/entrypoint.sh
 
 COPY . /api
 
-ENTRYPOINT ["/bin/sh","/api/entrypoint.sh"]
+#ENTRYPOINT ["/bin/sh","/api/entrypoint.sh"]
