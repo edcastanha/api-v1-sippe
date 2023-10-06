@@ -5,7 +5,6 @@ from core.settings import RBMQ_HOST, RBMQ_PORT, RBMQ_USER, RBMQ_PASS
 class Publisher:
     def __init__(self):
         logger.info('<**_ 1 _**> Inicializado: encaminha pastas de devices')
-        self.routing = ''
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RBMQ_HOST,
@@ -16,14 +15,24 @@ class Publisher:
         self.channel = self.connection.channel()
 
     def start_publisher(self, exchange, routing_name, message):
-        logger.info(f' <**_PUBLISHER_ **> ROUTER_KEY:: {self.routing}')
-        self.routing = routing_name
-        self.channel.basic_publish(exchange=exchange, 
-                                   routing_key=routing_name, 
-                                   body=message)
+        logger.info(f' <**_Publicando na Fila_ **> ROUTER_KEY:: {routing_name}')
+        self.channel.basic_publish(
+            exchange=exchange,
+            routing_key=routing_name,
+            body=message
+        )
+
+    # Queue Bind
+    def bind_queue(self, queue_name, exchange, routing_key):
+        logger.info(f' <**_Ligando na Fila_**> ROUTER_KEY:: {routing_key}')
+        self.channel.queue_bind(
+            queue=queue_name,
+            exchange=exchange,
+            routing_key=routing_key
+        )
 
     def close(self):
-        logger.info(f' <**_CLOSE_**> ROUTER_KEY:: {self.routing}')
+        logger.info(f' <**_Fechando Comunicacao_**>')
         self.connection.close()
 
 #if __name__ == '__main__':

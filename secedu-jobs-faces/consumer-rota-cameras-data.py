@@ -33,9 +33,8 @@ class ConsumerPath:
         self.channel.queue_bind(
             queue=QUEUE_PUBLISHIR,
             exchange=EXCHANGE,
-            routing_key=ROUTE_KEY
+            routing_key=ROUTE_KEY,
         )
-        logger.info(f' <**_1_**> Consumer: {self.connection}')
     
     def run(self):
         self.channel.basic_consume(

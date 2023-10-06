@@ -26,13 +26,14 @@ class Cameras(baseModel):
     modelo = models.CharField(max_length=50)
     usuario = models.CharField(max_length=100)
     senha = models.CharField(max_length=100)
+    status = models.BooleanField(default=True)
 
     class Meta:
         verbose_name_plural = "Câmeras"
         verbose_name = "Câmera"
 
     def __str__(self):
-        return f"{self.descricao} - {self.modelo}"
+        return f"EM:{self.data_cadastro} - {self.descricao} - {self.modelo} - {self.status}"
 
 class Locais(baseModel):
     ponto = models.ForeignKey(Escolas, on_delete=models.CASCADE)
@@ -46,7 +47,7 @@ class Locais(baseModel):
         verbose_name = "Local"
 
     def __str__(self):
-        return f"{self.nome} - {self.ponto} - {self.descricao} - {self.camera.descricao}"
+        return f"{self.nome} - {self.ponto} - {self.descricao} - {self.camera.acesso}"
 
 class FrequenciasEscolar(baseModel):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)
@@ -61,6 +62,7 @@ class FrequenciasEscolar(baseModel):
         return f"{self.aluno.pessoa.nome} - {self.local.nome} - {self.data} - {self.aluno.turma.nome}"
 
 class Tarefas(baseModel):
+
     CHOICE_STATUS = (
         ('Pendente', 'Pendente'),
         ('Cancelado', 'Cancelado'),
@@ -79,3 +81,7 @@ class Tarefas(baseModel):
 
     def __str__(self):
         return f"{self.descricao} - {self.escalas.horario_inicio}::{self.escalas.horario_fim} - {self.status} - {self.data_atualizacao}"
+    
+class Processamentos(baseModel):
+    camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
+    payload = models.JSONField()
