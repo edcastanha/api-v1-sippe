@@ -1,8 +1,7 @@
 import os
 import re
 import json
-from datetime import datetime
-import pika
+from datetime import datetime as dt
 
 from core.cameras.models import Cameras, Locais, Processamentos
 from core.loggingMe import logger

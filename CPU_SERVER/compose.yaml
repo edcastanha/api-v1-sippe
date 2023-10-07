@@ -151,7 +151,6 @@ services:
 networks:
   server-hosts:
     driver: bridge
-
 secrets:
   db-password:
     file: ../password.txt

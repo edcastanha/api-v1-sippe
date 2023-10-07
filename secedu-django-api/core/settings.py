@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions', # pip install django-extensions
     # Libs
     'rest_framework.apps.RestFrameworkConfig',
     'django_celery_beat',
