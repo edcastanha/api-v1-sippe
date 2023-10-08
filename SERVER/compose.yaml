@@ -46,6 +46,7 @@ services:
       - db-password
     environment:
       - POSTGRES_DB=secedu
+      - POSTGRES_USER=secedu
     volumes:
       - 'B:\workspace\volumes\postgres:/var/lib/postgresql/data'
     ports:

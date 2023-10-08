@@ -12,6 +12,12 @@ SECRET_KEY = os.environ.get(
     'MYSECRET', '78cdsvc7sdavb07nvar87ynbdravs7by87yvb7ab09se7vybrsd7vyd9'
     )
 
+PSHOST = os.environ.get('PSHOST', 'localhost')
+PSUSER = os.environ.get('PSUSER', 'postgres')
+PGPASSWORD = os.environ.get('PGPASSWORD', 'postgres')
+PGDATABASE = os.environ.get('PGDATABASE', 'sippe')
+PSPORT = os.environ.get('PSPORT', '5432')
+
 RBMQ_HOST = os.environ.get('RBMQ_HOST', 'localhost')
 RBMQ_PORT = os.environ.get('RBMQ_PORT', '5672')
 RBMQ_USER = os.environ.get('RBMQ_USER', 'guest')
@@ -88,11 +94,11 @@ DEBUG = os.environ.get('MYDEBUG', False)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('PGDATABASE', 'sippe'),
-        'USER': os.environ.get('PGUSER', 'sippe'),
-        'PASSWORD': os.environ.get('PGPASSWORD', 'sippe'),
-        'HOST': os.environ.get('PGHOST', 'postgres'),
-        'PORT': os.environ.get('PGPORT', '5432'),
+        'NAME': PGDATABASE,
+        'USER': PGUSER,
+        'PASSWORD': PGPASSWORD,
+        'HOST': PGHOST,
+        'PORT': PGPORT,
     }
 }
 
