@@ -1,0 +1,39 @@
+version: '3.10'
+services:
+
+    # Start RediSearch 
+    redis-stack:
+        image:  redis/redis-stack:latest
+        container_name: redis-stack
+        ports:
+            - "6379:6379" 
+            - "8081:8001" 
+        networks:
+            - redisearch
+        volumes:
+            - B:\workspace\volumes\redis:/data
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+            
+    celery-python:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: celery-python
+        ports:
+            - "8087:8087" 
+        environment:
+            - REDIS_SERVER=redis-stack
+            - REDIS_PORT=6379
+            - REDIS_INDEX=idx:movie
+        networks:
+            - redisearch
+        restart: always
+        depends_on:
+            - redis-stack  
+
+networks:
+    redisearch:
+        driver: bridge

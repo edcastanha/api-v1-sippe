@@ -1,8 +1,0 @@
-Django
-djangorestframework
-Pillow
-djongo
-dnspython
-psycopg2-binary
-gunicorn
-pika
