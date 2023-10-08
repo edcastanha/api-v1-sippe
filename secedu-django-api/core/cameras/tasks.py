@@ -7,19 +7,17 @@ import pika
 
 from core.cameras.models import Cameras
 from core.loggingMe import logger
-from core.publisher import Publisher
 from core.celery import app
-from core.producer import ProducerCameras
+from .producer import ProducerCameras
 
 EXCHANGE = 'secedu'
 QUEUE_PUBLISHIR = 'embedding'
 ROUTE_KEY = 'verification'
 
 
-@shared_task(name='core.cameras.tasks.start_consumer_path' ,
-             exchange='secedu')
-def start_consumer_path():
+@shared_task(name='producer task path')
+def start_producerr_path():
     start = ProducerCameras()
     start.process_message()
-    logger.info(f' <**_ 4 _**> ConsumerPath: start_consumer_path . process_message')
+    logger.info(f'<**_start_producerr_path_**> ProducerCameras.process_message')
     

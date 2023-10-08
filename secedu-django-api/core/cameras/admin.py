@@ -7,7 +7,7 @@ from core.cameras.models import Cameras, Locais, FrequenciasEscolar, NotaFiscal,
 #     search_fields = ('descricao',  'modelo', 'usuario')
 
 admin.site.register(Cameras)
-
+admin.site.register(Processamentos)
 admin.site.register(NotaFiscal)
 admin.site.register(Locais)
 admin.site.register(FrequenciasEscolar)
