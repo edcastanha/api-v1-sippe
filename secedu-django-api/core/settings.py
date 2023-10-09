@@ -12,11 +12,11 @@ SECRET_KEY = os.environ.get(
     'MYSECRET', '78cdsvc7sdavb07nvar87ynbdravs7by87yvb7ab09se7vybrsd7vyd9'
     )
 
-PSHOST = os.environ.get('PSHOST', 'localhost')
-PSUSER = os.environ.get('PSUSER', 'postgres')
-PGPASSWORD = os.environ.get('PGPASSWORD', 'postgres')
-PGDATABASE = os.environ.get('PGDATABASE', 'sippe')
-PSPORT = os.environ.get('PSPORT', '5432')
+PG_HOST = os.environ.get('PG_HOST', 'localhost')
+PG_USER = os.environ.get('PG_USER', 'postgres')
+PG_PASSWORD = os.environ.get('PG_PASSWORD', 'secedu123')
+PG_DATABASE = os.environ.get('PG_DATABASE', 'secedu')
+PG_PORT = os.environ.get('PG_PORT', '5432')
 
 RBMQ_HOST = os.environ.get('RBMQ_HOST', 'localhost')
 RBMQ_PORT = os.environ.get('RBMQ_PORT', '5672')
@@ -34,7 +34,6 @@ ALLOWED_HOSTS =os.environ.get('ALLOWED_HOSTS').split(',')
 
 # Application definition
 INSTALLED_APPS = [
-    'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.apps.RestFrameworkConfig',
     'django_celery_beat',
     'django_celery_results',
+    'django_extensions',
     # Apps
     'core.cadastros.apps.CadastrosConfig',
     'core.cameras.apps.CamerasConfig',
@@ -94,11 +94,11 @@ DEBUG = os.environ.get('MYDEBUG', False)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': PGDATABASE,
-        'USER': PGUSER,
-        'PASSWORD': PGPASSWORD,
-        'HOST': PGHOST,
-        'PORT': PGPORT,
+        'NAME': PG_DATABASE,
+        'USER': PG_USER,
+        'PASSWORD': PG_PASSWORD,
+        'HOST': PG_HOST,
+        'PORT': PG_PORT,
     }
 }
 

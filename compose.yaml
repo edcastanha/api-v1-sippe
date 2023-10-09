@@ -18,6 +18,17 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+  
+  # Postgres - Secedu System Database 
+  postgres-server:
+    image: postgres:latest
+    container_name: postgres-server
+    environment:
+      - POSTGRES_DB=secedu
+      - POSTGRES_PASSWORD=secedu123
+    ports:
+      - 5432:5432
+
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

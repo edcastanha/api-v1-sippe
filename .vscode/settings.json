@@ -1,0 +1,20 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "database": "secedu",
+            "username": "postgres",
+            "name": "postgres-server",
+            "group": "docker-compose"
+        }
+    ],
+    "python.testing.pytestArgs": [
+        "secedu-django-api"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

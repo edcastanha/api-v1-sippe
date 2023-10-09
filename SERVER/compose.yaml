@@ -33,7 +33,7 @@ services:
 
 # Postgres - Secedu System Database 
   postgres-server:
-    image: postgres
+    image: postgres:alpine3.18
     container_name: postgres-server
     restart: always
     healthcheck:
@@ -41,12 +41,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    user: postgres
-    secrets:
-      - db-password
     environment:
+      - POSTGRES_USER=postgres
       - POSTGRES_DB=secedu
-      - POSTGRES_USER=secedu
+      - POSTGRES_PASSWORD=secedu123
     volumes:
       - 'B:\workspace\volumes\postgres:/var/lib/postgresql/data'
     ports:
@@ -61,14 +59,12 @@ services:
       dockerfile: Dockerfile
     container_name: secedu-api
     image: secedu-system-admin-web-api
-    command: gunicorn core.wsgi:application --bind 0.0.0.0:7000 --workers 2
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:7000 --workers 1
     depends_on:
       - postgres-server
-      - redis-server
-      - broker-server
     restart: always
     env_file:
-      - ../secedu-django-api/.env
+      - .env
     volumes:
       - ../secedu-django-api/:/api/
       - B:\workspace\volumes\dataset:/usr/src/api/dataset/
@@ -91,7 +87,7 @@ services:
       - broker-server
     restart: always
     env_file:
-      - ../secedu-django-api/.env
+      - .env
     volumes:
       - ../secedu-django-api/:/api/
       - B:\workspace\volumes\dataset:/usr/src/api/dataset/
@@ -112,7 +108,7 @@ services:
       - broker-server
     restart: always
     env_file:
-      - ../secedu-django-api/.env
+      - .env
     volumes:
       - ../secedu-django-api/:/api/
       - B:\workspace\volumes\dataset:/usr/src/api/dataset/
@@ -122,11 +118,12 @@ services:
 
 # Flask - API FACE RECOGNITION 
   secedu-face:
-    image: apiv1sippe:tf-deepface-1.0.0
+    #image: apiv1sippe:tf-deepface-1.0.0
     #command: python -c "import tensorflow as tf;tf.test.gpu_device_name()"
-    #build:
-    #  context: ../secedu-flask-deepface/
-    #  dockerfile: Dockerfile
+    build:
+      context: ../secedu-flask-deepface/
+      dockerfile: Dockerfile
+    image: secedu-face-recognition
     container_name: secedu-face
     environment:
       - FPT_PATH = /usr/src/app/ftp/
@@ -152,6 +149,3 @@ services:
 networks:
   server-hosts:
     driver: bridge
-secrets:
-  db-password:
-    file: ../password.txt
