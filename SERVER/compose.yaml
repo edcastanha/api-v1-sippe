@@ -80,7 +80,6 @@ services:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
     image: secedu-system-beat-scheduler
-    #command: /bin/sh /api/beat-scheduler.sh
     command: celery -A core beat --loglevel=INFO --logfile=/api/logs/celery-beat.log --scheduler django_celery_beat.schedulers:DatabaseScheduler
     depends_on:
       - postgres-server
@@ -103,7 +102,6 @@ services:
       dockerfile: Dockerfile
     image: secedu-system-tasks-workers
     command: celery -A core worker --loglevel=INFO --logfile=/api/logs/celery-worker.log
-    #command: /bin/sh /api/tasks-workers.sh
     depends_on:
       - postgres-server
       - redis-server
