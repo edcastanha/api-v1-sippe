@@ -1,0 +1,29 @@
+{% extends 'layouts/base.html' %}
+{% block title %}SecEdu - Dashboards{% endblock title %}
+{% block content %}
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Dashboard</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active">Dashboard</li>
+        </ol>
+        Detetar Faces em Imagens: <input id="image" type="file" />
+        <input type="button" value="Detect Scene" onclick="detectScene(image)" />
+
+<script>
+function detectScene(fileChooser) {
+    var formData = new FormData();
+    formData.append('image', fileChooser.files[0]);
+
+    fetch('http://localhost:5000/analyze', {
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) response.json().then(data => {
+            console.log(`Scene is ${data.label}, ${data.confidence} confidence`)
+        });
+    });
+}
+</script>
+{% endblock content %} 
+

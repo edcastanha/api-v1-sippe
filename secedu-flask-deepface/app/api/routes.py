@@ -84,6 +84,7 @@ def verify():
 @blueprint.route("/analyze", methods=["POST"])
 def analyze():
     input_args = request.get_json()
+    print(f'Args REQUEST {input_args}')
 
     if input_args is None:
         return {"message": "conjunto de entrada passado está vazio"}
@@ -96,7 +97,6 @@ def analyze():
     enforce_detection = input_args.get("enforce_detection", True)
     align = input_args.get("align", True)
     actions = input_args.get("actions", ["age", "gender", "emotion", "race"])
-
     demographies = service.analyze(
         img_path=img_path,
         actions=actions,

@@ -42,29 +42,18 @@ class ProducerCameras:
         
         return file_paths
 
-    def process_message(self, objs):
+    def process_message(self, message_dict):
         publisher = Publisher()
-        for obj in objs:
-            message_dict = {
-            'local': obj['local'],
-            'camera': obj['camera']
-            }
-            logger.debug(f' <**_ProducerCameras_**>message:: {message_dict}')
-            path = obj['path']
-            file_paths = self.find_image_files(path)
-            for file_path in file_paths:
-                logger.debug(f' <**_ProducerCameras_**>proccess_message:: {file_path}')
-                message_dict.update({'path': file_path})
-                message_str = json.dumps(message_dict)
-                publisher.publish_message(
-                    exchange=EXCHANGE,
-                    routing_key=ROUTE_KEY,
-                    queue=QUEUE_PUBLISHIR,
-                    message=message_str
-                )
-                logger.info(f'<**_ProducerCameras_**>proccess_message:: {file_path}')
-
-
+        
+        message_str = json.dumps(message_dict)
+        publisher.publish_message(
+            exchange=EXCHANGE,
+            routing_key=ROUTE_KEY,
+            queue=QUEUE_PUBLISHIR,
+            message=message_str
+        )
+        publisher.close()
+        logger.info(f'<**_ProducerCameras_**> proccess_message:: {message_str}')
 
     def start_run(self):
         date_pattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
@@ -76,13 +65,14 @@ class ProducerCameras:
             'local': obj['local'],
             'camera': obj['camera']
             }
-            data_processadas = Processamentos.objects.filter(camera=obj['camera'])
             
             for root, dirs, files in os.walk(obj['path']):
                 components = root.split('/')
 
             # Verificar se o path tem 4 componentes e se corresponde ao padrão AAAA-MM-DD
                 if components and len(components) == 4 and date_pattern.match(components[3]):
+                    data_processadas = Processamentos.objects.filter(camera=obj['camera'])
+                    
                     date_capture = components[3]
 
                     # Verificar se a data já foi processada
@@ -104,3 +94,13 @@ class ProducerCameras:
                     else:
                         logger.info(f' <**_start_consumer_path_**> 4 : {date_capture} já processada')
                         continue
+
+        for obj in objs:
+            message_dict = {
+            'local': obj['local'],
+            'camera': obj['camera']
+            }
+            logger.debug(f' <**_ProducerCameras_**>message:: {message_dict}')
+            path = obj['path']
+            file_paths = self.find_image_files(path)
+            for file_path in file_paths:

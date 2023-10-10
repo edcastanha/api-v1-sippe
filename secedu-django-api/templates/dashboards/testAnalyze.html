@@ -1,0 +1,50 @@
+{% extends 'layouts/base.html' %}
+{% block title %}SecEdu - Dashboards{% endblock title %}
+{% block content %}
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">Dashboard</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active">Analize de Faces</li>
+        </ol>
+        <h1>Análise de Imagem</h1>
+
+        <input type="file" id="imageFile">
+        <button onclick="analyzeImage()">Enviar Imagem</button>
+ 
+        <div id="results">
+
+
+        </div>
+    
+        <script>
+            function analyzeImage() {
+                var fileChooser = document.getElementById('imageFile');
+                var formData = new FormData();
+                console.log(fileChooser.files[0].type);
+                if (fileChooser.files.length > 0 && fileChooser.files[0].type == 'image/jpeg') {
+                    formData.append('image', fileChooser.files[0]);
+                    console.log(formData);
+                    fetch('/get_image_and_analyze/', {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            response.json().then(data => {
+                                console.log(data);
+                                // Atualize a <div> com os resultados
+                                var results = document.getElementById('results');
+                                resultsDiv.innerHTML = JSON.stringify(data, null, 2);
+                            });
+                        } else {
+                            console.error("Erro na solicitação à API externa.");
+                        }
+                    });
+                } else {
+                    console.error("Nenhum arquivo selecionado.");
+                }
+            }
+        </script>
+            
+{% endblock content %} 
+
