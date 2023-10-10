@@ -148,6 +148,35 @@ services:
     networks:
       - server-hosts
 
+# SCRIPTS - FACE RECOGNITION 
+  secedu-scripts:
+    #image: apiv1sippe:tf-deepface-1.0.0
+    build:
+      context: ../secedu-jobs-faces/
+      dockerfile: Dockerfile
+    image: secedu-jobs-recognition
+    container_name: secedu-face
+    environment:
+      - FPT_PATH = /usr/src/ftp/
+      - DATASET_PATH = /usr/src/dataset/
+      - CAPTURAS_PATH = /usr/src/capturas/
+    volumes:
+      - ../secedu-flask-deepface/app/api/:/app/
+      - B:\workspace\volumes\dataset:/usr/src/dataset/
+      - B:\workspace\volumes\capturas:/usr/src/capturas/
+      - B:\SIPPE\FTP:/usr/src/ftp/
+      - ../logs:/app/logs/
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - server-hosts
+
 networks:
   server-hosts:
     driver: bridge
