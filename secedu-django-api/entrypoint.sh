@@ -1,19 +1,7 @@
 #!/bin/sh
-# python manage.py flush --no-input
-
-echo "Aplicando >>> Migrate 1"
 python manage.py migrate
-
-echo "Aplicando >>> Create superuser"
-python setup.py
-
-echo "Aplicando >>> Makemigrations"
-python manage.py makemigrations
-
-echo "Aplicando >>> Migrate 2"
-python manage.py migrate
-
-echo "Aplicando >>> Collectstatic"
-python manage.py collectstatic --no-input
-
+python manage.py makemigrations --noinput 
+python manage.py migrate --noinput 
+python manage.py collectstatic --noinput 
+gunicorn --workers=1 --timeout=3600 --bind=0.0.0.0:9000 core.wsgi:application
 exec "$@"

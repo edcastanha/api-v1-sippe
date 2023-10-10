@@ -9,12 +9,20 @@ EXPOSE 7000
 RUN apk update
 RUN pip install --upgrade pip
 
-COPY ./requirements.txt /api/requirements.txt
+
 COPY ./entrypoint.sh /api/entrypoint.sh
+COPY ./beat-scheduler.sh /api/beat-scheduler.sh
+COPY ./tasks-workers.sh /api/tasks-workers.sh
+
+RUN chmod +x /api/entrypoint.sh
+RUN chmod +x /api/beat-scheduler.sh
+RUN chmod +x /api/tasks-workers.sh
+
+COPY ./requirements.txt /api/requirements.txt
 
 RUN pip install -r requirements.txt
-RUN chmod +x /api/entrypoint.sh
+
 
 COPY . /api
 
-ENTRYPOINT ["/bin/sh","/api/entrypoint.sh"]
+#ENTRYPOINT ["/bin/sh","/api/entrypoint.sh"]

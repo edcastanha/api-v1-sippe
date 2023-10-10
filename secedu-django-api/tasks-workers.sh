@@ -1,4 +1,4 @@
 #!/bin/sh
-echo "Apply WORKER"
-celery -A core worker -l info
+echo "Aplicados WORKER"
+celery -A core worker --loglevel=INFO
 exec "$@"

@@ -59,7 +59,7 @@ services:
       dockerfile: Dockerfile
     container_name: secedu-api
     image: secedu-system-admin-web-api
-    command: gunicorn core.wsgi:application --bind 0.0.0.0:7000 --workers 1
+    command: /bin/sh /api/entrypoint.sh
     depends_on:
       - postgres-server
     restart: always
@@ -80,7 +80,8 @@ services:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
     image: secedu-system-beat-scheduler
-    command: /bin/sh /api/beat-scheduler.sh
+    #command: /bin/sh /api/beat-scheduler.sh
+    command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     depends_on:
       - postgres-server
       - redis-server
@@ -101,7 +102,8 @@ services:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
     image: secedu-system-tasks-workers
-    command: /bin/sh /api/tasks-workers.sh
+    command: celery -A core worker --loglevel=INFO
+    #command: /bin/sh /api/tasks-workers.sh
     depends_on:
       - postgres-server
       - redis-server
