@@ -9,7 +9,6 @@ EXPOSE 7000
 RUN apk update
 RUN pip install --upgrade pip
 
-
 COPY ./entrypoint.sh /api/entrypoint.sh
 COPY ./beat-scheduler.sh /api/beat-scheduler.sh
 COPY ./tasks-workers.sh /api/tasks-workers.sh
