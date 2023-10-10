@@ -42,7 +42,7 @@ class ProducerCameras:
         
         return file_paths
 
-    def process_message(self):
+    def process_message(self, objs):
         publisher = Publisher()
         for obj in objs:
             message_dict = {
@@ -77,6 +77,7 @@ class ProducerCameras:
             'camera': obj['camera']
             }
             data_processadas = Processamentos.objects.filter(camera=obj['camera'])
+            
             for root, dirs, files in os.walk(obj['path']):
                 components = root.split('/')
 

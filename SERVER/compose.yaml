@@ -58,8 +58,8 @@ services:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
     container_name: secedu-api
-    image: secedu-system-admin-web-api
-    command: /bin/sh /api/entrypoint.sh
+    image: secedu-admin-web-api
+    command: gunicorn --workers=1 --timeout=3600 --bind=0.0.0.0:7000 core.wsgi:application
     depends_on:
       - postgres-server
     restart: always
@@ -69,8 +69,9 @@ services:
       - ../secedu-django-api/:/api/
       - B:\workspace\volumes\dataset:/usr/src/api/dataset/
       - B:\SIPPE\FTP:/usr/src/api/ftp/
+      - ../logs:/api/logs/
     ports:
-      - "7000:7000"
+      - "9000:7000"
     networks:
       - server-hosts
 
@@ -79,7 +80,7 @@ services:
     build:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
-    image: secedu-system-beat-scheduler
+    image: secedu-beat-scheduler
     command: celery -A core beat --loglevel=INFO --logfile=/api/logs/celery-beat.log --scheduler django_celery_beat.schedulers:DatabaseScheduler
     depends_on:
       - postgres-server
@@ -92,6 +93,7 @@ services:
       - ../secedu-django-api/:/api/
       - B:\workspace\volumes\dataset:/usr/src/api/dataset/
       - B:\SIPPE\FTP:/usr/src/api/ftp/
+      - ../logs:/api/logs/
     networks:
       - server-hosts
 
@@ -100,7 +102,7 @@ services:
     build:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
-    image: secedu-system-tasks-workers
+    image: secedu-tasks-workers
     command: celery -A core worker --loglevel=INFO --logfile=/api/logs/celery-worker.log
     depends_on:
       - postgres-server
@@ -113,13 +115,13 @@ services:
       - ../secedu-django-api/:/api/
       - B:\workspace\volumes\dataset:/usr/src/api/dataset/
       - B:\SIPPE\FTP:/usr/src/api/ftp/
+      - ../logs:/api/logs/
     networks:
       - server-hosts
 
 # Flask - API FACE RECOGNITION 
   secedu-face:
     #image: apiv1sippe:tf-deepface-1.0.0
-    #command: python -c "import tensorflow as tf;tf.test.gpu_device_name()"
     build:
       context: ../secedu-flask-deepface/
       dockerfile: Dockerfile
