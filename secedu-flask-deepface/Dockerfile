@@ -7,6 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # switch to application directory
 WORKDIR /app
 
+RUN mkdir -p /app/capturas && chmod -rx /app/capturas
+RUN mkdir -p /app/dataset && chmod -rx /app/dataset
+RUN mkdir -p /app/ftp && chmod -rx /app/ftp
+
 # -----------------------------------
 COPY ./app/api/deepface/ /app/deepface/
 COPY ./app/api/ /app/

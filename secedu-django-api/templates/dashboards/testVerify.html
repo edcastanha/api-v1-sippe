@@ -1,29 +1,76 @@
 {% extends 'layouts/base.html' %}
 {% block title %}SecEdu - Dashboards{% endblock title %}
 {% block content %}
-    <div class="container-fluid px-4">
-        <h1 class="mt-4">Dashboard</h1>
-        <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
-        Detetar Faces em Imagens: <input id="image" type="file" />
-        <input type="button" value="Detect Scene" onclick="detectScene(image)" />
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Analize de Faces</li>
+    </ol>
+    <h1>Análise de Imagem</h1>
 
-<script>
-function detectScene(fileChooser) {
-    var formData = new FormData();
-    formData.append('image', fileChooser.files[0]);
+    <input type="file" id="image1">
+    <input type="file" id="image2">
+    <button onclick="analyzeImage()">Verificar Imagens</button>
+    <img id="image1" alt="Imagem Analisada" width="300" height="300">
+    <img id="image1" alt="Imagem Analisada" width="300" height="300">
 
-    fetch('http://localhost:5000/analyze', {
-        method: "POST",
-        body: formData
-    })
-    .then(response => {
-        if (response.ok) response.json().then(data => {
-            console.log(`Scene is ${data.label}, ${data.confidence} confidence`)
-        });
-    });
-}
-</script>
-{% endblock content %} 
+    <div id="results">
+        <p id="angry"></p>
+        <p id="disgust"></p>
+        <p id="fear"></p>
+        <p id="happy"></p>
+        <p id="neutral"></p>
+        <p id="sad"></p>
+        <p id="surprise"></p>
+    </div>
 
+    <script>
+        function analyzeImage() {
+            var fileChooser = document.getElementById('imageFile');
+            var formData = new FormData();
+            var image = document.getElementById('image');
+
+            if (fileChooser.files.length > 0 && fileChooser.files[0].type == 'image/jpeg') {
+                formData.append('image', fileChooser.files[0]);
+                // Carregar path de imagem
+                name = fileChooser.files[0].name;
+                console.log('Nome:' + name);
+                path = 'capturas/' + name;
+                console.log('PATH: ' + path);
+                //image.src = formData.get('image');
+                console.log(formData.get('image'));
+                fetch('/get_image_and_analyze/', {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            response.json().then(data => {
+                                console.log(data);
+
+                                // Atualize a imagem com o resultado
+                                var image = document.getElementById('image');
+                                image.src = data.image_url;
+
+                                // Atualize os parágrafos com os dados de "emotionData"
+                                var emotionData = data.results[0].emotion;
+                                for (var emotion in emotionData) {
+                                    var paragraph = document.getElementById(emotion);
+                                    if (paragraph) {
+                                        emocoes = {'angry':'Irritação', 'disgust':'Nojo', 'fear':'Medo', 'happy':'Felicidade', 'neutral':'Neutro', 'sad':'Tristeza', 'surprise':'Surpresa'}
+                                        paragraph.textContent = emocoes[emotion] + ": " + emotionData[emotion];
+                                    }
+                                }
+                            });
+                        } else {
+                            console.error("Erro na solicitação à API externa.");
+                        }
+                    });
+            } else {
+                console.error("Nenhum arquivo selecionado.");
+            }
+        }
+    </script>
+
+
+    {% endblock content %}

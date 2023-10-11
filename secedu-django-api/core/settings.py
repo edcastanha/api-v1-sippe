@@ -24,9 +24,9 @@ RBMQ_USER = os.environ.get('RBMQ_USER', 'guest')
 RBMQ_PASS = os.environ.get('RBMQ_PASS', 'guest')
 BROKER_URL = os.environ.get('BROKER_URL', 'amqp://guest:guest@localhost:5672')
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-DATASET_PATH  = os.environ.get('DATASET_PATH', '/usr/src/api/dataset/')
-FTP_PATH  = os.environ.get('FTP_PATH', '/usr/src/api/ftp/')
-CAPTURE_PATH  = os.environ.get('CAPTURE_PATH', '/usr/src/api/capturas/')
+DATASET_PATH  = os.environ.get('DATASET_PATH', 'dataset/')
+FTP_PATH  = os.environ.get('FTP_PATH', 'ftp/')
+CAPTURE_PATH  = os.environ.get('CAPTURE_PATH', 'capturas/')
 
 EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
@@ -35,6 +35,10 @@ ALLOWED_HOSTS =os.environ.get('ALLOWED_HOSTS').split(',')
 
 # Application definition
 INSTALLED_APPS = [
+    # General use templates & template tags (should appear first)
+    'adminlte3',
+     # Optional: Django admin theme (must be before django.contrib.admin)
+    'adminlte3_theme',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -148,17 +148,17 @@ embedding_objs = DeepFace.represent(img_path = "img.jpg",
 
 FaceNet, VGG-Face, ArcFace e Dlib are [overperforming](https://youtu.be/i_MOwvhbLdI) modelos baseados em experiências. Pode encontrar as pontuações desses modelos abaixo em ambos [Labeled Faces in the Wild](https://sefiks.com/2020/08/27/labeled-faces-in-the-wild-for-face-recognition/) e os conjuntos de dados do YouTube Faces in the Wild declarados pelos seus criadores.
 
-| Model | LFW Score | YTF Score |
-| ---   | --- | --- |
-| Facenet512 | 99.65% | - |
-| SFace | 99.60% | - |
-| ArcFace | 99.41% | - |
-| Dlib | 99.38 % | - |
-| Facenet | 99.20% | - |
-| VGG-Face | 98.78% | 97.40% |
-| *Human-beings* | *97.53%* | - |
-| OpenFace | 93.80% | - |
-| DeepID | - | 97.05% |
+| Model         | LFW Score | YTF Score |
+| ---           | ---           | --- |
+| Facenet512    | 99.65%        | - |
+| SFace         | 99.60%        | - |
+| ArcFace       | 99.41%        | - |
+| Dlib          | 99.38 %       | - |
+| Facenet       | 99.20%        | - |
+| VGG-Face      | 98.78%        | 97.40% |
+| *Human-beings* | *97.53%*     | - |
+| OpenFace      | 93.80%        | - |
+| DeepID        | -             | 97.05% |
 
 **Similarity**
 
