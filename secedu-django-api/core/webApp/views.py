@@ -9,8 +9,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from core.loggingMe import logger
 
-capture_path = settings.CAPTURE_PATH
-
+capture_path = settings.MEDIA_ROOT + '/capturas/'
+logger.debug(f'Path de capturas: {capture_path}')
 
 def index(request):
     alunos_list = Aluno.objects.all()
@@ -76,11 +76,12 @@ def get_image_and_analyze(request):
         image_file = request.FILES.get('image')
         logger.debug('Recebida solicitação de análise de imagem.')
         # Verifique se o arquivo é uma imagem
-        if image_file and image_file.name.endswith(('jpg', 'jpeg', 'png')):
+        if image_file and image_file.name.endswith(('.jpg', '.jpeg', '.png')):
             # Salve a imagem em 'capturas'
             logger.debug(f'Salvando imagem em capturas: {capture_path}')
             image_path = os.path.join(capture_path, image_file.name)
             img_url = os.path.join('capturas/', image_file.name)
+            logger.debug(f'Imagem salva em: {image_path}')
             with open(image_path, 'wb') as destination:
                 for chunk in image_file.chunks():
                     destination.write(chunk)
@@ -94,6 +95,10 @@ def get_image_and_analyze(request):
 
             if response.status_code == 200:
                 data = response.json()
+                logger.debug(f'Delete de : {image_path}')
+                # Deletar a imagem após a análise
+                os.remove(image_path)
+                logger.debug(f'Imagem analisada: {data}')
                 return JsonResponse(data)  # Retorne os dados da análise como JSON
             else:
                 return JsonResponse({'error': 'Erro na solicitação à API externa'}, status=500)

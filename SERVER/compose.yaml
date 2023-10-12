@@ -67,9 +67,9 @@ services:
       - .env
     volumes:
       - ../secedu-django-api/:/api/
-      - C:\workspace\volumes\dataset:/dataset/
-      - C:\workspace\volumes\capturas:/capturas/
-      - B:\SIPPE\FTP:/ftp/
+      - C:\workspace\volumes\dataset:/api/media/dataset/
+      - C:\workspace\volumes\capturas:/api/media/capturas/
+      - B:\SIPPE\FTP:/api/media/ftp/
       - ../logs:/logs/
     ports:
       - "7000:7000"

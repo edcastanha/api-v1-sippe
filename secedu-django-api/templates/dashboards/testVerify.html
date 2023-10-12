@@ -10,22 +10,24 @@
 
     <input type="file" id="image1">
     <input type="file" id="image2">
-    <button onclick="analyzeImage()">Verificar Imagens</button>
-    <img id="image1" alt="Imagem Analisada" width="300" height="300">
-    <img id="image1" alt="Imagem Analisada" width="300" height="300">
-
-    <div id="results">
-        <p id="angry"></p>
-        <p id="disgust"></p>
-        <p id="fear"></p>
-        <p id="happy"></p>
-        <p id="neutral"></p>
-        <p id="sad"></p>
-        <p id="surprise"></p>
-    </div>
+    <button onclick="verifyImage()">Verificar Imagens</button>
+    
+    <div class="card" style="width: 18rem;">
+        //{% url 'nome_da_view' caminho_da_imagem %}
+        <img id="img_1" src="{% url 'get_image_and_analyze' capturas/ovalFace/621606e2-b1c0-4785-8839-de315561c654.png %}" class="card-img-top" alt="...">
+        <div class="card-body">
+          <p id="txt_2" class="card-text"></p>
+        </div>
+      </div>
+      <div class="card" style="width: 18rem;">
+        <img id="img_2" src="..." class="card-img-top" alt="...">
+        <div class="card-body">
+          <p id="txt_2" class="card-text"></p>
+        </div>
+      </div>
 
     <script>
-        function analyzeImage() {
+        function verifyImage() {
             var fileChooser = document.getElementById('imageFile');
             var formData = new FormData();
             var image = document.getElementById('image');
@@ -50,7 +52,7 @@
 
                                 // Atualize a imagem com o resultado
                                 var image = document.getElementById('image');
-                                image.src = data.image_url;
+                                image.src = data.face_location;
 
                                 // Atualize os parágrafos com os dados de "emotionData"
                                 var emotionData = data.results[0].emotion;

@@ -3,7 +3,6 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -24,9 +23,10 @@ RBMQ_USER = os.environ.get('RBMQ_USER', 'guest')
 RBMQ_PASS = os.environ.get('RBMQ_PASS', 'guest')
 BROKER_URL = os.environ.get('BROKER_URL', 'amqp://guest:guest@localhost:5672')
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-DATASET_PATH  = os.environ.get('DATASET_PATH', 'dataset/')
-FTP_PATH  = os.environ.get('FTP_PATH', 'ftp/')
-CAPTURE_PATH  = os.environ.get('CAPTURE_PATH', 'capturas/')
+
+DATASET_PATH  = os.path.join(BASE_DIR, os.environ.get('DATASET_PATH', 'dataset'))
+FTP_PATH  = os.path.join(BASE_DIR, os.environ.get('FTP_PATH', 'ftp'))
+CAPTURE_PATH  = os.path.join(BASE_DIR, os.environ.get('CAPTURE_PATH', 'media/capturas/'))
 
 EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
@@ -143,14 +143,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 STATIC_URL = 'static/'
-MEDIA_URL = 'medias/'
+MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 # python manage.py collectstatic
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'medias')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

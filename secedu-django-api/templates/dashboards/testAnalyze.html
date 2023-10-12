@@ -6,20 +6,40 @@
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item active">Analize de Faces</li>
     </ol>
-    <h1>Análise de Imagem</h1>
 
-    <input type="file" id="imageFile">
-    <button onclick="analyzeImage()">Enviar Imagem</button>
-    <img id="image" src="" alt="Imagem Analisada" width="300">
-    <div id="results">
-        <p id="angry"></p>
-        <p id="disgust"></p>
-        <p id="fear"></p>
-        <p id="happy"></p>
-        <p id="neutral"></p>
-        <p id="sad"></p>
-        <p id="surprise"></p>
+    <h3>Análise de Imagem</h3>
+
+    <h6>Importante sobre esta Demostracao!</h6>
+
+    <div class="container text-center">
+        <div class="row align-items-start">
+
+            <div class="col card-body">
+                <span class="align-middle">1 - As imagens utilizadas neste teste nao serao armazenadas, terminando a
+                    analise tudo sera excluido</span>
+                </br>
+                <span class="align-middle">2 - Apenas imagens no formato JPEG, jpg ou png sao aceitas e uma face por
+                    imagem sera analisada</span>
+            </div>
+        </div>
+        <div class="row align-items-end">
+
+            <div class="col-sm-8"><input type="file" id="imageFile"></div>
+            <div class="col-sm-4"> <button onclick="analyzeImage()">Enviar Imagem</button>
+            </div>
+        </div>
     </div>
+
+    <center>
+
+
+        <div id="results" class="card" style="width: 18rem;">
+            <img id="img_1" src="../../media/avatar.png" class="card-img-top" alt="...">
+            <div class="card-body">
+                <p id="emotion" class="card-text text-center">Emoção predominante: </p>
+            </div>
+        </div>
+    </center>
 
     <script>
         function analyzeImage() {
@@ -27,45 +47,67 @@
             var formData = new FormData();
             var image = document.getElementById('image');
 
-            if (fileChooser.files.length > 0 && fileChooser.files[0].type == 'image/jpeg') {
-                formData.append('image', fileChooser.files[0]);
-                // Carregar path de imagem
-                name = fileChooser.files[0].name;
-                console.log('Nome:' + name);
-                path = 'capturas/' + name;
-                console.log('PATH: ' + path);
-                //image.src = formData.get('image');
-                console.log(formData.get('image'));
-                fetch('/get_image_and_analyze/', {
-                    method: "POST",
-                    body: formData
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            response.json().then(data => {
-                                console.log(data);
+            if (fileChooser.files.length > 0) {
+                var fileName = fileChooser.files[0].name;
+                if (fileName.endsWith('.jpeg') || fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
+                    formData.append('image', fileChooser.files[0]);
+                    // Carregar path de imagem
+                    name = fileChooser.files[0].name;
+                    console.log('Nome:' + name);
+                    path = 'capturas/' + name;
+                    //image.src = formData.get('image');
+                    console.log(formData.get('image'));
+                    fetch('/get_image_and_analyze/', {
+                        method: "POST",
+                        body: formData
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                response.json().then(data => {
+                                    console.log(data);
+                                    emocoes = { 'angry': 'Irritação', 'disgust': 'Nojo', 'fear': 'Medo', 'happy': 'Felicidade', 'neutral': 'Neutro', 'sad': 'Tristeza', 'surprise': 'Surpresa' }
+                                    // Atualize a imagem com o URL retornado na resposta
+                                    var image = document.getElementById('img_1');
+                                    
+                                    var path = data.face_location;
+                                    console.log('GET PATH: ' + path);
+                                    var emotionParagraph = document.getElementById('emotion');
+                                    // Se nao existir  data.face_location, significa que nao foi detectada nenhuma face
+                                    if (data.face_location != null) {
+                                    
+                                        image.src = '../../media/' + path;
 
-                                // Atualize a imagem com o resultado
-                                var image = document.getElementById('image');
-                                image.src = data.image_url;
+                                        // Recupere os dados de emoção da resposta
+                                        var emotionData = data.results[0].dominant_emotion;
 
-                                // Atualize os parágrafos com os dados de "emotionData"
-                                var emotionData = data.results[0].emotion;
-                                for (var emotion in emotionData) {
-                                    var paragraph = document.getElementById(emotion);
-                                    if (paragraph) {
-                                        emocoes = {'angry':'Irritação', 'disgust':'Nojo', 'fear':'Medo', 'happy':'Felicidade', 'neutral':'Neutro', 'sad':'Tristeza', 'surprise':'Surpresa'}
-                                        paragraph.textContent = emocoes[emotion] + ": " + emotionData[emotion];
+                                        // Atualize o parágrafo com os dados de emoção
+                                        if (emotionParagraph) {
+                                            emotionParagraph.textContent = "Emoção predominante: " + emocoes[emotionData];
+                                        }
+                                    } else {
+                                        emotionParagraph.textContent = "Emoção predominante: " + 'Nenhuma face detectada';
                                     }
-                                }
-                            });
-                        } else {
-                            console.error("Erro na solicitação à API externa.");
-                        }
-                    });
+
+                                    /*
+                                    for (var emotion in emotionData) {
+                                        var paragraph = document.getElementById(emotion);
+                                        if (paragraph) {
+                                            emocoes = {'angry':'Irritação', 'disgust':'Nojo', 'fear':'Medo', 'happy':'Felicidade', 'neutral':'Neutro', 'sad':'Tristeza', 'surprise':'Surpresa'}
+                                            paragraph.textContent = emocoes[emotion] + ": " + emotionData[emotion];
+                                        }
+                                    }
+                                    */
+                                });
+                            } else {
+                                console.error("Erro na solicitação à API externa.");
+                            }
+                        });
+                } else {
+                    console.error("Formato de arquivo inválido.");
+                }// IF para verificar se o arquivo é uma imagem
             } else {
                 console.error("Nenhum arquivo selecionado.");
-            }
+            }// IF para verificar se o arquivo é uma imagem
         }
     </script>
 
