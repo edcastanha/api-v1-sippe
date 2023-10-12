@@ -16,9 +16,9 @@ FTP_PATH = 'ftp'
 # Expressão regular para o padrão AAAA-MM-DD
 date_pattern = re.compile(r'\d{4}-\d{2}-\d{2}')
 
-def start_consumer_path():
+def start_producer_path():
     processed_dates = set()  # Para armazenar as datas já processadas
-    logger.info(f' <**_start_consumer_path_**> 1 : aguardando fila ...')
+    logger.info(f' <**_start_producer_path_**> 1 : aguardando fila ...')
 
     for root, dirs, files in os.walk(FTP_PATH):
         components = root.split('/')
@@ -54,8 +54,8 @@ def start_consumer_path():
                     logger.error(f'Error in processing: {e}')
             else:
                 logger.info(f' <**_start_consumer_path_**> 4 : {date_capture} já processada')
-                continue
+                break
 
 
 if __name__ == '__main__':
-    start_consumer_path()
+    start_producer_path()

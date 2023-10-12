@@ -3,6 +3,7 @@ import cv2
 import mediapipe
 import pandas as pd
 import numpy as np
+import os
 
 import service
 
@@ -84,6 +85,7 @@ def verify():
 @blueprint.route("/analyze", methods=["POST"])
 def analyze():
     input_args = request.get_json()
+    print(f'Args REQUEST {input_args}')
 
     if input_args is None:
         return {"message": "conjunto de entrada passado está vazio"}
@@ -91,19 +93,32 @@ def analyze():
     img_path = input_args.get("img_path")
     if img_path is None:
         return {"message": "é necessário passar a entrada img_path"}
+    
+    # Obtém o diretório do arquivo atual (app.py neste caso)
+    dir_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Adiciona o nome da pasta que você deseja obter o caminho
+    capturas_path = os.path.join( img_path)
+
+    # Verificar se caminho existe ou seria uma imagem (png, jpg ou jpeg)
+    if capturas_path is not None and capturas_path.split(".")[-1] not in ["jpg", "png", "jpeg"]:
+        return {"message": "é necessário passar a entrada imagem valido com extensão .jpg, .png ou .jpeg"}
+    
 
     detector_backend = input_args.get("detector_backend", "opencv")
     enforce_detection = input_args.get("enforce_detection", True)
     align = input_args.get("align", True)
     actions = input_args.get("actions", ["age", "gender", "emotion", "race"])
-
     demographies = service.analyze(
-        img_path=img_path,
+        img_path=capturas_path,
         actions=actions,
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
         align=align,
     )
+
+    # Deletar a imagem após a análise
+    #os.remove(capturas_path)
 
     return demographies
 
@@ -204,4 +219,43 @@ def embedding():
         return {"error": str(e)}
     
     
-   
+@blueprint.route("/analyze_mediapipe", methods=["POST"])
+def analanalyze_mediapipeyze():
+    input_args = request.get_json()
+    print(f'Args REQUEST {input_args}')
+
+    if input_args is None:
+        return {"message": "conjunto de entrada passado está vazio"}
+
+    img_path = input_args.get("img_path")
+    if img_path is None:
+        return {"message": "é necessário passar a entrada img_path"}
+    
+    # Obtém o diretório do arquivo atual (app.py neste caso)
+    dir_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Adiciona o nome da pasta que você deseja obter o caminho
+    capturas_path = os.path.join( img_path)
+
+    # Verificar se caminho existe ou seria uma imagem (png, jpg ou jpeg)
+    if capturas_path is not None and capturas_path.split(".")[-1] not in ["jpg", "png", "jpeg"]:
+        return {"message": "é necessário passar a entrada imagem valido com extensão .jpg, .png ou .jpeg"}
+    
+
+    detector_backend = input_args.get("detector_backend", "opencv")
+    enforce_detection = input_args.get("enforce_detection", True)
+    align = input_args.get("align", True)
+    actions = input_args.get("actions", ["age", "gender", "emotion", "race"])
+    demographies = service.analyze_mediapipe(
+        img_path=capturas_path,
+        actions=actions,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+    )
+
+    # Deletar a imagem após a análise
+    #os.remove(capturas_path)
+
+    return demographies
+

@@ -1,6 +1,6 @@
 import logging
 
-logging.basicConfig(filename='LoggingCore.log')
+logging.basicConfig(filename='logs/api-core.log')
 # create logger
 logger = logging.getLogger('** SecEdu ::')
 logger.setLevel(logging.DEBUG)

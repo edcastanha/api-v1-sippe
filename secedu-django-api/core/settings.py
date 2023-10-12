@@ -3,7 +3,6 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -12,11 +11,11 @@ SECRET_KEY = os.environ.get(
     'MYSECRET', '78cdsvc7sdavb07nvar87ynbdravs7by87yvb7ab09se7vybrsd7vyd9'
     )
 
-PSHOST = os.environ.get('PSHOST', 'localhost')
-PSUSER = os.environ.get('PSUSER', 'postgres')
-PGPASSWORD = os.environ.get('PGPASSWORD', 'postgres')
-PGDATABASE = os.environ.get('PGDATABASE', 'sippe')
-PSPORT = os.environ.get('PSPORT', '5432')
+PG_HOST = os.environ.get('PG_HOST', 'localhost')
+PG_USER = os.environ.get('PG_USER', 'postgres')
+PG_PASSWORD = os.environ.get('PG_PASSWORD', 'secedu123')
+PG_DATABASE = os.environ.get('PG_DATABASE', 'secedu')
+PG_PORT = os.environ.get('PG_PORT', '5432')
 
 RBMQ_HOST = os.environ.get('RBMQ_HOST', 'localhost')
 RBMQ_PORT = os.environ.get('RBMQ_PORT', '5672')
@@ -24,8 +23,10 @@ RBMQ_USER = os.environ.get('RBMQ_USER', 'guest')
 RBMQ_PASS = os.environ.get('RBMQ_PASS', 'guest')
 BROKER_URL = os.environ.get('BROKER_URL', 'amqp://guest:guest@localhost:5672')
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-DATASET_PATH  = os.environ.get('DATASET_PATH', '/usr/src/api/dataset/')
-FTP_PATH  = os.environ.get('FTP_PATH', '/usr/src/api/ftp/')
+
+DATASET_PATH  = os.path.join(BASE_DIR, os.environ.get('DATASET_PATH', 'dataset'))
+FTP_PATH  = os.path.join(BASE_DIR, os.environ.get('FTP_PATH', 'ftp'))
+CAPTURE_PATH  = os.path.join(BASE_DIR, os.environ.get('CAPTURE_PATH', 'media/capturas/'))
 
 EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
@@ -34,7 +35,10 @@ ALLOWED_HOSTS =os.environ.get('ALLOWED_HOSTS').split(',')
 
 # Application definition
 INSTALLED_APPS = [
-    'django_extensions',
+    # General use templates & template tags (should appear first)
+    'adminlte3',
+     # Optional: Django admin theme (must be before django.contrib.admin)
+    'adminlte3_theme',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework.apps.RestFrameworkConfig',
     'django_celery_beat',
     'django_celery_results',
+    'django_extensions',
     # Apps
     'core.cadastros.apps.CadastrosConfig',
     'core.cameras.apps.CamerasConfig',
@@ -94,11 +99,11 @@ DEBUG = os.environ.get('MYDEBUG', False)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': PGDATABASE,
-        'USER': PGUSER,
-        'PASSWORD': PGPASSWORD,
-        'HOST': PGHOST,
-        'PORT': PGPORT,
+        'NAME': PG_DATABASE,
+        'USER': PG_USER,
+        'PASSWORD': PG_PASSWORD,
+        'HOST': PG_HOST,
+        'PORT': PG_PORT,
     }
 }
 
@@ -138,14 +143,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 STATIC_URL = 'static/'
-MEDIA_URL = 'medias/'
+MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 # python manage.py collectstatic
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'medias')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

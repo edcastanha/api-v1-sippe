@@ -83,5 +83,23 @@ class Tarefas(baseModel):
         return f"{self.descricao} - {self.escalas.horario_inicio}::{self.escalas.horario_fim} - {self.status} - {self.data_atualizacao}"
     
 class Processamentos(baseModel):
+    CHOICE_STATUS = (
+        ('Inicializado', 'Inicializado'),
+        ('Cancelado', 'Cancelado'),
+        ('Erro', 'Erro'),
+        ('Processado', 'Processado'),
+    )
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
-    payload = models.JSONField()
+    dia = models.DateField()
+    path = models.CharField(max_length=150, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=CHOICE_STATUS, default='Inicializado')
+
+
+    class Meta:
+        verbose_name_plural = "Processamentos"
+        verbose_name = "Processamento"
+        ordering = ['id']
+    
+    def __str__(self):
+        return f"{self.camera.descricao} - {self.data} - {self.path}"
+    

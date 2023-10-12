@@ -1,43 +1,38 @@
-#FROM nvcr.io/nvidia/tensorflow:23.08-tf2-py3
-FROM nvcr.io/nvidia/tensorflow:22.12-tf2-py3
-# -----------------------------------
-# create required folder
-RUN mkdir /app
-RUN mkdir /app/deepface
-# -----------------------------------
-# Copy required files from repo into image
-COPY ./deepface /app/deepface
-COPY ./requirements.txt /app/
-COPY ./setup.py /app/
-COPY ./README.md /app/
-# -----------------------------------
-# switch to application directory
-WORKDIR /app
-# -----------------------------------
-# update image os
-RUN apt-get update
-RUN apt-get install ffmpeg libsm6 libxext6 -y
-# -----------------------------------
-# if you will use gpu, then you should install tensorflow-gpu package
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow-gpu
-# -----------------------------------
-# install deepface from pypi release (might be out-of-the-date)
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
-# -----------------------------------
-# install deepface from source code (always up-to-date)
-RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
-# -----------------------------------
-# some packages are optional in deepface. activate if your task depends on one.
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org cmake==3.24.1.1
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org dlib==19.20.0
-# RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org lightgbm==2.3.1
-# -----------------------------------
+FROM tensorflow/tensorflow:latest-gpu
+
 # environment variables
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# switch to application directory
+WORKDIR /app
+
+# -----------------------------------
+COPY ./deepface/ /app/deepface/
+COPY ./requirements.txt /app/requirements.txt
+# -----------------------------------
+RUN rm -rf /usr/lib/python3/dist-packages/blinker*
+RUN apt-get update
+RUN pip install --upgrade setuptools pip wheel
+RUN pip install --upgrade pip
+RUN apt-get install ffmpeg libsm6 libxext6 -y
+RUN apt-get install -y libcairo2-dev pkg-config python3-dev libgirepository1.0-dev
 # -----------------------------------
 
-COPY ./consumer-extrair-faces-files.py /app/
-# run the app (re-configure port if necessary)
-EXPOSE 5000
-#CMD ["gunicorn", "--workers=1", "--timeout=3600", "--bind=0.0.0.0:5000", "app:create_app()"]
-#CMD ["python", "consumer-extrair-faces-files.py"]
+RUN pip install  -r requirements.txt
+
+# -----------------------------------
+RUN apt-get install libgl1-mesa-glx
+RUN pip install async-timeout
+RUN pip install mediapipe==0.9.*
+
+# -----------------------------------
+
+COPY . /app/
+# install deepface from source code (always up-to-date)
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
+
+#COPY ./consumer-extrair-faces-files.py /app/
+
+CMD ["python", "consumer-extrair-faces-files.py"]
+
