@@ -37,8 +37,8 @@ class ProducerCameras:
                 if file.lower().endswith(('[0].jpg', '[0].jpeg', '[0].png')):
                     file_path = os.path.join(root, file)
                     file_paths.append(file_path)
-            
-        logger.info(f'<**_ProducerCameras_**> Find_Image_Files')
+        
+        logger.info(f'<**_ProducerCameras_**> Find_Image_Files:: {file_paths}')
         
         return file_paths
 
