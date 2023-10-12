@@ -56,9 +56,14 @@ class ProducerCameras:
         logger.info(f'<**_ProducerCameras_**> proccess_message:: {message_str}')
 
     def start_run(self):
-        date_pattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
         logger.info(f' <**_ProcedurCameras_**> Start RUN : 1 ...')
         cameras = self.get_cameras()
+
+        #{
+        #  'local': local.nome,
+        #  'camera': camera.descricao,
+        #  'path': camera.acesso,
+        #}
         for obj in cameras:
             processed_dates = set() # Para armazenar as datas já processadas
             message_dict = {
