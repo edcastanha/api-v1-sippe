@@ -56,7 +56,7 @@ class ProducerCameras:
         logger.info(f'<**_ProducerCameras_**> proccess_message:: {message_str}')
 
     def start_run(self):
-        logger.info(f' <**_ProcedurCameras_**> Start RUN : 1 ...')
+        logger.debug(f' <**_ProcedurCameras_**> Start RUN : 1 ...')
         cameras = self.get_cameras()
 
         #{
@@ -70,23 +70,28 @@ class ProducerCameras:
             'local': obj['local'],
             'camera': obj['camera']
             }
+
+            path = f'media/{obj["path"]}'
             
-            for root, dirs, files in os.walk(obj['path']):
+            logger.debug(f' <**_start_consumer_path_**> 2 : {path}')
+            for root, dirs, files in os.walk(path):
                 components = root.split('/')
+                logger.debug(f' <**_start_consumer_path_**> 3 : FOR 1 {components}')
 
             # Verificar se o path tem 4 componentes e se corresponde ao padrão AAAA-MM-DD
-                if components and len(components) == 4 and date_pattern.match(components[3]):
+                if len(components) == 4 and self.date_pattern.match(components[4]):
+                    logger.debug(f' <**_start_consumer_path_**> 4 : IF {components[4]}')
                     data_processadas = Processamentos.objects.filter(camera=obj['camera'])
                     
                     date_capture = components[3]
 
                     # Verificar se a data já foi processada
                     if date_capture not in data_processadas['data_captura'] and date_capture not in processed_dates:
-                        logger.info(f' <**_start_consumer_path_**> 2 : {date_capture}')
+                        logger.info(f' <**_start_consumer_path_**> 5 : {date_capture}')
                         message_dict.update({"data_captura": date_capture})
                         try:
                             message_str = json.dumps(message_dict)
-                            logger.info(f' <**_start_consumer_path_**> 3 :  {message_str}')
+                            logger.info(f' <**_start_consumer_path_**> 5.1 :  {message_str}')
 
                             publisher = Publisher()
                             publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
@@ -97,15 +102,5 @@ class ProducerCameras:
                         except publisher.exceptions.AMQPConnectionError as e:
                             logger.error(f'Error in processing: {e}')
                     else:
-                        logger.info(f' <**_start_consumer_path_**> 4 : {date_capture} já processada')
+                        logger.debug(f' <**_start_consumer_path_**> 6 : {date_capture} já processada')
                         continue
-
-        for obj in objs:
-            message_dict = {
-            'local': obj['local'],
-            'camera': obj['camera']
-            }
-            logger.debug(f' <**_ProducerCameras_**>message:: {message_dict}')
-            path = obj['path']
-            file_paths = self.find_image_files(path)
-            for file_path in file_paths:
