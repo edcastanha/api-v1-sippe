@@ -90,7 +90,9 @@ class Processamentos(baseModel):
         ('Processado', 'Processado'),
     )
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
-    dia = models.DateField()
+    dia = models.DateField(unique=True)
+    hora = models.TimeField(unique_for_date='dia')
+    minuto = models.TimeField(unique_for_date='hora')
     path = models.CharField(max_length=150, null=True, blank=True)
     status = models.CharField(max_length=20, choices=CHOICE_STATUS, default='Inicializado')
 

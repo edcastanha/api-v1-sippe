@@ -8,13 +8,13 @@ from core.loggingMe import logger
 from core.publisher import Publisher
 from core.celery import app
 
-EXCHANGE = 'secedu'
-ROUTE_KEY = 'path'
-QUEUE_PUBLISHIR = 'ftp'
-
 class ProducerCameras:
     def __init__(self):
-        self.date_pattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+        logger.debug(f' <**_ProducerCameras_**> INIT : {self}')
+        self.exchanges = 'secedu'
+        self.routing_key = 'path'
+        self.queue = 'ftp'
+    
 
 # Funcao de busca dados no Models do Django Locais e Cameras
     def get_cameras(self):
@@ -30,35 +30,42 @@ class ProducerCameras:
                 })
         return acessos
     
-    def find_image_files(self, path):
-        file_paths = []
+    def find_image_files(self, path, messege_base):
         for root, directories, files in os.walk(path):
             for file in files:
-                if file.lower().endswith(('[0].jpg', '[0].jpeg', '[0].png')):
+                if file.lower().endswith(('.jpg', '.jpeg', '.png')):
                     file_path = os.path.join(root, file)
-                    file_paths.append(file_path)
+                    self.process_message(file_path)
+                    logger.info(f'<**_ProducerCameras_**> 6 Find_Image_Files:: {file_path}')
         
-        logger.info(f'<**_ProducerCameras_**> Find_Image_Files:: {file_paths}')
+    
+    def is_valid_date_path(self, path):
+        # Padrão regex para AAAA-MM-DD
+        date_pattern = r'\d{4}-\d{2}-\d{2}'
         
-        return file_paths
-
+        # Verifica se o caminho contém o padrão AAAA-MM-DD em algum lugar
+        if re.search(date_pattern, path):
+            logger.debug(f' <**_ProducerCameras_**> 4 : PATH => {path}')
+            return True
+        else:
+            logger.debug(f' <**_ProducerCameras_**> 4 : PATH  => {path}')
+            return False
+            
     def process_message(self, message_dict):
         publisher = Publisher()
-        
         message_str = json.dumps(message_dict)
-        publisher.publish_message(
-            exchange=EXCHANGE,
-            routing_key=ROUTE_KEY,
-            queue=QUEUE_PUBLISHIR,
+        publisher.start_publisher(
+            exchange=self.exchanges,
+            routing_name=self.routing_key,
             message=message_str
         )
         publisher.close()
         logger.info(f'<**_ProducerCameras_**> proccess_message:: {message_str}')
 
     def start_run(self):
-        logger.debug(f' <**_ProcedurCameras_**> Start RUN : 1 ...')
+        logger.debug(f' <**_ProcedurCameras_**> Start RUN ...')
+        
         cameras = self.get_cameras()
-
         #{
         #  'local': local.nome,
         #  'camera': camera.descricao,
@@ -70,37 +77,23 @@ class ProducerCameras:
             'local': obj['local'],
             'camera': obj['camera']
             }
+            logger.debug(f' <**_ProcedurCameras_**> 1 : {obj}')
 
-            path = f'media/{obj["path"]}'
-            
-            logger.debug(f' <**_start_consumer_path_**> 2 : {path}')
-            for root, dirs, files in os.walk(path):
-                components = root.split('/')
-                logger.debug(f' <**_start_consumer_path_**> 3 : FOR 1 {components}')
-
-            # Verificar se o path tem 4 componentes e se corresponde ao padrão AAAA-MM-DD
-                if len(components) == 4 and self.date_pattern.match(components[4]):
-                    logger.debug(f' <**_start_consumer_path_**> 4 : IF {components[4]}')
-                    data_processadas = Processamentos.objects.filter(camera=obj['camera'])
+            root_path = f'media/{obj["path"]}'
+            if os.path.exists(root_path):
+                logger.debug(f' <**_ProcedurCameras_**> 2 : ROOT PATH=> {root_path}')
+                for root, dirs, files in os.walk(root_path):                
+                    logger.debug(f' <**_ProcedurCameras_**> 3 : ROOT => {root}')
+                    logger.debug(f' <**_ProcedurCameras_**> 3.1 : DIRS => {dirs}')
                     
-                    date_capture = components[3]
-
-                    # Verificar se a data já foi processada
-                    if date_capture not in data_processadas['data_captura'] and date_capture not in processed_dates:
-                        logger.info(f' <**_start_consumer_path_**> 5 : {date_capture}')
-                        message_dict.update({"data_captura": date_capture})
-                        try:
-                            message_str = json.dumps(message_dict)
-                            logger.info(f' <**_start_consumer_path_**> 5.1 :  {message_str}')
-
-                            publisher = Publisher()
-                            publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                            publisher.close()
-
-                            # Marcar a data como processada
-                            processed_dates.add(date_capture)
-                        except publisher.exceptions.AMQPConnectionError as e:
-                            logger.error(f'Error in processing: {e}')
-                    else:
-                        logger.debug(f' <**_start_consumer_path_**> 6 : {date_capture} já processada')
-                        continue
+                    path_files = f'{root}{dirs[-1]}'
+                    if self.is_valid_date_path(path_files):
+                        logger.debug(f' <**_ProcedurCameras_**> 4.1 : DIA => {dir}')
+                        for dir in dirs:
+                            procemento = Processamentos.objects.filter(camera=obj, dia=dir).exists()
+                            logger.debug(f' <**_ProcedurCameras_**> 5 : PROCESSAMENTOS => {procemento}')
+                            if dir not in processed_dates:
+                                logger.debug(f' <**_ProcedurCameras_**> 6 : FiLE=> {root}/{dir}')
+                                processed_dates.add(dir)
+                                message_dict['date'] = dir
+                                self.find_image_files(path=f'{root}{dir}', messege_base=message_dict)
