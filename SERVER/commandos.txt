@@ -18,6 +18,11 @@ python manage.py dumpdata cameras.Locais > backup-models/cameras/cameras_Locais.
 python manage.py dumpdata cameras.FrequenciasEscolar > backup-models/cameras/cameras_FrequenciasEscolar.json
 python manage.py dumpdata cameras.Tarefas > backup-models/cameras/cameras_Tarefas.json
 python manage.py dumpdata cameras.Processamentos > backup-models/cameras/cameras_Processamentos.json
+python manage.py dumpdata django_celery_results > backup-models/celery/django_celery_results.json
+python manage.py dumpdata django_celery_beat > backup-models/celery/django_celery_beat.json
+
+django_celery_results
+django_celery_beat
 
 QUERYS:
 select_related('nome do campo que recebe a ForeignKey):

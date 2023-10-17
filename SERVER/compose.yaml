@@ -11,7 +11,7 @@ services:
       - RABBITMQ_DEFAULT_USER=secedu
       - RABBITMQ_DEFAULT_PASS=ep4X1!br
     volumes:
-      - C:\workspace\volumes\rabbitmq:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -184,3 +184,11 @@ services:
 networks:
   server-hosts:
     driver: bridge
+
+volumes:
+  rabbitmq_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\rabbitmq

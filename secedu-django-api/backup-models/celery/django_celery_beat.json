@@ -1,0 +1,37 @@
+[
+    {
+        "model": "django_celery_beat.intervalschedule",
+        "pk": 1,
+        "fields": {
+            "every": 1,
+            "period": "minutes"
+        }
+    },
+    {
+        "model": "django_celery_beat.intervalschedule",
+        "pk": 2,
+        "fields": {
+            "every": 15,
+            "period": "minutes"
+        }
+    },
+    {
+        "model": "django_celery_beat.crontabschedule",
+        "pk": 1,
+        "fields": {
+            "minute": "*",
+            "hour": "5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
+            "day_of_week": "1,2,3,4,5",
+            "day_of_month": "*",
+            "month_of_year": "*",
+            "timezone": "America/Sao_Paulo"
+        }
+    },
+    {
+        "model": "django_celery_beat.periodictasks",
+        "pk": 1,
+        "fields": {
+            "last_update": "2023-10-17T16:23:00.215Z"
+        }
+    }
+]
