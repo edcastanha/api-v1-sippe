@@ -161,14 +161,14 @@ services:
     image: secedu-jobs-recognition
     container_name: secedu-scripts
     environment:
-      - FPT_PATH = /usr/src/ftp/
-      - DATASET_PATH = /usr/src/dataset/
-      - CAPTURAS_PATH = /usr/src/capturas/
+      - FPT_PATH = media/ftp/
+      - DATASET_PATH = media/dataset/
+      - CAPTURAS_PATH = media/capturas/
     volumes:
       - ../secedu-jobs-faces/:/app/
-      - C:\workspace\volumes\dataset:/usr/src/dataset/
-      - C:\workspace\volumes\capturas:/usr/src/capturas/
-      - B:\SIPPE\FTP:/usr/src/ftp/
+      - C:\workspace\volumes\dataset:/app/media/dataset/
+      - C:\workspace\volumes\capturas:/app/media/capturas/
+      - B:\SIPPE\FTP:/app/media/ftp/
       - ../logs:/app/logs/
     restart: always
     deploy:

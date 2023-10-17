@@ -16,14 +16,15 @@ from deepface import DeepFace
 from publicar import Publisher
 from loggingMe import logger
 
-REDIS_SERVER = 'secedu-rds-tack'
-RMQ_SERVER = 'secedu-rmq-task'
+REDIS_SERVER = 'redis-server'
+RMQ_SERVER = 'broker-server'
 
 EXCHANGE='secedu'
 QUEUE_PUBLISHIR='faces'
 ROUTE_KEY='extractor'
-QUEUE_CONSUMER='files'
-ASK_DEBUG = True
+
+QUEUE_CONSUMER='ftp'
+ASK_DEBUG = False
 
 DIR_CAPS ='capturas'
 
@@ -72,7 +73,7 @@ class ConsumerExtractor:
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
-        file = data['caminho_do_arquivo']
+        file = data['path_file']
         logger.info(f' <**_**> ConsumerExtractor: process_message')
 
         if file.lower().endswith(('.jpg', '.jpeg', '.png')):
@@ -83,7 +84,9 @@ class ConsumerExtractor:
             message_dict = {
                 'data_processo': proccess,
                 'data_captura': data_captura,
+                'hora_captura': data['horario'],
                 'nome_equipamento': equipamento,
+                'local_equipamento': data['local'],
                 'captura_base': file,
             }
             face_objs = DeepFace.extract_faces(img_path=file,
@@ -92,16 +95,16 @@ class ConsumerExtractor:
                                                align=True
                                                )
             # Extrair a parte da URL que contém HH, MM e SS
-            matchM = re.search(r'/(\d{2})/(\d{2})/(\d{2})', file)
-            if matchM:
-                hh, mm, ss = matchM.groups()
-                logger.info(f' <**_**> ConsumerExtractor: Math - HH/MM/SS')
+        #    matchM = re.search(r'/(\d{2})/(\d{2})/(\d{2})', file)
+        #    if matchM:
+        #        hh, mm, ss = matchM.groups()
+        #        logger.info(f' <**_**> ConsumerExtractor: Math - HH/MM/SS')
 
             #Extrair a parte da URL que contém HH, MM e SS
-            matchP = re.search(r'/(\d{2})/(\d{2})\.(\d{2})', file)
-            if matchP:
-                hh, mm, ss = matchP.groups()
-                logger.info(f' <**_**> ConsumerExtractor: Matc - HH/MM.SS')
+        #    matchP = re.search(r'/(\d{2})/(\d{2})\.(\d{2})', file)
+        #    if matchP:
+        #        hh, mm, ss = matchP.groups()
+        #        logger.info(f' <**_**> ConsumerExtractor: Matc - HH/MM.SS')
 
             for index, face_obj in enumerate(face_objs):
                 if face_obj['confidence'] >= LIMITE_DETECTOR:

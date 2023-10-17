@@ -63,11 +63,11 @@ class ConsumerPath:
 
         for index, field_name in data.items():
             #logger.info(f' <**_**> ConsumerPath: Corre messagem')
-            if index == 'caminho_do_arquivo':
+            if index == 'path_file':
                 file_paths = self.find_image_files(field_name)
                 publisher = Publisher()
                 for file_path in file_paths:
-                    message_dict.update({'caminho_do_arquivo': file_path})
+                    message_dict.update({'path_file': file_path})
                     message_str = json.dumps(message_dict)
                     publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                     logger.info(f' <**_3_**> ConsumerPath: {file_path}')

@@ -7,8 +7,13 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # switch to application directory
 WORKDIR /app
 
+RUN mkdir -p /app/media/capturas && chmod -rx /app/media/capturas
+RUN mkdir -p /app/media/dataset && chmod -rx /app/media/dataset
+RUN mkdir -p /app/media/ftp && chmod -rx /app/media/ftp
+RUN mkdir -p /app/deepface/ && chmod -rx /app/deepface/
+
 # -----------------------------------
-COPY ./deepface/ /app/deepface/
+COPY ./deepface/ /app/deepface/  
 COPY ./requirements.txt /app/requirements.txt
 # -----------------------------------
 RUN rm -rf /usr/lib/python3/dist-packages/blinker*
