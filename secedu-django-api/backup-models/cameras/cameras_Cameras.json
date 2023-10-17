@@ -1,0 +1,47 @@
+[
+    {
+        "model": "cameras.cameras",
+        "pk": 1,
+        "fields": {
+            "data_cadastro": "2023-09-26T21:05:45.807Z",
+            "data_atualizacao": "2023-10-17T02:49:59.315Z",
+            "nf": 1,
+            "descricao": "SIPPE 1 - Servico de acesso FTP",
+            "acesso": "/ftp/sippe1/Sippe1/",
+            "modelo": "IntelBras VIP 5220",
+            "usuario": "sippe1",
+            "senha": "ep4X1!br",
+            "status": true
+        }
+    },
+    {
+        "model": "cameras.cameras",
+        "pk": 2,
+        "fields": {
+            "data_cadastro": "2023-09-26T21:06:57.651Z",
+            "data_atualizacao": "2023-10-17T02:50:18.057Z",
+            "nf": 1,
+            "descricao": "SIPPE 2 - Servicos de FTP para cameras",
+            "acesso": "ftp/sippe2/Sippe2/",
+            "modelo": "IntelBras VIP 5220",
+            "usuario": "sippe2",
+            "senha": "ep4X1!br",
+            "status": true
+        }
+    },
+    {
+        "model": "cameras.cameras",
+        "pk": 3,
+        "fields": {
+            "data_cadastro": "2023-09-26T21:07:32.927Z",
+            "data_atualizacao": "2023-10-17T02:50:30.363Z",
+            "nf": 1,
+            "descricao": "SIPPE 3 - Servico de cameras via FTP",
+            "acesso": "ftp/sippe3/Sippe3/",
+            "modelo": "IntelBras 4k",
+            "usuario": "sippe3",
+            "senha": "ep4X1!br",
+            "status": true
+        }
+    }
+]

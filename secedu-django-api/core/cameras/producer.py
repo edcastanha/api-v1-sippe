@@ -9,7 +9,6 @@ from core.publisher import Publisher
 
 class ProducerCameras:
     def __init__(self):
-        #logger.debug(f'<**_ProducerCameras_**> INIT : {self}')
         self.exchanges = 'secedu'
         self.routing_key = 'path'
         self.queue = 'ftp'
@@ -38,7 +37,7 @@ class ProducerCameras:
             'nome_equipamento': self.device,
             'local': self.local,
         }
-        #logger.debug(f'<**_ProducerCameras_**> 6 Find_Image_Files :: {message_dict}')
+        logger.debug(f'<**_ProducerCameras_**> 2 Find_Image_Files :: {message_dict}')
         
         for root, dirs, files in os.walk(path):
             for file in files:
@@ -47,7 +46,7 @@ class ProducerCameras:
                     self.capture_hour = self.is_valid_hour_path(file_path)
                     if not Processamentos.objects.filter(path=file_path).exists() and self.capture_hour is not None:
                         message_dict.update({'path_file': file_path})
-                        #logger.debug(f'<**_ProducerCameras_**> 6.1 Find_Image_Files :: {self.capture_hour}')
+                        logger.debug(f'<**_ProducerCameras_**> 6.1 Find_Image_Files :: {self.capture_hour}')
                         message_dict.update({'horario': self.capture_hour})
                         self.create_processamento(message_dict, file_path)
 
@@ -76,8 +75,8 @@ class ProducerCameras:
 
     def create_processamento(self, message_dict, file_path):
         #logger.debug(f'<**_ProducerCameras_**> 7 Create_Processamento :: {file_path}')
+        camera = Cameras.objects.get(id=self.device)  # Obtenha a instância da câmera
         try:
-            camera = Cameras.objects.get(id=self.device)  # Obtenha a instância da câmera
             new_registro = Processamentos.objects.create(
                 camera=camera,  # Use a instância da câmera, não o ID
                 dia=self.capture_date,
@@ -85,28 +84,28 @@ class ProducerCameras:
                 path=file_path
             )
             message_dict.update({'proccess_id': new_registro.id})
-            message_str = json.dumps(message_dict)
-            #logger.debug(f'<**_ProducerCameras_**> 8 MESSAGEM :: {message_str}')
-            self.process_message(message_str)
-            
         except ValueError as e:
-            #logger.error(f'Erro ao criar o objeto de Processamentos: {e}')
-            # Adote uma estratégia adequada em caso de erro, como registrar o erro ou lidar com a exceção de outra forma
+            logger.error(f'Erro ao criar o objeto de Processamentos: {e}')
+        
+        message_str = json.dumps(message_dict)
+        logger.debug(f'<**_ProducerCameras_**> 3 MESSAGEM :: {message_str}')
+        self.process_message(message_str)
         
     def process_message(self, message):
         publisher = Publisher()
-        #logger.debug(f'<**_ProducerCameras_**> 10 proccess_message:: {message}')
         try:
             publisher.start_publisher(
                 exchange=self.exchanges,
                 routing_name=self.routing_key,
                 message=message
             )
+            logger.debug(f'<**_ProducerCameras_**> 4 proccess_message:: {message}')
         finally:
             publisher.close()
+            logger.debug(f'<**_ProducerCameras_**> 5 CLOSE PUBLISHER:: {message}')
 
     def start_run(self):
-        #logger.debug(f'<**_ProcedurCameras_**> Start RUN ...')
+        logger.debug(f'<**_ProcedurCameras_**> Start RUN ...')
         
         cameras = self.get_cameras()
         #logger.debug(f'<**_ProcedurCameras_**> 0 CAMERAS : {cameras}')
@@ -128,5 +127,5 @@ class ProducerCameras:
                         #logger.debug(f'<**_ProcedurCameras_**> 3.1 : PATH DATA=> {path_data}')
                         if self.is_valid_date_path(path_data):
                                 self.capture_date = dir
-                                #logger.debug(f'<**_ProcedurCameras_**> 4 : Captura Date=> {self.capture_date}')
+                                logger.debug(f'<**_ProcedurCameras_**> 1 : Captura Date=> {self.capture_date}')
                                 self.find_image_files(path=path_data)

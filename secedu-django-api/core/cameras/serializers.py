@@ -1,7 +1,7 @@
 # from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from core.cadastros.models import Aluno, Escalas
-from core.cameras.models import NotaFiscal, Cameras, Locais, FrequenciasEscolar, Tarefas
+from core.cameras.models import NotaFiscal, Cameras, Locais, FrequenciasEscolar, Tarefas, Processamentos
 
 class AlunoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,4 +41,11 @@ class TarefasSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tarefas
+        fields = '__all__'
+
+
+class ProcessamentosSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Processamentos
         fields = '__all__'
