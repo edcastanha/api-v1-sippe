@@ -4,6 +4,9 @@ import mediapipe
 import pandas as pd
 import numpy as np
 import os
+from deepface import DeepFace
+
+from embedding import Trainning
 
 import service
 
@@ -13,6 +16,13 @@ blueprint = Blueprint("routes", __name__)
 @blueprint.route("/")
 def home():
     return "<h1>Bem-vindo à SecEdu API!</h1>"
+
+@blueprint.route("/dataset")
+def dataset():
+    trainning = Trainning()
+    trainning.flush_redis()
+    keys =  trainning.process_images()
+    return keys
 
 
 @blueprint.route("/represent", methods=["POST"])
@@ -218,9 +228,8 @@ def embedding():
     except Exception as e:
         return {"error": str(e)}
     
-    
-@blueprint.route("/analyze_mediapipe", methods=["POST"])
-def analanalyze_mediapipeyze():
+@blueprint.route("/mediapipe", methods=["POST"])
+def analanalyze_mediapipe():
     input_args = request.get_json()
     print(f'Args REQUEST {input_args}')
 
@@ -241,7 +250,8 @@ def analanalyze_mediapipeyze():
     if capturas_path is not None and capturas_path.split(".")[-1] not in ["jpg", "png", "jpeg"]:
         return {"message": "é necessário passar a entrada imagem valido com extensão .jpg, .png ou .jpeg"}
     
-
+    faces = DeepFace.build_model()
+    
     detector_backend = input_args.get("detector_backend", "opencv")
     enforce_detection = input_args.get("enforce_detection", True)
     align = input_args.get("align", True)

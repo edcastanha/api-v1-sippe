@@ -24,7 +24,7 @@ services:
     image: redis/redis-stack:latest
     container_name: redis-server
     volumes:
-      - C:\workspace\volumes\redis:/data
+      - redis_data:/data
     ports:
       - "6379:6379"
       - "8001:8001"
@@ -67,10 +67,10 @@ services:
       - .env
     volumes:
       - ../secedu-django-api/:/api/
-      - C:\workspace\volumes\dataset:/api/media/dataset/
-      - C:\workspace\volumes\capturas:/api/media/capturas/
-      - B:\SIPPE\FTP:/api/media/ftp/
-      - ../logs:/api/logs/
+      - dataset_data:/api/media/dataset/
+      - captura_data:/api/media/capturas/
+      - ftp_data:/api/media/ftp/
+      - logs_data:/api/logs/
     ports:
       - "7000:7000"
     networks:
@@ -92,10 +92,10 @@ services:
       - .env
     volumes:
       - ../secedu-django-api/:/api/
-      - C:\workspace\volumes\dataset:/api/media/dataset/
-      - C:\workspace\volumes\capturas:/api/media/capturas/
-      - B:\SIPPE\FTP:/api/media/ftp/
-      - ../logs:/logs/
+      - dataset_data:/api/media/dataset/
+      - captura_data:/api/media/capturas/
+      - ftp_data:/api/media/ftp/
+      - logs_data:/logs/
     networks:
       - server-hosts
 
@@ -115,10 +115,10 @@ services:
       - .env
     volumes:
       - ../secedu-django-api/:/api/
-      - C:\workspace\volumes\dataset:/api/media/dataset/
-      - C:\workspace\volumes\capturas:/api/media/capturas/
-      - B:\SIPPE\FTP:/api/media/ftp/
-      - ../logs:/logs/
+      - dataset_data:/api/media/dataset/
+      - captura_data:/api/media/capturas/
+      - ftp_data:/api/media/ftp/
+      - logs_data:/logs/
     networks:
       - server-hosts
 
@@ -136,9 +136,10 @@ services:
       - CAPTURAS_PATH = /app/capturas/
     volumes:
       - ../secedu-flask-deepface/app/api/:/app/
-      - C:\workspace\volumes\dataset:/app/dataset/
-      - C:\workspace\volumes\capturas:/app/capturas/
-      - B:\SIPPE\FTP:/app/ftp/
+      - dataset_data:/app/dataset/
+      - captura_data:/app/capturas/
+      - ftp_data:/app/ftp/
+      - api_face_data:/root/.deepface/weights/
     restart: always
     deploy:
       resources:
@@ -166,10 +167,11 @@ services:
       - CAPTURAS_PATH = media/capturas/
     volumes:
       - ../secedu-jobs-faces/:/app/
-      - C:\workspace\volumes\dataset:/app/media/dataset/
-      - C:\workspace\volumes\capturas:/app/media/capturas/
-      - B:\SIPPE\FTP:/app/media/ftp/
-      - ../logs:/app/logs/
+      - dataset_data:/app/media/dataset/
+      - captura_data:/app/media/capturas/
+      - ftp_data:/app/media/ftp/
+      - logs_data:/app/logs/
+      - api_face_data:/root/.deepface/weights/
     restart: always
     deploy:
       resources:
@@ -192,3 +194,45 @@ volumes:
       type: none
       o: bind
       device: C:\workspace\volumes\rabbitmq
+
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\redis
+
+  api_face_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\weights
+
+  logs_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\logs
+
+  ftp_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: B:\SIPPE\FTP
+  
+  captura_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\capturas
+
+  dataset_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\dataset

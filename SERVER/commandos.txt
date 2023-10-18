@@ -7,22 +7,33 @@ python manage.py migrate --noinput
 python manage.py collectstatic --noinput 
 gunicorn --workers=1 --timeout=3600 --bind=0.0.0.0:9000 core.wsgi
 
-#COMANDO DE BACKUP JSON::
+## COMANDO DE BACKUP JSON::
 
 python manage.py dumpdata cadastros > backup-models/cadastros/cadastros.json
+## LOAD DOS JSON
+python manage.py loaddata backup-models/cadastros/cadastros.json
 
-#CAMERAS APP
+## CAMERAS APP
 python manage.py dumpdata cameras.NotaFiscal > backup-models/cameras/cameras_NotaFiscal.json
 python manage.py dumpdata cameras.Cameras > backup-models/cameras/cameras_Cameras.json
 python manage.py dumpdata cameras.Locais > backup-models/cameras/cameras_Locais.json
 python manage.py dumpdata cameras.FrequenciasEscolar > backup-models/cameras/cameras_FrequenciasEscolar.json
 python manage.py dumpdata cameras.Tarefas > backup-models/cameras/cameras_Tarefas.json
 python manage.py dumpdata cameras.Processamentos > backup-models/cameras/cameras_Processamentos.json
+## LOAD DATA::
+python manage.py loaddata backup-models/cameras/cameras_NotaFiscal.json
+python manage.py loaddata backup-models/cameras/cameras_Cameras.json
+python manage.py loaddata backup-models/cameras/cameras_Locais.json
+python manage.py loaddata backup-models/cameras/cameras_FrequenciasEscolar.json
+python manage.py loaddata backup-models/cameras/cameras_Tarefas.json
+python manage.py loaddata backup-models/cameras/cameras_Processamentos.json
+
+## CELERY
 python manage.py dumpdata django_celery_results > backup-models/celery/django_celery_results.json
 python manage.py dumpdata django_celery_beat > backup-models/celery/django_celery_beat.json
+## LOAD DOS JSON
+python manage.py loaddata 
 
-django_celery_results
-django_celery_beat
 
 QUERYS:
 select_related('nome do campo que recebe a ForeignKey):
