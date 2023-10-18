@@ -36,7 +36,7 @@
         <div id="results" class="card" style="width: 18rem;">
             <img id="img_1" src="../../media/avatar.png" class="card-img-top" alt="...">
             <div class="card-body">
-                <p id="emotion" class="card-text text-center">Emoção predominante: </p>
+                <p id="emotion" class="card-text text-center">Emoção Predominante: </p>
             </div>
         </div>
     </center>
@@ -54,9 +54,9 @@
                     // Carregar path de imagem
                     name = fileChooser.files[0].name;
                     console.log('Nome:' + name);
-                    path = 'capturas/' + name;
+                    path = 'media/capturas/' + name;
                     //image.src = formData.get('image');
-                    console.log(formData.get('image'));
+                    console.log('PATH IMG: '+ path);
                     fetch('/get_image_and_analyze/', {
                         method: "POST",
                         body: formData
@@ -64,26 +64,20 @@
                         .then(response => {
                             if (response.ok) {
                                 response.json().then(data => {
-                                    console.log(data);
                                     emocoes = { 'angry': 'Irritação', 'disgust': 'Nojo', 'fear': 'Medo', 'happy': 'Felicidade', 'neutral': 'Neutro', 'sad': 'Tristeza', 'surprise': 'Surpresa' }
                                     // Atualize a imagem com o URL retornado na resposta
                                     var image = document.getElementById('img_1');
-                                    
-                                    var path = data.face_location;
-                                    console.log('GET PATH: ' + path);
                                     var emotionParagraph = document.getElementById('emotion');
+
+                                    var path = data[0].face_location;
+                                    var emotionData = data[0].results[0].dominant_emotion;
                                     // Se nao existir  data.face_location, significa que nao foi detectada nenhuma face
-                                    if (data.face_location != null) {
+                                    if (path != null && emotionData != null) {
                                     
-                                        image.src = '../../media/' + path;
-
+                                        image.src = '../../' + path;
                                         // Recupere os dados de emoção da resposta
-                                        var emotionData = data.results[0].dominant_emotion;
-
-                                        // Atualize o parágrafo com os dados de emoção
-                                        if (emotionParagraph) {
-                                            emotionParagraph.textContent = "Emoção predominante: " + emocoes[emotionData];
-                                        }
+                                        console.log('Emocao: ', emotionData);
+                                        emotionParagraph.textContent = "Emoção predominante: " + emocoes[emotionData];
                                     } else {
                                         emotionParagraph.textContent = "Emoção predominante: " + 'Nenhuma face detectada';
                                     }

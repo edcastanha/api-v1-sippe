@@ -228,8 +228,8 @@ def embedding():
     except Exception as e:
         return {"error": str(e)}
     
-@blueprint.route("/mediapipe", methods=["POST"])
-def analanalyze_mediapipe():
+@blueprint.route("/analyze_mediapipe", methods=["POST"])
+def analyze_mediapipe():
     input_args = request.get_json()
     print(f'Args REQUEST {input_args}')
 
@@ -242,15 +242,14 @@ def analanalyze_mediapipe():
     
     # Obtém o diretório do arquivo atual (app.py neste caso)
     dir_path = os.path.dirname(os.path.abspath(__file__))
-
+    print(f' <**_1_**> DIR PATH:: {dir_path}')
     # Adiciona o nome da pasta que você deseja obter o caminho
     capturas_path = os.path.join( img_path)
+    print(f' <**_2_**> CAPTURAS PATH:: {capturas_path}')
 
     # Verificar se caminho existe ou seria uma imagem (png, jpg ou jpeg)
     if capturas_path is not None and capturas_path.split(".")[-1] not in ["jpg", "png", "jpeg"]:
         return {"message": "é necessário passar a entrada imagem valido com extensão .jpg, .png ou .jpeg"}
-    
-    faces = DeepFace.build_model()
     
     detector_backend = input_args.get("detector_backend", "opencv")
     enforce_detection = input_args.get("enforce_detection", True)
@@ -268,4 +267,3 @@ def analanalyze_mediapipe():
     #os.remove(capturas_path)
 
     return demographies
-

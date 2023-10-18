@@ -15,21 +15,24 @@ import matplotlib.pyplot as plt
 from publicar import Publisher
 from loggingMe import logger
 
-
-RMQ_SERVER = 'secedu-rmq-task'
-EXCHANGE='secedu'
+REDIS_SERVER = 'redis-server'
+RMQ_SERVER = 'broker-server'
 
 QUEUE_PUBLISHIR='embedding'
+EXCHANGE='secedu'
+ROUTE_KEY='extrair'
 
-ROUTE_KEY='verification'
 QUEUE_CONSUMER='faces'
-ASK_DEBUG = True
+ASK_DEBUG = False
 
-DIR_CAPS ='capturas'
-DIR_DATASET ='dataset'
-BACKEND_DETECTOR='Facenet'
-MODEL_BACKEND ='mtcnn'
-LIMITE_DETECTOR =0.99
+DIR_CAPS ='/media/capturas/'
+DIR_DATASET ='/media/dataset'
+
+
+BACKEND_DETECTOR='retinaface'
+#MODEL_BACKEND ='mtcnn'
+MODEL_BACKEND ='Facenet'
+LIMITE_DETECTOR = 0.99
 PESO = 10
 
 METRICS = 'euclidean'
@@ -97,7 +100,7 @@ class ConsumerEmbbeding:
                 base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
                 query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
                 results = r.ft().search(query, query_params={"query_vector": query_vector})
-                #logger.info(f' <**REDIS**> Search:: {results}')
+                logger.info(f' <**REDIS**> Search:: {results}')
 
                 publisher = Publisher()
                 for document in results.docs:

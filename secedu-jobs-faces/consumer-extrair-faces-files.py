@@ -26,7 +26,7 @@ ROUTE_KEY='extrair'
 QUEUE_CONSUMER='ftp'
 ASK_DEBUG = False
 
-BACKEND_DETECTOR='mediapipe'
+BACKEND_DETECTOR='retinaface'
 #MODEL_BACKEND ='mtcnn'
 MODEL_BACKEND ='Facenet'
 LIMITE_DETECTOR = 0.99

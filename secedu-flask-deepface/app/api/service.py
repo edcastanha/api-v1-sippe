@@ -52,7 +52,7 @@ def analyze(img_path, actions, detector_backend, enforce_detection, align):
     result["results"] = demographies
     return result
 
-def analyze_mediapipe(img_path, actions, detector_backend='mediapipe', enforce_detection=True, align=True):
+def analyze_mediapipe(img_path, actions, detector_backend='mediapipe', enforce_detection=False, align=True):
     result = []
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True)
@@ -101,7 +101,7 @@ def analyze_mediapipe(img_path, actions, detector_backend='mediapipe', enforce_d
             out[mask] = img[mask]
 
             # Verificar se o diretório 'capturas/ovalFace/' existe e, se não, criá-lo
-            save_dir = 'capturas/ovalFace/'
+            save_dir = 'media/capturas/ovalFace/'
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
 
@@ -111,7 +111,7 @@ def analyze_mediapipe(img_path, actions, detector_backend='mediapipe', enforce_d
             
             # Salvar a imagem no diretório
             cv2.imwrite(path, out)
-
+            print(f"Imagem salva em {path}")
             demographies = DeepFace.analyze(
                 img_path=path,
                 actions=actions,

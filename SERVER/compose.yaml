@@ -131,14 +131,14 @@ services:
     image: secedu-face-recognition
     container_name: secedu-face
     environment:
-      - FPT_PATH = /app/ftp/
-      - DATASET_PATH = /app/dataset/
-      - CAPTURAS_PATH = /app/capturas/
+      - FPT_PATH = /app/media/ftp/
+      - DATASET_PATH = /app/media/dataset/
+      - CAPTURAS_PATH = /app/media/capturas/
     volumes:
       - ../secedu-flask-deepface/app/api/:/app/
-      - dataset_data:/app/dataset/
-      - captura_data:/app/capturas/
-      - ftp_data:/app/ftp/
+      - dataset_data:/app/media/dataset/
+      - captura_data:/app/media/capturas/
+      - ftp_data:/app/media/ftp/
       - api_face_data:/root/.deepface/weights/
     restart: always
     deploy:
@@ -153,8 +153,39 @@ services:
     networks:
       - server-hosts
 
-# SCRIPTS - FACE RECOGNITION 
+# - Detection and Recognition
+## SCRIPTS EXTRAIR FACES
   secedu-scripts:
+    #image: apiv1sippe:tf-deepface-1.0.0
+    build:
+      context: ../secedu-jobs-faces/
+      dockerfile: Dockerfile
+    image: secedu-jobs-recognition
+    container_name: secedu-scripts
+    environment:
+      - FPT_PATH = media/ftp/
+      - DATASET_PATH = media/dataset/
+      - CAPTURAS_PATH = media/capturas/
+    volumes:
+      - ../secedu-jobs-faces/:/app/
+      - dataset_data:/app/media/dataset/
+      - captura_data:/app/media/capturas/
+      - ftp_data:/app/media/ftp/
+      - logs_data:/app/logs/
+      - api_face_data:/root/.deepface/weights/
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - server-hosts
+
+  ## SCRIPTS EMBBEDDING FACES
+  secedu-face-extractor:
     #image: apiv1sippe:tf-deepface-1.0.0
     build:
       context: ../secedu-jobs-faces/
