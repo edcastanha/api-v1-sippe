@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from core.loggingMe import logger
 
 capture_path = settings.MEDIA_ROOT + '/capturas/'
-logger.debug(f'Path de capturas: {capture_path}')
+#logger.debug(f'Path de capturas: {capture_path}')
 
 def index(request):
     alunos_list = Aluno.objects.all()

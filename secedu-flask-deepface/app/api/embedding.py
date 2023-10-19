@@ -7,7 +7,7 @@ import json
 class Trainning:
     #def __init__(self, dir_db_img, redis_host='localhost', redis_port=6379, redis_pass='ep4X1!br', redis_db=0, img_path='dataset'):
     def __init__(self, redis_host='redis-server', redis_port=6379, redis_db=0):
-        self.dir_db_img = 'dataset/'
+        self.dir_db_img = '/app/media/dataset/'
         self.redis_host = redis_host
         self.redis_port = redis_port
         #self.redis_pass = redis_pass
@@ -43,7 +43,7 @@ class Trainning:
         embedding_obj = DeepFace.represent(
             img_path=img_path, 
             model_name=self.models[1], 
-            detector_backend=self.detector[6],
+            detector_backend=self.detector[4],
             enforce_detection=False
         )
         embedding = embedding_obj[0]["embedding"]
@@ -56,8 +56,10 @@ class Trainning:
         self.redis_client.rpush(f"embedding:{img_path}", *embedding)
 
     def process_images(self):
+        print(self.dir_db_img)
         result= {}
         for dir_path, dir_names, file_names in os.walk(self.dir_db_img):
+            print(f"Processing {dir_path}...{file_names}")
             for file_name in file_names:
                 img_path = os.path.join(dir_path, file_name)
                 if img_path.endswith((".png", ".jpg", ".jpeg")):

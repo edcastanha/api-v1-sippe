@@ -112,6 +112,7 @@ def analyze_mediapipe(img_path, actions, detector_backend='mediapipe', enforce_d
             # Salvar a imagem no diretório
             cv2.imwrite(path, out)
             print(f"Imagem salva em {path}")
+            
             demographies = DeepFace.analyze(
                 img_path=path,
                 actions=actions,

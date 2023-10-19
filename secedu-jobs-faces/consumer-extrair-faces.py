@@ -27,13 +27,13 @@ QUEUE_CONSUMER='ftp'
 ASK_DEBUG = False
 
 BACKEND_DETECTOR='retinaface'
-#MODEL_BACKEND ='mtcnn'
-MODEL_BACKEND ='Facenet'
 LIMITE_DETECTOR = 0.99
+
+DIR_CAPTURE = '/app/media/capturas/'
 
 r = redis.StrictRedis(host=REDIS_SERVER, port=6379, db=0)
 
-
+# celery -A core worker producer task path
 class ConsumerExtractor:
     def __init__(self):
         self.connection = pika.BlockingConnection(
@@ -49,11 +49,10 @@ class ConsumerExtractor:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        self.path_capture = '/media/capturas/'
+        self.path_capture = DIR_CAPTURE
         logger.debug(f' <**_ 1 _**> RMQ_SERVER::{RMQ_SERVER} REDIS_SERVER::{REDIS_SERVER} PATH:: {self.path_capture}')
 
     def run(self):
-        DeepFace.build_model(MODEL_BACKEND)
         logger.debug(f' <**_0_**> ConsumerExtractor: RUN')
         self.channel.basic_consume(
             queue=QUEUE_CONSUMER,

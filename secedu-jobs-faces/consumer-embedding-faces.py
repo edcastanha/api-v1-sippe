@@ -8,8 +8,6 @@ import redis
 from redis.commands.search.field import VectorField, TagField
 from redis.commands.search.query import Query
 
-r = redis.StrictRedis(host='secedu-rds-tack', port=6379, db=0)
-
 import matplotlib.pyplot as plt
 
 from publicar import Publisher
@@ -20,13 +18,13 @@ RMQ_SERVER = 'broker-server'
 
 QUEUE_PUBLISHIR='embedding'
 EXCHANGE='secedu'
-ROUTE_KEY='extrair'
+ROUTE_KEY='verify'
 
 QUEUE_CONSUMER='faces'
 ASK_DEBUG = False
 
-DIR_CAPS ='/media/capturas/'
-DIR_DATASET ='/media/dataset'
+DIR_CAPS ='/app/media/capturas'
+DIR_DATASET ='/app/media/dataset'
 
 
 BACKEND_DETECTOR='retinaface'
@@ -37,6 +35,7 @@ PESO = 10
 
 METRICS = 'euclidean'
 
+r = redis.StrictRedis(host=REDIS_SERVER , port=6379, db=0)
 
 
 class ConsumerEmbbeding:
@@ -54,9 +53,9 @@ class ConsumerEmbbeding:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        logger.info(f' <**ConsumerEmbbeding**> : Init')
 
     def run(self):
+        logger.info(f' <**ConsumerEmbbeding**> : Init')
         # CONFIGURACAO CONSUMER
         self.channel.basic_consume(           
             queue=QUEUE_CONSUMER,
@@ -73,28 +72,32 @@ class ConsumerEmbbeding:
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
-        file = data['caminho_do_face']
-        logger.info(f' <**_Proccess_**> {file}')
-
+        file = str(data['caminho_do_face'])
+        detector = str(data['detector_backend'])
+        
         if file.endswith(('.jpg', '.jpeg', '.png')):
             message_dict = {
-                'nome_equipamento':data['nome_equipamento'],
+                'id_equipamento':data['nome_equipamento'],
                 'data_captura': data['data_captura'],
+                'hora_captura': data['hora_captura'],
+                'captura_base': data['captura_base'],
                 'caminho_do_face': file,
-                'detector_backend': BACKEND_DETECTOR,
+                'detector_backend': detector,
+                'model_name': MODEL_BACKEND,
+                'metrics': METRICS,
             }
-            #logger.info(f' <**FILE**> {message_dict}')
+            logger.info(f' <**FILE**> {message_dict}')
 
             try:
                 target_embedding = DeepFace.represent(
                     img_path=file,
-                    model_name=BACKEND_DETECTOR,
-                    detector_backend=MODEL_BACKEND,
+                    model_name=MODEL_BACKEND,
+                    detector_backend=detector,
                     enforce_detection=False,
                     )[0]["embedding"]
 
                 query_vector = np.array(target_embedding).astype(np.float32).tobytes()
-                #logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
+                logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
 
                 k = 2
                 base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
@@ -108,13 +111,13 @@ class ConsumerEmbbeding:
                     distance_str = document["distance"]
 
                     distance = float(distance_str)
-                    
+                    logger.info(f' <**__DeepFace__**> Distance :: {distance}')
                     if distance <= 10:
                         verify = DeepFace.verify(
                             img1_path=file,
                             img2_path=document_id,
-                            model_name=BACKEND_DETECTOR,
-                            detector_backend=MODEL_BACKEND,
+                            model_name=MODEL_BACKEND,
+                            detector_backend=detector,
                             enforce_detection=False,
                             distance_metric=METRICS
                         )
