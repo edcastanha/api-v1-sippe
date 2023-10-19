@@ -26,8 +26,9 @@ ROUTE_KEY='extrair'
 QUEUE_CONSUMER='ftp'
 ASK_DEBUG = False
 
-BACKEND_DETECTOR='retinaface'
-LIMITE_DETECTOR = 0.99
+MODEL_BACKEND ='mtcnn'
+BACKEND_DETECTOR='opencv'
+LIMITE_DETECTOR = 0.995
 
 DIR_CAPTURE = '/app/media/capturas/'
 
@@ -36,6 +37,9 @@ r = redis.StrictRedis(host=REDIS_SERVER, port=6379, db=0)
 # celery -A core worker producer task path
 class ConsumerExtractor:
     def __init__(self):
+        self.path_capture = DIR_CAPTURE
+        self.backend_detector = BACKEND_DETECTOR
+        self.model_backend = MODEL_BACKEND
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,
@@ -49,8 +53,8 @@ class ConsumerExtractor:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        self.path_capture = DIR_CAPTURE
-        logger.debug(f' <**_ 1 _**> RMQ_SERVER::{RMQ_SERVER} REDIS_SERVER::{REDIS_SERVER} PATH:: {self.path_capture}')
+
+        #logger.debug(f' <**_ 1 _**> RMQ_SERVER::{RMQ_SERVER} REDIS_SERVER::{REDIS_SERVER} PATH:: {self.path_capture}')
 
     def run(self):
         logger.debug(f' <**_0_**> ConsumerExtractor: RUN')
@@ -91,7 +95,7 @@ class ConsumerExtractor:
             publisher = Publisher()
             face_objs = DeepFace.extract_faces(
                                         img_path=file,
-                                        detector_backend=BACKEND_DETECTOR,
+                                        detector_backend=self.backend_detector,
                                         enforce_detection=False,
                                         align=True
                                     )
@@ -118,7 +122,7 @@ class ConsumerExtractor:
                         # Salve a face no diretório "captura/" usando OpenCV
                         cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
                         message_dict.update({'caminho_do_face': save_path})
-                        message_dict.update({'detector_backend': BACKEND_DETECTOR})
+                        message_dict.update({'detector_backend': self.backend_detector})
                         message_str = json.dumps(message_dict)
                         publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                         pipeline = r.pipeline(transaction=False)

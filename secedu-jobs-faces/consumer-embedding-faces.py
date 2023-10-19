@@ -27,9 +27,9 @@ DIR_CAPS ='/app/media/capturas'
 DIR_DATASET ='/app/media/dataset'
 
 
-BACKEND_DETECTOR='retinaface'
-#MODEL_BACKEND ='mtcnn'
-MODEL_BACKEND ='Facenet'
+BACKEND_DETECTOR='opencv'
+MODEL_BACKEND ='mtcnn'
+#MODEL_BACKEND ='Facenet'
 LIMITE_DETECTOR = 0.99
 PESO = 10
 
@@ -37,6 +37,8 @@ METRICS = 'euclidean'
 
 class ConsumerEmbbeding:
     def __init__(self):
+        self.backend_detector = BACKEND_DETECTOR
+        self.model_backend = MODEL_BACKEND
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,

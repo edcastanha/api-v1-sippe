@@ -1,7 +1,7 @@
 # tasks.py
 from celery import shared_task
 import requests
-core.loggingMe import logger
+from core.loggingMe import logger
 
 @shared_task(name="make_api_dataset")
 def make_api_dataset():
