@@ -3,14 +3,15 @@ from deepface import DeepFace
 from tqdm import tqdm
 import redis
 import json
+import numpy as np
+
+from redis.commands.search.field import VectorField
 
 class Trainning:
-    #def __init__(self, dir_db_img, redis_host='localhost', redis_port=6379, redis_pass='ep4X1!br', redis_db=0, img_path='dataset'):
     def __init__(self, redis_host='redis-server', redis_port=6379, redis_db=0):
         self.dir_db_img = '/app/media/dataset/'
         self.redis_host = redis_host
         self.redis_port = redis_port
-        #self.redis_pass = redis_pass
         self.redis_db = redis_db
         self.models = [
             "VGG-Face",       #0
@@ -32,11 +33,11 @@ class Trainning:
             "arcface",      #5
             "mediapipe",    #6
         ]
-        #self.redis_client = redis.StrictRedis(host=self.redis_host, port=self.redis_port, password=self.redis_pass, db=self.redis_db)
-        self.redis_client = redis.StrictRedis(host=self.redis_host, port=self.redis_port, db=self.redis_db)
+        self.redis_client = redis.Redis(host=self.redis_host, port=self.redis_port, db=self.redis_db, ssl=False)
         self.representations = []
 
     def flush_redis(self):
+        # Redis command Delete All Keys
         self.redis_client.flushall()
 
     def calculate_embedding(self, img_path):
@@ -46,48 +47,47 @@ class Trainning:
             detector_backend=self.detector[4],
             enforce_detection=False
         )
+        print(embedding_obj)
         embedding = embedding_obj[0]["embedding"]
         return embedding
 
     def add_to_representations(self, img_path, embedding):
         self.representations.append((img_path, embedding))
 
-    def add_to_redis(self, img_path, embedding):
-        self.redis_client.rpush(f"embedding:{img_path}", *embedding)
+    def add_to_redis(self,embeddings):
+        pipeline = self.redis_client.pipeline(transaction=False)
+        for img_path, embedding in tqdm(embeddings):
+            value = np.array(embedding).astype(np.float32).tobytes()
+            
+            # store embedings into redis one by one
+            #r.hset(key, mapping = {"embedding": value})
+            
+            # store embedings into redis in one shot
+            pipeline.hset(img_path, mapping = {"embedding": value})
+
+        pipeline_results = pipeline.execute()
+        print(f'RESULT pipeline_results: {pipeline_results}'	)
 
     def process_images(self):
-        print(self.dir_db_img)
-        result= {}
         for dir_path, dir_names, file_names in os.walk(self.dir_db_img):
-            print(f"Processing {dir_path}...{file_names}")
             for file_name in file_names:
                 img_path = os.path.join(dir_path, file_name)
                 if img_path.endswith((".png", ".jpg", ".jpeg")):
+                    print(f'IMG:: {img_path}')
                     embedding = self.calculate_embedding(img_path)
                     self.add_to_representations(img_path, embedding)
                 else:
-                    print("Arquivo inválido ou extensão não suportada.")
-        for img_path, embedding in self.representations:
-            self.add_to_redis(img_path, embedding)
-
-        print(self.redis_client.keys())
+                    print(f"Arquivo inválido ou extensão não suportada: {img_path}")
         
-        # Suponha que 'my_bytes' seja o objeto bytes que você deseja serializar em JSON
-        my_bytes = self.redis_client.keys()
-        decoded_string = None
-        # Verifique se my_bytes é uma lista de bytes
-        if isinstance(my_bytes, list):
-            # Itere sobre os elementos da lista e aplique decode a cada um
-            decoded_string = [item.decode('utf-8') for item in my_bytes]
-        else:
-            # Trate o objeto my_bytes como um único objeto de bytes
-            decoded_string = my_bytes.decode('utf-8')
-        # Agora, você pode serializar a string em JSON
-        json_data = json.dumps({'results': decoded_string})
+        self.add_to_redis(embeddings= self.representations)
 
-        return json_data
+        result = [key.decode('utf-8') for key in self.redis_client.keys()]
+        
+        return result
 
 #if __name__ == "__main__":
 #    trainning = Trainning()
 #    trainning.flush_redis()
-#    trainning.process_images()
+#    json_data = trainning.process_images()
+
+ #   print(f'KEYS:: {json_data}')

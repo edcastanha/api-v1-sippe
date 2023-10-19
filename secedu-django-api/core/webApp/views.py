@@ -74,26 +74,26 @@ def get_image_and_analyze(request):
     if request.method == 'POST':
         # Receba a imagem enviada no corpo da solicitação
         image_file = request.FILES.get('image')
-        logger.debug('Recebida solicitação de análise de imagem.')
+        #logger.debug('Recebida solicitação de análise de imagem.')
         # Verifique se o arquivo é uma imagem
         if image_file and image_file.name.endswith(('.jpg', '.jpeg', '.png')):
             # Salve a imagem em 'capturas'
-            logger.debug(f'Salvando imagem em capturas: {capture_path}')
+            #logger.debug(f'Salvando imagem em capturas: {capture_path}')
             image_path = os.path.join(capture_path, image_file.name)
             img_url = os.path.join('media/capturas/', image_file.name)
-            logger.debug(f'Imagem salva em: {image_path}')
-            logger.debug(f'URL da imagem: {img_url}')
+            #logger.debug(f'Imagem salva em: {image_path}')
+            #logger.debug(f'URL da imagem: {img_url}')
             with open(image_path, 'wb') as destination:
                 for chunk in image_file.chunks():
                     destination.write(chunk)
 
             # Faça uma solicitação para 'localhost:5000/analyze'
             analyze_url = 'http://secedu-face:5000/analyze_mediapipe'
-            logger.debug(f'Enviando API externa: {analyze_url}')
+            #logger.debug(f'Enviando API externa: {analyze_url}')
             
             response = requests.post(analyze_url, json={'img_path': img_url, 'actions': ['emotion',] })
 
-            logger.debug(f'Delete de : {image_path}')
+            #logger.debug(f'Delete de : {image_path}')
             if response.status_code == 200:
                 data = response.json()
                 # Deletar a imagem após a análise

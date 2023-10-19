@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 import cv2
 import mediapipe
 import pandas as pd
@@ -22,7 +22,7 @@ def dataset():
     trainning = Trainning()
     trainning.flush_redis()
     keys =  trainning.process_images()
-    return keys
+    return jsonify({"result": keys})
 
 
 @blueprint.route("/represent", methods=["POST"])
