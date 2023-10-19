@@ -1,9 +1,6 @@
+# tasks.py
 from celery import shared_task
-import os
-import re
-import json
 from datetime import datetime
-import pika
 
 from core.cameras.models import Cameras
 from core.loggingMe import logger

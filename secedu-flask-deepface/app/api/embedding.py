@@ -66,7 +66,20 @@ class Trainning:
             pipeline.hset(img_path, mapping = {"embedding": value})
 
         pipeline_results = pipeline.execute()
-        print(f'RESULT pipeline_results: {pipeline_results}'	)
+        
+        self.redis_client.ft().create_index(
+            [
+                VectorField(
+                    "embedding",
+                    "HNSW",
+                    {
+                        "TYPE": "FLOAT32",
+                        "DIM": 128,
+                        "DISTANCE_METRIC": "L2",
+                    },
+                )
+            ]
+        )
 
     def process_images(self):
         for dir_path, dir_names, file_names in os.walk(self.dir_db_img):

@@ -35,8 +35,6 @@ PESO = 10
 
 METRICS = 'euclidean'
 
-r = redis.StrictRedis(host=REDIS_SERVER , port=6379, db=0)
-
 class ConsumerEmbbeding:
     def __init__(self):
         self.connection = pika.BlockingConnection(
@@ -52,6 +50,7 @@ class ConsumerEmbbeding:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
+        self.redis_client = redis.Redis(host=REDIS_SERVER , port=6379, db=0, ssl=False)
 
     def run(self):
         logger.info(f' <**ConsumerEmbbeding**> : Init')
@@ -86,14 +85,18 @@ class ConsumerEmbbeding:
                 query_vector = np.array(target_embedding).astype(np.float32).tobytes()
                 logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
 
-                k = 2
+                k = 3
                 base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
                 query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
-                results = r.ft().search(query, query_params={"query_vector": query_vector})
-                
+                results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
                 logger.info(f' <**REDIS**> Search:: {results}')
-
-                if results.total == 0:
+                
+                publisher = Publisher()
+                for idx, result in enumerate(results.docs):
+                    print(
+                        f"{idx + 1}th nearest neighbor is {result.id} with distance {result.distance}"
+                    )
+                    dataset_file = str(result.id)
                     message_dict = {
                     'id_equipamento':data['nome_equipamento'],
                     'data_captura': data['data_captura'],
@@ -104,31 +107,28 @@ class ConsumerEmbbeding:
                     'model_name': MODEL_BACKEND,
                     'metrics': METRICS,
                     }
-                    logger.info(f' <**FILE**> {message_dict}')
 
-                    publisher = Publisher()
-                    for document in results.docs:
-                        document_id = document["id"]
-                        distance_str = document["distance"]
 
-                        distance = float(distance_str)
-                        logger.info(f' <**__DeepFace__**> Distance :: {distance}')
-                        if distance <= 10:
-                            verify = DeepFace.verify(
-                                img1_path=file,
-                                img2_path=document_id,
-                                model_name=MODEL_BACKEND,
-                                detector_backend=detector,
-                                enforce_detection=False,
-                                distance_metric=METRICS
-                            )
-                            logger.info(f' <**__DeepFace__**> Verify :: {verify}')
-                            message_dict.update({'document_id': document_id})
-                            message_dict.update({'distance' : distance})
-                            message_str = json.dumps(message_dict)
-                            publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                            logger.info(f' <**__PUBLISHER__**> Messagem :: {message_str} ')
-                    publisher.close()
+                    distance = float(result.distance)
+                    logger.info(f' <**__DeepFace__**> Distance :: {distance}')
+                    if distance <= 5:
+                        verify = DeepFace.verify(
+                            img1_path=file,
+                            img2_path=dataset_file,
+                            model_name=MODEL_BACKEND,
+                            detector_backend=detector,
+                            enforce_detection=False,
+                            distance_metric=METRICS
+                        )
+                        logger.info(f' <**__DeepFace__**> Verify :: {verify}')
+                        message_dict.update({'file_dataset': dataset_file})
+                        message_dict.update({'distance' : distance})
+                        message_str = json.dumps(message_dict)
+                        publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
+                        logger.info(f' <**__PUBLISHER__**> Messagem :: {message_str} ')
+                
+                publisher.close()
+                
             except Exception as e:
                 logger.error(f'<**__FALHA__**> Error :: {str(e)}')
 
