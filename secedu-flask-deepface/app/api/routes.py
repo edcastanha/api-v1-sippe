@@ -105,7 +105,7 @@ def analyze():
         return {"message": "é necessário passar a entrada img_path"}
     
     # Obtém o diretório do arquivo atual (app.py neste caso)
-    dir_path = os.path.dirname(os.path.abspath(__file__))
+    #dir_path = os.path.dirname(os.path.abspath(__file__))
 
     # Adiciona o nome da pasta que você deseja obter o caminho
     capturas_path = os.path.join( img_path)
@@ -241,11 +241,10 @@ def analyze_mediapipe():
         return {"message": "é necessário passar a entrada img_path"}
     
     # Obtém o diretório do arquivo atual (app.py neste caso)
-    dir_path = os.path.dirname(os.path.abspath(__file__))
-    print(f' <**_1_**> DIR PATH:: {dir_path}')
+    #dir_path = os.path.dirname(os.path.abspath(__file__))
+    
     # Adiciona o nome da pasta que você deseja obter o caminho
     capturas_path = os.path.join( img_path)
-    print(f' <**_2_**> CAPTURAS PATH:: {capturas_path}')
 
     # Verificar se caminho existe ou seria uma imagem (png, jpg ou jpeg)
     if capturas_path is not None and capturas_path.split(".")[-1] not in ["jpg", "png", "jpeg"]:

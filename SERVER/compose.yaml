@@ -70,7 +70,7 @@ services:
       - dataset_data:/api/media/dataset/
       - captura_data:/api/media/capturas/
       - ftp_data:/api/media/ftp/
-      - logs_data:/api/logs/
+      - logs_data:/api/media/logs/
     ports:
       - "7000:7000"
     networks:
@@ -82,7 +82,7 @@ services:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
     image: secedu-beat-scheduler
-    command: celery -A core beat --loglevel=INFO --logfile=/logs/celery-beat.log --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A core beat --loglevel=INFO --logfile=/api/media/logs/celery-beat.log --scheduler django_celery_beat.schedulers:DatabaseScheduler
     depends_on:
       - postgres-server
       - redis-server
@@ -95,7 +95,7 @@ services:
       - dataset_data:/api/media/dataset/
       - captura_data:/api/media/capturas/
       - ftp_data:/api/media/ftp/
-      - logs_data:/logs/
+      - logs_data:/api/media/logs/
     networks:
       - server-hosts
 
@@ -105,7 +105,7 @@ services:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
     image: secedu-tasks-workers
-    command: celery -A core worker --loglevel=INFO --logfile=/logs/celery-worker.log
+    command: celery -A core worker --loglevel=INFO --logfile=/api/media/logs/celery-worker.log
     depends_on:
       - postgres-server
       - redis-server
@@ -118,7 +118,7 @@ services:
       - dataset_data:/api/media/dataset/
       - captura_data:/api/media/capturas/
       - ftp_data:/api/media/ftp/
-      - logs_data:/logs/
+      - logs_data:/api/media/logs/
     networks:
       - server-hosts
 
@@ -155,13 +155,14 @@ services:
 
 # - Detection and Recognition
 ## SCRIPTS EXTRAIR FACES
-  secedu-scripts:
+  secedu-consumer-extrator-faces:
     #image: apiv1sippe:tf-deepface-1.0.0
     build:
       context: ../secedu-jobs-faces/
       dockerfile: Dockerfile
-    image: secedu-jobs-recognition
-    container_name: secedu-scripts
+    image: secedu-jobs-faces
+    container_name: secedu-consumer-extrator-faces
+    command: ["python", "consumer-extrair-faces.py"]
     environment:
       - FPT_PATH = media/ftp/
       - DATASET_PATH = media/dataset/
@@ -185,13 +186,14 @@ services:
       - server-hosts
 
   ## SCRIPTS EMBBEDDING FACES
-  secedu-face-extractor:
+  secedu-consumer-embedding-faces:
     #image: apiv1sippe:tf-deepface-1.0.0
     build:
       context: ../secedu-jobs-faces/
       dockerfile: Dockerfile
-    image: secedu-jobs-recognition
-    container_name: secedu-scripts
+    image: secedu-jobs-faces
+    container_name: secedu-consumer-embedding-faces
+    command: ["python", "consumer-embedding-faces.py"]
     environment:
       - FPT_PATH = media/ftp/
       - DATASET_PATH = media/dataset/
@@ -201,7 +203,7 @@ services:
       - dataset_data:/app/media/dataset/
       - captura_data:/app/media/capturas/
       - ftp_data:/app/media/ftp/
-      - logs_data:/app/logs/
+      - logs_data:/app/media/logs/
       - api_face_data:/root/.deepface/weights/
     restart: always
     deploy:

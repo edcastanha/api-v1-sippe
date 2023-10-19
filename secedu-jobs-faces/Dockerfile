@@ -10,6 +10,8 @@ WORKDIR /app
 RUN mkdir -p /app/media/capturas && chmod -rx /app/media/capturas
 RUN mkdir -p /app/media/dataset && chmod -rx /app/media/dataset
 RUN mkdir -p /app/media/ftp && chmod -rx /app/media/ftp
+RUN mkdir -p /app/media/logs && chmod -rx /app/media/logs
+
 RUN mkdir -p /app/deepface/ && chmod -rx /app/deepface/
 
 # -----------------------------------
@@ -39,5 +41,5 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
 
 #COPY ./consumer-extrair-faces-files.py /app/
 
-CMD ["python", "consumer-extrair-faces-files.py"]
+#CMD ["python", "consumer-extrair-faces-files.py"]
 
