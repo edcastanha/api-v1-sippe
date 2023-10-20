@@ -11,7 +11,7 @@ services:
       - RABBITMQ_DEFAULT_USER=secedu
       - RABBITMQ_DEFAULT_PASS=ep4X1!br
     volumes:
-      - C:\workspace\volumes\rabbitmq:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -23,8 +23,14 @@ services:
   redis-server:
     image: redis/redis-stack:latest
     container_name: redis-server
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
     volumes:
-      - C:\workspace\volumes\redis:/data
+      - redis_data:/data
     ports:
       - "6379:6379"
       - "8001:8001"
@@ -46,7 +52,7 @@ services:
       - POSTGRES_DB=secedu
       - POSTGRES_PASSWORD=secedu123
     volumes:
-      - 'C:\workspace\volumes\postgres:/var/lib/postgresql/data'
+      - 'postgres_data:/var/lib/postgresql/data'
     ports:
       - 5432:5432
     networks:
@@ -59,7 +65,7 @@ services:
       dockerfile: Dockerfile
     container_name: secedu-api
     image: secedu-admin-web-api
-    command: gunicorn --workers=1 --timeout=3600 --bind=0.0.0.0:7000 core.wsgi:application
+    command: gunicorn --workers=2 --timeout=3600 --bind=0.0.0.0:7000 core.wsgi:application
     depends_on:
       - postgres-server
     restart: always
@@ -67,10 +73,10 @@ services:
       - .env
     volumes:
       - ../secedu-django-api/:/api/
-      - C:\workspace\volumes\dataset:/api/media/dataset/
-      - C:\workspace\volumes\capturas:/api/media/capturas/
-      - B:\SIPPE\FTP:/api/media/ftp/
-      - ../logs:/logs/
+      - dataset_data:/api/media/dataset/
+      - captura_data:/api/media/capturas/
+      - ftp_data:/api/media/ftp/
+      - logs_data:/api/media/logs/
     ports:
       - "7000:7000"
     networks:
@@ -82,7 +88,7 @@ services:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
     image: secedu-beat-scheduler
-    command: celery -A core beat --loglevel=INFO --logfile=/logs/celery-beat.log --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A core beat --loglevel=INFO --logfile=/api/media/logs/celery-beat.log --scheduler django_celery_beat.schedulers:DatabaseScheduler
     depends_on:
       - postgres-server
       - redis-server
@@ -92,9 +98,10 @@ services:
       - .env
     volumes:
       - ../secedu-django-api/:/api/
-      - C:\workspace\volumes\dataset:/api/dataset/
-      - B:\SIPPE\FTP:/ftp/
-      - ../logs:/logs/
+      - dataset_data:/api/media/dataset/
+      - captura_data:/api/media/capturas/
+      - ftp_data:/api/media/ftp/
+      - logs_data:/api/media/logs/
     networks:
       - server-hosts
 
@@ -104,7 +111,7 @@ services:
       context: ../secedu-django-api/
       dockerfile: Dockerfile
     image: secedu-tasks-workers
-    command: celery -A core worker --loglevel=INFO --logfile=/logs/celery-worker.log
+    command: celery -A core worker --loglevel=INFO --logfile=/api/media/logs/celery-worker.log
     depends_on:
       - postgres-server
       - redis-server
@@ -114,9 +121,10 @@ services:
       - .env
     volumes:
       - ../secedu-django-api/:/api/
-      - C:\workspace\volumes\dataset:/dataset/
-      - B:\SIPPE\FTP:/ftp/
-      - ../logs:/logs/
+      - dataset_data:/api/media/dataset/
+      - captura_data:/api/media/capturas/
+      - ftp_data:/api/media/ftp/
+      - logs_data:/api/media/logs/
     networks:
       - server-hosts
 
@@ -129,14 +137,15 @@ services:
     image: secedu-face-recognition
     container_name: secedu-face
     environment:
-      - FPT_PATH = /app/ftp/
-      - DATASET_PATH = /app/dataset/
-      - CAPTURAS_PATH = /app/capturas/
+      - FPT_PATH = /app/media/ftp/
+      - DATASET_PATH = /app/media/dataset/
+      - CAPTURAS_PATH = /app/media/capturas/
     volumes:
       - ../secedu-flask-deepface/app/api/:/app/
-      - C:\workspace\volumes\dataset:/app/dataset/
-      - C:\workspace\volumes\capturas:/app/capturas/
-      - B:\SIPPE\FTP:/app/ftp/
+      - dataset_data:/app/media/dataset/
+      - captura_data:/app/media/capturas/
+      - ftp_data:/app/media/ftp/
+      - api_face_data:/root/.deepface/weights/
     restart: always
     deploy:
       resources:
@@ -150,24 +159,58 @@ services:
     networks:
       - server-hosts
 
-# SCRIPTS - FACE RECOGNITION 
-  secedu-scripts:
+# - Detection and Recognition
+## SCRIPTS EXTRAIR FACES
+  secedu-consumer-extrator-faces:
     #image: apiv1sippe:tf-deepface-1.0.0
     build:
       context: ../secedu-jobs-faces/
       dockerfile: Dockerfile
-    image: secedu-jobs-recognition
-    container_name: secedu-scripts
+    image: secedu-jobs-faces
+    container_name: secedu-consumer-extrator-faces
+    command: ["python", "consumer-extrair-faces.py"]
     environment:
-      - FPT_PATH = /usr/src/ftp/
-      - DATASET_PATH = /usr/src/dataset/
-      - CAPTURAS_PATH = /usr/src/capturas/
+      - FPT_PATH = media/ftp/
+      - DATASET_PATH = media/dataset/
+      - CAPTURAS_PATH = media/capturas/
     volumes:
       - ../secedu-jobs-faces/:/app/
-      - C:\workspace\volumes\dataset:/usr/src/dataset/
-      - C:\workspace\volumes\capturas:/usr/src/capturas/
-      - B:\SIPPE\FTP:/usr/src/ftp/
-      - ../logs:/app/logs/
+      - dataset_data:/app/media/dataset/
+      - captura_data:/app/media/capturas/
+      - ftp_data:/app/media/ftp/
+      - logs_data:/app/media/logs/
+      - api_face_data:/root/.deepface/weights/
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - server-hosts
+
+  ## SCRIPTS EMBBEDDING FACES
+  secedu-consumer-embedding-faces:
+    #image: apiv1sippe:tf-deepface-1.0.0
+    build:
+      context: ../secedu-jobs-faces/
+      dockerfile: Dockerfile
+    image: secedu-jobs-faces
+    container_name: secedu-consumer-embedding-faces
+    command: ["python", "consumer-embedding-faces.py"]
+    environment:
+      - FPT_PATH = media/ftp/
+      - DATASET_PATH = media/dataset/
+      - CAPTURAS_PATH = media/capturas/
+    volumes:
+      - ../secedu-jobs-faces/:/app/
+      - dataset_data:/app/media/dataset/
+      - captura_data:/app/media/capturas/
+      - ftp_data:/app/media/ftp/
+      - logs_data:/app/media/logs/
+      - api_face_data:/root/.deepface/weights/
     restart: always
     deploy:
       resources:
@@ -182,3 +225,60 @@ services:
 networks:
   server-hosts:
     driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\postgres
+
+  rabbitmq_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\rabbitmq
+
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\redis
+
+  api_face_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\weights
+
+  logs_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\logs
+
+  ftp_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: B:\SIPPE\FTP
+  
+  captura_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\capturas
+
+  dataset_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\dataset

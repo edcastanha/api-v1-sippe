@@ -21,4 +21,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    logger.info("Django is running")
+    # logger.info("Django is running")

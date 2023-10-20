@@ -90,8 +90,9 @@ class Processamentos(baseModel):
         ('Processado', 'Processado'),
     )
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
-    dia = models.DateField()
-    path = models.CharField(max_length=150, null=True, blank=True)
+    dia = models.CharField(max_length=10)
+    horario = models.CharField(null=True, blank=True, max_length=10)
+    path = models.CharField(max_length=150, unique=True)
     status = models.CharField(max_length=20, choices=CHOICE_STATUS, default='Inicializado')
 
 
@@ -101,5 +102,5 @@ class Processamentos(baseModel):
         ordering = ['id']
     
     def __str__(self):
-        return f"{self.camera.descricao} - {self.data} - {self.path}"
+        return f"{self.camera.descricao} - {self.dia} as {self.horario} - {self.path}"
     

@@ -6,6 +6,8 @@ from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 import os
 
+from core.cadastros.tasks import make_api_dataset
+
 # MODELO BASE
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
@@ -144,7 +146,7 @@ class Escalas(baseModel):
 
 class Fotos(models.Model):
     def get_upload_path(instance, filename):
-        return f'fotos/{instance.pessoa.id}/{filename}'
+        return f'dataset/{instance.pessoa.id}/{filename}'
 
     pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE,)
     foto = models.ImageField(blank=False, null=False,
@@ -170,6 +172,7 @@ def foto_pre_delete(sender, instance, **kwargs):
     if instance.foto:
         if os.path.isfile(instance.foto.path):
             os.remove(instance.foto.path)
+    make_api_dataset.delay()
 
 @receiver(pre_save, sender=Fotos)
 def foto_pre_save(sender, instance, **kwargs):
@@ -180,3 +183,4 @@ def foto_pre_save(sender, instance, **kwargs):
             if not old_foto == instance.foto:
                 if os.path.isfile(old_foto.path):
                     os.remove(old_foto.path)
+    make_api_dataset.delay()

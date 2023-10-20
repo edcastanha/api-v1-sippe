@@ -1,6 +1,6 @@
 import logging
 
-logging.basicConfig(filename='logs/scripts-task.log')
+logging.basicConfig(filename='media/logs/jobs-faces-task.log')
 # create logger
 logger = logging.getLogger('** SecEdu ::')
 logger.setLevel(logging.DEBUG)

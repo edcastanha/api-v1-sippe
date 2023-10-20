@@ -8,36 +8,36 @@ import redis
 from redis.commands.search.field import VectorField, TagField
 from redis.commands.search.query import Query
 
-r = redis.StrictRedis(host='secedu-rds-tack', port=6379, db=0)
-
 import matplotlib.pyplot as plt
 
 from publicar import Publisher
 from loggingMe import logger
 
-
-RMQ_SERVER = 'secedu-rmq-task'
-EXCHANGE='secedu'
+REDIS_SERVER = 'redis-server'
+RMQ_SERVER = 'broker-server'
 
 QUEUE_PUBLISHIR='embedding'
+EXCHANGE='secedu'
+ROUTE_KEY='verify'
 
-ROUTE_KEY='verification'
 QUEUE_CONSUMER='faces'
-ASK_DEBUG = True
+ASK_DEBUG = False
 
-DIR_CAPS ='capturas'
-DIR_DATASET ='dataset'
-BACKEND_DETECTOR='Facenet'
-MODEL_BACKEND ='mtcnn'
-LIMITE_DETECTOR =0.99
+DIR_CAPS ='/app/media/capturas'
+DIR_DATASET ='/app/media/dataset'
+
+
+BACKEND_DETECTOR='retinaface'
+MODEL_BACKEND ='Facenet'
+LIMITE_DETECTOR = 0.996
 PESO = 10
 
 METRICS = 'euclidean'
 
-
-
 class ConsumerEmbbeding:
     def __init__(self):
+        self.backend_detector = BACKEND_DETECTOR
+        self.model_backend = MODEL_BACKEND
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,
@@ -51,9 +51,10 @@ class ConsumerEmbbeding:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        logger.info(f' <**ConsumerEmbbeding**> : Init')
+        self.redis_client = redis.Redis(host=REDIS_SERVER , port=6379, db=0, ssl=False)
 
     def run(self):
+        logger.info(f' <**ConsumerEmbbeding**> : Init')
         # CONFIGURACAO CONSUMER
         self.channel.basic_consume(           
             queue=QUEUE_CONSUMER,
@@ -70,58 +71,66 @@ class ConsumerEmbbeding:
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
-        file = data['caminho_do_face']
-        logger.info(f' <**_Proccess_**> {file}')
-
+        file = str(data['caminho_do_face'])
+        if data['detector_backend'] != None and data['detector_backend'] != '':
+            self.backend_detector = str(data['detector_backend'])
+        
         if file.endswith(('.jpg', '.jpeg', '.png')):
-            message_dict = {
-                'nome_equipamento':data['nome_equipamento'],
-                'data_captura': data['data_captura'],
-                'caminho_do_face': file,
-                'detector_backend': BACKEND_DETECTOR,
-            }
-            #logger.info(f' <**FILE**> {message_dict}')
-
             try:
                 target_embedding = DeepFace.represent(
                     img_path=file,
-                    model_name=BACKEND_DETECTOR,
-                    detector_backend=MODEL_BACKEND,
+                    model_name=self.model_backend,
+                    detector_backend=self.model_backend,
                     enforce_detection=False,
                     )[0]["embedding"]
 
                 query_vector = np.array(target_embedding).astype(np.float32).tobytes()
-                #logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
+                logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
 
-                k = 2
+                k = 3
                 base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
                 query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
-                results = r.ft().search(query, query_params={"query_vector": query_vector})
-                #logger.info(f' <**REDIS**> Search:: {results}')
-
+                results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
+                logger.info(f' <**REDIS**> Search:: {results}')
+                
                 publisher = Publisher()
-                for document in results.docs:
-                    document_id = document["id"]
-                    distance_str = document["distance"]
+                for idx, result in enumerate(results.docs):
+                    print(
+                        f"{idx + 1}th nearest neighbor is {result.id} with distance {result.distance}"
+                    )
+                    dataset_file = str(result.id)
+                    message_dict = {
+                    'id_equipamento':data['nome_equipamento'],
+                    'data_captura': data['data_captura'],
+                    'hora_captura': data['hora_captura'],
+                    'captura_base': data['captura_base'],
+                    'caminho_do_face': file,
+                    'detector_backend': self.model_backend,
+                    'model_name': self.model_backend,
+                    'metrics': METRICS,
+                    }
 
-                    distance = float(distance_str)
-                    
-                    if distance <= 10:
+
+                    distance = float(result.distance)
+                    logger.info(f' <**__DeepFace__**> Distance :: {distance}')
+                    if distance <= 5:
                         verify = DeepFace.verify(
                             img1_path=file,
-                            img2_path=document_id,
-                            model_name=BACKEND_DETECTOR,
-                            detector_backend=MODEL_BACKEND,
+                            img2_path=dataset_file,
+                            model_name=self.model_backend,
+                            detector_backend=self.model_backend,
                             enforce_detection=False,
                             distance_metric=METRICS
                         )
                         logger.info(f' <**__DeepFace__**> Verify :: {verify}')
-                        message_dict.update({'document_id': document_id})
+                        message_dict.update({'file_dataset': dataset_file})
                         message_dict.update({'distance' : distance})
                         message_str = json.dumps(message_dict)
                         publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                         logger.info(f' <**__PUBLISHER__**> Messagem :: {message_str} ')
+                
                 publisher.close()
+                
             except Exception as e:
                 logger.error(f'<**__FALHA__**> Error :: {str(e)}')
 

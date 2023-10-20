@@ -1,9 +1,12 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 import cv2
 import mediapipe
 import pandas as pd
 import numpy as np
 import os
+from deepface import DeepFace
+
+from embedding import Trainning
 
 import service
 
@@ -13,6 +16,13 @@ blueprint = Blueprint("routes", __name__)
 @blueprint.route("/")
 def home():
     return "<h1>Bem-vindo à SecEdu API!</h1>"
+
+@blueprint.route("/dataset")
+def dataset():
+    trainning = Trainning()
+    trainning.flush_redis()
+    keys =  trainning.process_images()
+    return jsonify({"result": keys})
 
 
 @blueprint.route("/represent", methods=["POST"])
@@ -95,7 +105,7 @@ def analyze():
         return {"message": "é necessário passar a entrada img_path"}
     
     # Obtém o diretório do arquivo atual (app.py neste caso)
-    dir_path = os.path.dirname(os.path.abspath(__file__))
+    #dir_path = os.path.dirname(os.path.abspath(__file__))
 
     # Adiciona o nome da pasta que você deseja obter o caminho
     capturas_path = os.path.join( img_path)
@@ -218,9 +228,8 @@ def embedding():
     except Exception as e:
         return {"error": str(e)}
     
-    
 @blueprint.route("/analyze_mediapipe", methods=["POST"])
-def analanalyze_mediapipeyze():
+def analyze_mediapipe():
     input_args = request.get_json()
     print(f'Args REQUEST {input_args}')
 
@@ -232,8 +241,8 @@ def analanalyze_mediapipeyze():
         return {"message": "é necessário passar a entrada img_path"}
     
     # Obtém o diretório do arquivo atual (app.py neste caso)
-    dir_path = os.path.dirname(os.path.abspath(__file__))
-
+    #dir_path = os.path.dirname(os.path.abspath(__file__))
+    
     # Adiciona o nome da pasta que você deseja obter o caminho
     capturas_path = os.path.join( img_path)
 
@@ -241,7 +250,6 @@ def analanalyze_mediapipeyze():
     if capturas_path is not None and capturas_path.split(".")[-1] not in ["jpg", "png", "jpeg"]:
         return {"message": "é necessário passar a entrada imagem valido com extensão .jpg, .png ou .jpeg"}
     
-
     detector_backend = input_args.get("detector_backend", "opencv")
     enforce_detection = input_args.get("enforce_detection", True)
     align = input_args.get("align", True)
@@ -258,4 +266,3 @@ def analanalyze_mediapipeyze():
     #os.remove(capturas_path)
 
     return demographies
-

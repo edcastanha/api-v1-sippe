@@ -1,6 +1,6 @@
 from rest_framework import permissions, viewsets
-from core.cameras.models import NotaFiscal, Cameras, Locais, FrequenciasEscolar, Tarefas 
-from core.cameras.serializers import NotaFiscalSerializer, CamerasSerializer, LocaisSerializer, FrequenciasEscolarSerializer, TarefasSerializer
+from core.cameras.models import NotaFiscal, Cameras, Locais, FrequenciasEscolar, Tarefas, Processamentos
+from core.cameras.serializers import NotaFiscalSerializer, CamerasSerializer, LocaisSerializer, FrequenciasEscolarSerializer, TarefasSerializer, ProcessamentosSerializer
 
 class NotaFiscalViewSet(viewsets.ModelViewSet):
     queryset = NotaFiscal.objects.all()
@@ -32,5 +32,11 @@ class FrequenciasViewSet(viewsets.ModelViewSet):
 class TarefasViewSet(viewsets.ModelViewSet):
     queryset = Tarefas.objects.all()
     serializer_class = TarefasSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ["get",]
+    
+class ProssecamentosViewSet(viewsets.ModelViewSet):
+    queryset = Processamentos.objects.all()
+    serializer_class = ProcessamentosSerializer
     #permission_classes = [permissions.IsAuthenticated]
     http_method_names = ["get",]

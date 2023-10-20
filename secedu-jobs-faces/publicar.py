@@ -2,8 +2,7 @@ import pika
 import json
 from loggingMe import logger
 
-
-RMQ_SERVER = 'secedu-rmq-task'
+RMQ_SERVER = 'broker-server'
 
 class Publisher:
     def __init__(self):
