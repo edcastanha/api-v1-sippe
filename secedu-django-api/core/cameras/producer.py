@@ -61,7 +61,7 @@ class ProducerCameras:
         Returns:
             list: A list of dictionaries containing the data and status of each processamento.
         """
-        processamentos = Processamentos.objects.exclude(status='Processado').exclude(status='Inicializado').order_by('id')        
+        processamentos = Processamentos.objects.exclude(status='Processado').exclude(status='Criado').order_by('id')        
         logger.info(f'<**_ProducerCameras_**> ORM:: Processamentos :: {processamentos}')
         acessos = []
         for processamento in processamentos:
@@ -99,11 +99,11 @@ class ProducerCameras:
                 logger.info(f'<**_ProducerCameras_**> 5.2 :: FILE={file}')
                 if file.lower().endswith(('.jpg', '.jpeg', '.png')):
                     self.processamento_path = str(os.path.join(root, file))
-                    logger.info(f'<**_ProducerCameras_**> 5.3 :: PATH={file}')
-                    self.capture_hour = self.is_valid_hour_path(file)
+                    self.capture_hour = self.is_valid_hour_path()
+                    logger.info(f'<**_ProducerCameras_**> 5.3 :: PATH={self.processamento_path} and HOUR={self.capture_hour}')
                     try:
                         self.processamento_exists = Processamentos.objects.get(path=self.processamento_path)
-                        logger.info(f'<**_ProducerCameras_**> 5.4 Processamento :: {self.processamento_exists}')
+                        logger.info(f'<**_ProducerCameras_**> 5.4 PATH EXIST :: {self.processamento_exists}')
                     except Processamentos.DoesNotExist:
                         message_dict.update({'path_file': self.processamento_path})
                         message_dict.update({'horario': self.capture_hour})
@@ -112,7 +112,7 @@ class ProducerCameras:
                     except Exception as e:
                         logger.error(f'<**_ProducerCameras_**> Error: {e}')
     
-    def is_valid_hour_path(self, file):       
+    def is_valid_hour_path(self):       
         """
         Check if the file path contains a valid time stamp.
 
@@ -123,16 +123,16 @@ class ProducerCameras:
             str: The time stamp in the format 'HHhMMmSSs'.
         """
         # Tente encontrar o padrão HH:MM:SS ou HH:MM.SS no caminho do arquivo
-        match = re.search(r'/(\d{2})/(\d{2})/(\d{2})|/(\d{2})/(\d{2})\.(\d{2})', file)
-        
+        match = re.search(r'/(\d{2})/(\d{2})/(\d{2})|/(\d{2})/(\d{2})\.(\d{2})', self.processamento_path)
+        logger.info('<**_is_valid_hour_path_**> path=%s :: match= %s', self.processamento_path, match)
         if match:
             groups = match.groups()
             if groups[0] is not None:
                 hh, mm, ss = groups[0:3]
-                #logger.info(f'<**_**> is_valid_hour_path: Match 1 - HH/MM/SS')
+                logger.info(f'<**_**> is_valid_hour_path: Match 1 - HH/MM/SS')
             else:
                 hh, mm, ss = groups[3:6]
-                #logger.info(f'<**_**> is_valid_hour_path: Match 2 - HH/MM.SS')
+                logger.info(f'<**_**> is_valid_hour_path: Match 2 - HH/MM.SS')
         return f'{hh}h{mm}m{ss}s'
 
     def is_valid_date_path(self, path):
@@ -160,21 +160,23 @@ class ProducerCameras:
             message_dict (dict): A dictionary containing the data to be published.
         """
         try:
-            logger.info('<**_ProducerCameras_**> 7  Device :: %s', camera)
+            camera = Cameras.objects.get(id=self.device)
             new_registro = Processamentos.objects.create(
-                camera=self.device,  # Use the camera instance, not the ID
+                camera=camera,  # Use the camera instance, not the ID
                 dia=self.capture_date,
                 horario=self.capture_hour,
                 path=self.processamento_path
             )
             message_dict.update({'proccess_id': new_registro.id})
-            logger.info('<**_ProducerCameras_**> 8 Create_Processamento :: %s', new_registro.id)
+            logger.info('<**_ProducerCameras_**> 6 Create_Processamento :: %s', new_registro.id)
             
             message_str = json.dumps(message_dict)
-            logger.info('<**_ProducerCameras_**> 9 Publisher :: %s', message_str)
-            self.process_message(message_str)      
+            logger.info('<**_ProducerCameras_**> 7 Publisher :: %s', message_str)
+            self.process_message(message_str)
+        except ObjectDoesNotExist as e:
+            logger.debug('Error object: %s', e)    
         except ValueError as e:
-            logger.error('Error creating Processamentos object: %s', e)
+            logger.debug('Error creating Processamentos object: %s', e)
         
     def process_message(self, message):
         """
@@ -190,10 +192,10 @@ class ProducerCameras:
                 routing_name=self.routing_key,
                 message=message
             )
-            logger.info('<**_ProducerCameras_**> 4 process_message :: %s', message)
+            logger.info('<**_ProducerCameras_**> 8 process_message :: %s', message)
         finally:
             publisher.close()
-            logger.info('<**_ProducerCameras_**> 5 CLOSE PUBLISHER :: %s', message)
+            logger.info('<**_ProducerCameras_**> 9 CLOSE PUBLISHER :: %s', message)
 
     def start_run(self):
         logger.info(f'<**_ProcedurCameras_**> Start Producer Cameras -- Capturas por Dia ...')
@@ -203,26 +205,26 @@ class ProducerCameras:
                 message_retry = json.dumps(registro)
                 logger.info(f'<**_ProcedurCameras_**> 0 Message Retry : {message_retry}')
                 self.process_message(message=message_retry)
-        else:
-            cameras = self.get_cameras()
-            logger.info(f'<**_ProcedurCameras_**> Qtde CAMERAS : {len(cameras)}')
-            if len(cameras) > 0:
-                for obj in cameras:
-                    self.device = obj['camera']
-                    self.local = obj['local']
+        
+        cameras = self.get_cameras()
+        logger.info(f'<**_ProcedurCameras_**> Qtde CAMERAS : {len(cameras)}')
+        if len(cameras) > 0:
+            for obj in cameras:
+                self.device = obj['camera']
+                self.local = obj['local']
 
-                    logger.info(f'<**_ProcedurCameras_**> 1 : {obj}')
+                logger.info(f'<**_ProcedurCameras_**> 1 : {obj}')
 
-                    root_path = f'media/{obj["path"]}'
-                    if os.path.exists(root_path):
-                        logger.info(f'<**_ProcedurCameras_**> 2 : ROOT PATH=> {root_path}')
-                        
-                        for root, dirs, files in os.walk(root_path):
-                            for dir in dirs:
-                                logger.info(f'<**_ProcedurCameras_**> 3 : DIR=> {dir}')
-                                path_data = os.path.join(root_path, dir)
-                                #logger.info(f'<**_ProcedurCameras_**> 3.1 : PATH DATA=> {path_data}')
-                                if self.is_valid_date_path(path_data):
-                                    self.capture_date = dir
-                                    logger.info(f'<**_ProcedurCameras_**> 4 : Captura Date=> {self.capture_date}')
-                                    self.find_image_files(path=path_data)
+                root_path = f'media/{obj["path"]}'
+                if os.path.exists(root_path):
+                    logger.info(f'<**_ProcedurCameras_**> 2 : ROOT PATH=> {root_path}')
+                    
+                    for root, dirs, files in os.walk(root_path):
+                        for dir in dirs:
+                            logger.info(f'<**_ProcedurCameras_**> 3 : DIR=> {dir}')
+                            path_data = os.path.join(root_path, dir)
+                            #logger.info(f'<**_ProcedurCameras_**> 3.1 : PATH DATA=> {path_data}')
+                            if self.is_valid_date_path(path_data):
+                                self.capture_date = dir
+                                logger.info(f'<**_ProcedurCameras_**> 4 : Captura Date=> {self.capture_date}')
+                                self.find_image_files(path=path_data)
