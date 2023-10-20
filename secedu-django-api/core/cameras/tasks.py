@@ -16,4 +16,5 @@ ROUTE_KEY = 'verification'
 def start_producerr_path():
     start = ProducerCameras()
     start.start_run()
+    logger.debug(f'<**_ProducerCameras_**> TASK init :: {start}')
     

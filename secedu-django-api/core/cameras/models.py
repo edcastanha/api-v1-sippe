@@ -84,16 +84,18 @@ class Tarefas(baseModel):
     
 class Processamentos(baseModel):
     CHOICE_STATUS = (
-        ('Inicializado', 'Inicializado'),
+        ('Criado', 'Criado'),
         ('Cancelado', 'Cancelado'),
+        ('Pendente', 'Pendente'),
         ('Erro', 'Erro'),
         ('Processado', 'Processado'),
     )
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
     dia = models.CharField(max_length=10)
     horario = models.CharField(null=True, blank=True, max_length=10)
-    path = models.CharField(max_length=150, unique=True)
-    status = models.CharField(max_length=20, choices=CHOICE_STATUS, default='Inicializado')
+    path = models.CharField(max_length=250, unique=True)
+    status = models.CharField(max_length=20, choices=CHOICE_STATUS, default='Criado')
+    retry = models.IntegerField(default=0)
 
 
     class Meta:
