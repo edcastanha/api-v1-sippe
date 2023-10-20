@@ -2,15 +2,15 @@ import pika
 import json
 from datetime import datetime as dt
 import os
-import re
+#import re
 import numpy as np
 import uuid
 import cv2
 import mediapipe as mp
 
-import redis
-from redis.commands.search.field import VectorField, TagField
-from redis.commands.search.query import Query
+#import redis
+#from redis.commands.search.field import VectorField, TagField
+#from redis.commands.search.query import Query
 
 from deepface import DeepFace
 from publicar import Publisher
@@ -26,13 +26,13 @@ ROUTE_KEY='extrair'
 QUEUE_CONSUMER='ftp'
 ASK_DEBUG = False
 
-MODEL_BACKEND ='mtcnn'
-BACKEND_DETECTOR='opencv'
-LIMITE_DETECTOR = 0.995
+BACKEND_DETECTOR='retinaface'
+MODEL_BACKEND ='Facenet'
+LIMITE_DETECTOR = 0.996
 
 DIR_CAPTURE = '/app/media/capturas/'
 
-r = redis.StrictRedis(host=REDIS_SERVER, port=6379, db=0)
+#r = redis.StrictRedis(host=REDIS_SERVER, port=6379, db=0)
 
 # celery -A core worker producer task path
 class ConsumerExtractor:
@@ -125,10 +125,7 @@ class ConsumerExtractor:
                         message_dict.update({'detector_backend': self.backend_detector})
                         message_str = json.dumps(message_dict)
                         publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                        pipeline = r.pipeline(transaction=False)
-                        pipeline.hset(save_path, mapping={"message": message_str})
-                        pipeline_results = pipeline.execute()
-                        logger.debug(f' <**_ 6 _**>REDIS PIPELINE :: {pipeline_results}')
+                        logger.debug(f' <**_6_**> ConsumerExtractor:  message_str:: {message_str}')
                 publisher.close()
             except Exception as e:
                 logger.debug(f' <**_3_**> TRY Erro:: {e}')

@@ -27,10 +27,9 @@ DIR_CAPS ='/app/media/capturas'
 DIR_DATASET ='/app/media/dataset'
 
 
-BACKEND_DETECTOR='opencv'
-MODEL_BACKEND ='mtcnn'
-#MODEL_BACKEND ='Facenet'
-LIMITE_DETECTOR = 0.99
+BACKEND_DETECTOR='retinaface'
+MODEL_BACKEND ='Facenet'
+LIMITE_DETECTOR = 0.996
 PESO = 10
 
 METRICS = 'euclidean'
@@ -73,14 +72,15 @@ class ConsumerEmbbeding:
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
         file = str(data['caminho_do_face'])
-        detector = str(data['detector_backend'])
+        if data['detector_backend'] != None and data['detector_backend'] != '':
+            self.backend_detector = str(data['detector_backend'])
         
         if file.endswith(('.jpg', '.jpeg', '.png')):
             try:
                 target_embedding = DeepFace.represent(
                     img_path=file,
-                    model_name=MODEL_BACKEND,
-                    detector_backend=detector,
+                    model_name=self.model_backend,
+                    detector_backend=self.model_backend,
                     enforce_detection=False,
                     )[0]["embedding"]
 
@@ -105,8 +105,8 @@ class ConsumerEmbbeding:
                     'hora_captura': data['hora_captura'],
                     'captura_base': data['captura_base'],
                     'caminho_do_face': file,
-                    'detector_backend': detector,
-                    'model_name': MODEL_BACKEND,
+                    'detector_backend': self.model_backend,
+                    'model_name': self.model_backend,
                     'metrics': METRICS,
                     }
 
@@ -117,8 +117,8 @@ class ConsumerEmbbeding:
                         verify = DeepFace.verify(
                             img1_path=file,
                             img2_path=dataset_file,
-                            model_name=MODEL_BACKEND,
-                            detector_backend=detector,
+                            model_name=self.model_backend,
+                            detector_backend=self.model_backend,
                             enforce_detection=False,
                             distance_metric=METRICS
                         )

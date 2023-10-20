@@ -64,7 +64,7 @@ class ProducerCameras:
                 if file.lower().endswith(('.jpg', '.jpeg', '.png')):
                     file_path = os.path.join(root, file)
                     self.capture_hour = self.is_valid_hour_path(file_path)
-                    if not Processamentos.objects.filter(path=file_path).exists() and self.capture_hour is not None:
+                    if not Processamentos.objects.get(path=file_path).exists() and self.capture_hour is not None:
                         message_dict.update({'path_file': file_path})
                         message_dict.update({'horario': self.capture_hour})
                         logger.debug(f'<**_ProducerCameras_**> 6 Find_Image_Files MSG_DICT :: {message_dict}')
