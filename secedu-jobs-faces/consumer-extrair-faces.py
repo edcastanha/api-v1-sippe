@@ -24,7 +24,7 @@ QUEUE_PUBLISHIR='faces'
 ROUTE_KEY='extrair'
 
 QUEUE_CONSUMER='ftp'
-ASK_DEBUG = False
+ASK_DEBUG = True
 
 BACKEND_DETECTOR='retinaface'
 MODEL_BACKEND ='Facenet'

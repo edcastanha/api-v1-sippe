@@ -76,12 +76,12 @@ class ProducerCameras:
                     try:
                         self.processamento_exists = Processamentos.objects.get(path=self.processamento_path)
                         # Finalizar a task Celery com success
-                        logger.info('<**_ProducerCameras_**>PATH EXIST :: %s |  %s', self.processamento_exists, self.processamento_path)
+                        logger.info('<**_ProducerCameras_**>PATH EXIST :: %s | PATH ::  %s', self.processamento_exists, self.processamento_path)
                     except Processamentos.DoesNotExist:
                         self.processamento_exists = False
                         message_dict.update({'path_file': self.processamento_path})
                         message_dict.update({'horario': self.capture_hour})
-                        logger.info('<**_ProducerCameras_**> PATH  EXIST::%s |  %s', self.processamento_exists, self.processamento_path)
+                        logger.info('<**_ProducerCameras_**> PATH  EXIST::%s | PATH :: %s', self.processamento_exists, self.processamento_path)
                         self.create_processamento(message_dict)                       
                     except Exception as e:
                         logger.error('<**_ProducerCameras_**> Error: %s ', e)

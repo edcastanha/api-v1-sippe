@@ -80,7 +80,7 @@ class ConsumerEmbbeding:
                 target_embedding = DeepFace.represent(
                     img_path=file,
                     model_name=self.model_backend,
-                    detector_backend=self.model_backend,
+                    detector_backend=self.backend_detector,
                     enforce_detection=False,
                     )[0]["embedding"]
 
