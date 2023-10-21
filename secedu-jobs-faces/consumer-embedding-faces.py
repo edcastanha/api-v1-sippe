@@ -21,7 +21,7 @@ EXCHANGE='secedu'
 ROUTE_KEY='verify'
 
 QUEUE_CONSUMER='faces'
-ASK_DEBUG = False
+ASK_DEBUG = True
 
 DIR_CAPS ='/app/media/capturas'
 DIR_DATASET ='/app/media/dataset'
@@ -113,7 +113,7 @@ class ConsumerEmbbeding:
 
                     distance = float(result.distance)
                     logger.info(f' <**__DeepFace__**> Distance :: {distance}')
-                    if distance <= 5:
+                    if distance <= 10:
                         verify = DeepFace.verify(
                             img1_path=file,
                             img2_path=dataset_file,
