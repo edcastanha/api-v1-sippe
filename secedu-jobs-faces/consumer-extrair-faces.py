@@ -26,9 +26,14 @@ ROUTE_KEY='extrair'
 QUEUE_CONSUMER='ftp'
 ASK_DEBUG = True
 
+#BACKEND_DETECTOR='retinaface'
+#MODEL_BACKEND ='Facenet'
+#LIMITE_DETECTOR = 0.996
+
 BACKEND_DETECTOR='retinaface'
 MODEL_BACKEND ='Facenet'
-LIMITE_DETECTOR = 0.996
+DISTANCE_METRIC = 'euclidean'
+LIMITE_DETECTOR = 0.9740
 
 DIR_CAPTURE = '/app/media/capturas/'
 
@@ -97,6 +102,7 @@ class ConsumerExtractor:
                                         img_path=file,
                                         detector_backend=self.backend_detector,
                                         enforce_detection=False,
+                                        
                                         align=True
                                     )
 

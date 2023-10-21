@@ -26,18 +26,23 @@ ASK_DEBUG = True
 DIR_CAPS ='/app/media/capturas'
 DIR_DATASET ='/app/media/dataset'
 
+#BACKEND_DETECTOR='retinaface'
+#MODEL_BACKEND ='Facenet'
+#LIMITE_DETECTOR = 0.996
 
 BACKEND_DETECTOR='retinaface'
 MODEL_BACKEND ='Facenet'
-LIMITE_DETECTOR = 0.996
-PESO = 10
+DISTANCE_METRIC = 'euclidean'
+LIMITE_DETECTOR = 0.9740
 
 METRICS = 'euclidean'
 
 class ConsumerEmbbeding:
     def __init__(self):
-        self.backend_detector = BACKEND_DETECTOR
+        self.detector_backend = BACKEND_DETECTOR
         self.model_backend = MODEL_BACKEND
+        self.distance_metric = DISTANCE_METRIC
+        self.peso = self.findThreshold(self.model_backend)
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,
@@ -54,8 +59,7 @@ class ConsumerEmbbeding:
         self.redis_client = redis.Redis(host=REDIS_SERVER , port=6379, db=0, ssl=False)
 
     def run(self):
-        logger.info(f' <**ConsumerEmbbeding**> : Init')
-        # CONFIGURACAO CONSUMER
+        logger.info(f' <**ConsumerEmbbeding**> : Init ')
         self.channel.basic_consume(           
             queue=QUEUE_CONSUMER,
             on_message_callback=self.process_message,
@@ -69,35 +73,47 @@ class ConsumerEmbbeding:
             self.connection.close()
             logger.info(f' <**_**> ConsumerEmbbeding: close')
 
+    def findThreshold(self, model_name):
+        threshold = 0
+        #dims = 128
+        if model_name == 'VGG-Face':
+            threshold = 0.55
+            #dims = 2622
+        elif model_name == 'OpenFace':
+            threshold = 0.55
+        elif model_name == 'Facenet':
+            threshold = 10
+        elif model_name == 'DeepFace':
+            threshold = 64
+
+        return threshold
+
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
         file = str(data['caminho_do_face'])
         if data['detector_backend'] != None and data['detector_backend'] != '':
-            self.backend_detector = str(data['detector_backend'])
+            self.detector_backend = str(data['detector_backend'])
         
         if file.endswith(('.jpg', '.jpeg', '.png')):
             try:
                 target_embedding = DeepFace.represent(
                     img_path=file,
                     model_name=self.model_backend,
-                    detector_backend=self.backend_detector,
+                    detector_backend=self.detector_backend,
                     enforce_detection=False,
                     )[0]["embedding"]
 
                 query_vector = np.array(target_embedding).astype(np.float32).tobytes()
-                logger.info(f' <**_DeepFace_**> Query Vetor:: {query_vector}')
 
-                k = 3
+                k = 1
                 base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
                 query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
                 results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
-                logger.info(f' <**REDIS**> Search:: {results}')
                 
                 publisher = Publisher()
                 for idx, result in enumerate(results.docs):
-                    print(
-                        f"{idx + 1}th nearest neighbor is {result.id} with distance {result.distance}"
-                    )
+                    logger.info(f"O vizinho mais próximo é {result.id} com distância {result.distance}")
+
                     dataset_file = str(result.id)
                     message_dict = {
                     'id_equipamento':data['nome_equipamento'],
@@ -105,24 +121,23 @@ class ConsumerEmbbeding:
                     'hora_captura': data['hora_captura'],
                     'captura_base': data['captura_base'],
                     'caminho_do_face': file,
-                    'detector_backend': self.model_backend,
+                    'detector_backend': self.detector_backend,
                     'model_name': self.model_backend,
-                    'metrics': METRICS,
+                    'metrics': self.distance_metric,
                     }
 
 
                     distance = float(result.distance)
-                    logger.info(f' <**__DeepFace__**> Distance :: {distance}')
-                    if distance <= 10:
+                    if distance <= self.peso:
                         verify = DeepFace.verify(
                             img1_path=file,
                             img2_path=dataset_file,
                             model_name=self.model_backend,
-                            detector_backend=self.model_backend,
+                            detector_backend=self.detector_backend,
+                            distance_metric=self.distance_metric,
                             enforce_detection=False,
-                            distance_metric=METRICS
                         )
-                        logger.info(f' <**__DeepFace__**> Verify :: {verify}')
+                        logger.info(f' <**__DeepFace__**> Resultado :: {verify} VERIFY')
                         message_dict.update({'file_dataset': dataset_file})
                         message_dict.update({'distance' : distance})
                         message_str = json.dumps(message_dict)
