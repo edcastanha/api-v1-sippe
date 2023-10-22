@@ -31,7 +31,7 @@ DIR_DATASET ='/app/media/dataset'
 #LIMITE_DETECTOR = 0.996
 
 BACKEND_DETECTOR='retinaface'
-MODEL_BACKEND ='Facenet512'
+MODEL_BACKEND ='Facenet'
 DISTANCE_METRIC = 'euclidean_l2'
 LIMITE_DETECTOR = 0.997
 
@@ -96,6 +96,14 @@ class ConsumerEmbbeding:
         
         if file.endswith(('.jpg', '.jpeg', '.png')):
             try:
+
+                message_dict = {
+                    'caminho_do_face': file,
+                    'detector_backend': self.detector_backend,
+                    'model_name': self.model_backend,
+                    'metrics': self.distance_metric,
+                }
+
                 target_embedding = DeepFace.represent(
                     img_path=file,
                     model_name=self.model_backend,
@@ -105,7 +113,7 @@ class ConsumerEmbbeding:
 
                 query_vector = np.array(target_embedding).astype(np.float32).tobytes()
 
-                k = 1
+                k = 2
                 base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
                 query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
                 results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
@@ -115,16 +123,12 @@ class ConsumerEmbbeding:
                     logger.info(f"O vizinho mais próximo é {result.id} com distância {result.distance}")
 
                     dataset_file = str(result.id)
-                    message_dict = {
-                    'id_equipamento':data['nome_equipamento'],
-                    'data_captura': data['data_captura'],
-                    'hora_captura': data['hora_captura'],
-                    'captura_base': data['captura_base'],
-                    'caminho_do_face': file,
-                    'detector_backend': self.detector_backend,
-                    'model_name': self.model_backend,
-                    'metrics': self.distance_metric,
-                    }
+                    
+                    message_dict.update({'id_equipamento':data['nome_equipamento']})
+                    message_dict.update({'data_captura': data['data_captura']})
+                    message_dict.update({'hora_captura': data['hora_captura']})
+                    message_dict.update({'captura_base': data['captura_base']})
+
 
 
                     distance = float(result.distance)
@@ -137,17 +141,22 @@ class ConsumerEmbbeding:
                             distance_metric=self.distance_metric,
                             enforce_detection=False,
                         )
-                        logger.info(f' <**__DeepFace__**> Resultado :: {verify} VERIFY')
+
+                        logger.info(f' <**__ConsumerEmbbeding__**>DeepFace:: {verify} VERIFY')
                         message_dict.update({'file_dataset': dataset_file})
                         message_dict.update({'distance' : distance})
+
                         message_str = json.dumps(message_dict)
-                        publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                        logger.info(f' <**__PUBLISHER__**> Messagem :: {message_str} ')
+                        logger.info(f' <**ConsumerEmbbeding**> Publisher :: {message_str} ')
+                        publisher.start_publisher(exchange=EXCHANGE, 
+                                                  routing_name=ROUTE_KEY, 
+                                                  message=message_str
+                                                  )
                 
                 publisher.close()
                 
             except Exception as e:
-                logger.error(f'<**__FALHA__**> Error :: {str(e)}')
+                logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
 
 if __name__ == "__main__":
     job = ConsumerEmbbeding()

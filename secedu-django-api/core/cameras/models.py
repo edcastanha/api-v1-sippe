@@ -109,9 +109,9 @@ class Processamentos(baseModel):
 class Faces(baseModel):
     processamento = models.ForeignKey(Processamentos, on_delete=models.CASCADE)
     path = models.CharField(max_length=250, unique=True)
-    retry = models.IntegerField(default=0)
-    backend_detector = models.CharField(max_length=20, default='mtcnn')
-    model_detector = models.CharField(max_length=20, default='hog')
+    backend_detector = models.CharField(max_length=20, default='retinaface')
+    model_detector = models.CharField(max_length=20, default='Facenet')
+    distance_metric = models.CharField(max_length=20, default='euclidean_l2')
     auditado = models.BooleanField(default=False)
 
     class Meta:
