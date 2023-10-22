@@ -31,9 +31,9 @@ DIR_DATASET ='/app/media/dataset'
 #LIMITE_DETECTOR = 0.996
 
 BACKEND_DETECTOR='retinaface'
-MODEL_BACKEND ='Facenet'
-DISTANCE_METRIC = 'euclidean'
-LIMITE_DETECTOR = 0.9740
+MODEL_BACKEND ='Facenet512'
+DISTANCE_METRIC = 'euclidean_l2'
+LIMITE_DETECTOR = 0.997
 
 METRICS = 'euclidean'
 

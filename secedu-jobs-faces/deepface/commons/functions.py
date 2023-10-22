@@ -133,9 +133,9 @@ def extract_faces(
         target_size (tuple, optional): the target size of the extracted faces.
         Defaults to (224, 224).
         detector_backend (str, optional): the face detector backend. Defaults to "opencv".
-        grayscale (bool, optional): whether to convert the extracted faces to grayscale.
+        grayscale (bool, optional): se as faces extraídas devem ser convertidas em escala de cinzentos.
         Defaults to False.
-        enforce_detection (bool, optional): whether to enforce face detection. Defaults to True.
+        enforce_detection (bool, optional): se deve ser aplicada a deteção de rostos. A predefinição é Verdadeiro.
         align (bool, optional): whether to align the extracted faces. Defaults to True.
 
     Raises:
@@ -241,15 +241,15 @@ def normalize_input(img, normalization="base"):
     """Normalize input image.
 
     Args:
-        img (numpy array): the input image.
-        normalization (str, optional): the normalization technique. Defaults to "base",
-        for no normalization.
+        img (numpy array): a imagem de entrada.
+        normalization (str, opcional): a técnica de normalização. O padrão é "base",
+        para nenhuma normalização.
 
     Returns:
         numpy array: the normalized image.
     """
 
-    # issue 131 declares that some normalization techniques improves the accuracy
+    # A questão 131 declara que algumas técnicas de normalização melhoram a exatidão
 
     if normalization == "base":
         return img
@@ -324,54 +324,3 @@ def find_target_size(model_name):
 
     return target_size
 
-
-# ---------------------------------------------------
-# deprecated functions
-
-
-@deprecated(version="0.0.78", reason="Use extract_faces instead of preprocess_face")
-def preprocess_face(
-    img,
-    target_size=(224, 224),
-    detector_backend="opencv",
-    grayscale=False,
-    enforce_detection=True,
-    align=True,
-):
-    """Preprocess face.
-
-    Args:
-        img (numpy array): the input image.
-        target_size (tuple, optional): the target size. Defaults to (224, 224).
-        detector_backend (str, optional): the detector backend. Defaults to "opencv".
-        grayscale (bool, optional): whether to convert to grayscale. Defaults to False.
-        enforce_detection (bool, optional): whether to enforce face detection. Defaults to True.
-        align (bool, optional): whether to align the face. Defaults to True.
-
-    Returns:
-        numpy array: the preprocessed face.
-
-    Raises:
-        ValueError: if face is not detected and enforce_detection is True.
-
-    Deprecated:
-        0.0.78: Use extract_faces instead of preprocess_face.
-    """
-    print("⚠️ Function preprocess_face is deprecated. Use extract_faces instead.")
-    result = None
-    img_objs = extract_faces(
-        img=img,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        grayscale=grayscale,
-        enforce_detection=enforce_detection,
-        align=align,
-    )
-
-    if len(img_objs) > 0:
-        result, _, _ = img_objs[0]
-        # discard expanded dimension
-        if len(result.shape) == 4:
-            result = result[0]
-
-    return result

@@ -640,7 +640,7 @@ def represent(
             function will return exception by default. Set this to False not to have this exception.
             This might be convenient for low resolution images.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
+            detector_backend (string): definir o backend do detetor facial para opencv, retinaface, mtcnn, ssd,
             dlib, mediapipe or yolov8.
 
             align (boolean): alignment according to the eye positions.

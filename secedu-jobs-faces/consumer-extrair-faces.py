@@ -1,20 +1,21 @@
+import dis
+from errno import EBUSY
+from hmac import new
+import pika
+import json
+from datetime import datetime as dt
 import pika
 import json
 from datetime import datetime as dt
 import os
-#import re
 import numpy as np
-import uuid
 import cv2
-import mediapipe as mp
+import mediapipe
+import pandas as pd
 
-#import redis
-#from redis.commands.search.field import VectorField, TagField
-#from redis.commands.search.query import Query
-
-from deepface import DeepFace
 from publicar import Publisher
 from loggingMe import logger
+from deepface import DeepFace
 
 REDIS_SERVER = 'redis-server'
 RMQ_SERVER = 'broker-server'
@@ -32,8 +33,8 @@ ASK_DEBUG = True
 
 BACKEND_DETECTOR='retinaface'
 MODEL_BACKEND ='Facenet'
-DISTANCE_METRIC = 'euclidean'
-LIMITE_DETECTOR = 0.9740
+DISTANCE_METRIC = 'euclidean_l2'
+LIMITE_DETECTOR = 0.99
 
 DIR_CAPTURE = '/app/media/capturas/'
 
@@ -45,6 +46,7 @@ class ConsumerExtractor:
         self.path_capture = DIR_CAPTURE
         self.backend_detector = BACKEND_DETECTOR
         self.model_backend = MODEL_BACKEND
+        self.distance_metric = DISTANCE_METRIC
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,
@@ -68,24 +70,25 @@ class ConsumerExtractor:
             on_message_callback=self.process_message,
             auto_ack=ASK_DEBUG
         )
-
         try:
             self.channel.start_consuming()
         finally:
             self.connection.close()
             logger.debug(f' <**_**> ConsumerExtractor: close')
 
+   
+
     def process_message(self, ch, method, properties, body):
+        # Processamento da mensagem recebida
         data = json.loads(body)
         file = data['path_file']
         horario = data['horario']
         device = data['local']
-        logger.debug(f' <**_1_**> ConsumerExtractor: process_message:: {data}')
 
         if file.lower().endswith(('.jpg', '.jpeg', '.png')):
             now = dt.now()
-            equipamento =data['nome_equipamento']
-            data_captura=data['data_captura']
+            equipamento = data['nome_equipamento']
+            data_captura = data['data_captura']
             processamento = now.strftime("%Y-%m-%d %H:%M:%S")
             message_dict = {
                 'data_processo': processamento,
@@ -95,24 +98,24 @@ class ConsumerExtractor:
                 'local_equipamento': device,
                 'captura_base': file,
             }
-            logger.debug(f' <**_2_**> ConsumerExtractor:  process_message:: {message_dict}')
             
             publisher = Publisher()
+
             face_objs = DeepFace.extract_faces(
-                                        img_path=file,
-                                        detector_backend=self.backend_detector,
-                                        enforce_detection=False,
-                                        
-                                        align=True
-                                    )
+                img_path=file,
+                detector_backend=self.backend_detector,
+                enforce_detection=False,
+                align=True
+            )
 
             try:
-                logger.debug(f' <**_3_**> ConsumerExtractor:  TRY face_objs:: {face_objs}')
-                for index, face_obj in enumerate(face_objs):
-                    if face_obj['confidence'] >= LIMITE_DETECTOR:
+                for index, face_obj in enumerate(face_objs):   
+                    area = (face_obj['facial_area']['h']+face_obj['facial_area']['w'])/2
+                    confidence = face_obj['confidence']
+                    logger.debug(f' <**_ConsumerExtractor_**> area:: {area} confidence:: {face_obj["confidence"]}')
+                    if confidence >= LIMITE_DETECTOR and area >= 150:
                         face = face_obj['face']
                         new_face = os.path.join(str(self.path_capture), str(equipamento), str(data_captura), str(horario))
-                        logger.debug(f' <**_4_**> ConsumerExtractor: face_path :: {new_face}')
 
                         if not os.path.exists(new_face):
                             os.makedirs(new_face, exist_ok=True)
@@ -121,21 +124,25 @@ class ConsumerExtractor:
                         face_uint8 = (face * 255).astype('uint8')
                         
                         # Gere um nome de arquivo único para a face
-                        save_path = os.path.join(new_face, f"face_{index}.jpg")
-                        logger.debug(f' <**_5_**> SAVE NEW FACE Path:: {save_path}: ')
-                        
+                        save_path = os.path.join(new_face, f"face_{index}_noises.jpg")
                         
                         # Salve a face no diretório "captura/" usando OpenCV
                         cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
+
+                        #path_new_noise = self.noise_oval(save_path)
+
                         message_dict.update({'caminho_do_face': save_path})
+                        message_dict.update({'area': area})
+                        message_dict.update({'confidence': confidence})
                         message_dict.update({'detector_backend': self.backend_detector})
+                        message_dict.update({'model_backend': self.model_backend})
                         message_str = json.dumps(message_dict)
                         publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                        logger.debug(f' <**_6_**> ConsumerExtractor:  message_str:: {message_str}')
+                        logger.debug(f' <**_ConsumerExtractor_**> MENSSAGEM JSON:: {message_str}')
                 publisher.close()
             except Exception as e:
-                logger.debug(f' <**_3_**> TRY Erro:: {e}')
-    
+                logger.error(f' <**_ConsumerExtractor_**> TRY New Face:: {e}')
+
 if __name__ == "__main__":
     job = ConsumerExtractor()
     job.run()

@@ -105,4 +105,19 @@ class Processamentos(baseModel):
     
     def __str__(self):
         return f"{self.camera.descricao} - {self.dia} as {self.horario} - {self.path}"
+
+class Faces(baseModel):
+    processamento = models.ForeignKey(Processamentos, on_delete=models.CASCADE)
+    path = models.CharField(max_length=250, unique=True)
+    retry = models.IntegerField(default=0)
+    backend_detector = models.CharField(max_length=20, default='mtcnn')
+    model_detector = models.CharField(max_length=20, default='hog')
+    auditado = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = "Faces Detectadas"
+        verbose_name = "Face Detectada"
+        ordering = ['id']
     
+    def __str__(self):
+        return f"{self.processamento.camera.descricao} - {self.processamento.dia} as {self.processamento.horario} - {self.path} - {self.status}"
