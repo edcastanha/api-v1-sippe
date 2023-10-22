@@ -51,7 +51,7 @@ class Locais(baseModel):
 
 class FrequenciasEscolar(baseModel):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)
-    local = models.ForeignKey(Locais, on_delete=models.CASCADE)
+    camera = models.ForeignKey(Cameras, on_delete=models.CASCADE, null=True)
     data = models.DateField()
 
     class Meta:
@@ -59,7 +59,7 @@ class FrequenciasEscolar(baseModel):
         verbose_name = "Frequência Escolar"
 
     def __str__(self):
-        return f"{self.aluno.pessoa.nome} - {self.local.nome} - {self.data} - {self.aluno.turma.nome}"
+        return f"{self.aluno.pessoa.nome} - {self.camera.descricao} - {self.data} - {self.aluno.turma.nome}"
 
 class Tarefas(baseModel):
 
