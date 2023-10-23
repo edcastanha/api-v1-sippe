@@ -10,7 +10,7 @@
     </ol>
     <div class="card mb-4">
         <div class="card-body">
-           
+
         </div>
     </div>
     <div class="card mb-4">
@@ -22,6 +22,7 @@
             <table id="datatablesSimple">
                 <thead>
                     <tr>
+                        <th>Semana</th>
                         <th>Nome</th>
                         <th>Matricula</th>
                         <th>Turma</th>
@@ -30,6 +31,7 @@
                 </thead>
                 <tfoot>
                     <tr>
+                        <th>Semana</th>
                         <th>Nome</th>
                         <th>Matricula</th>
                         <th>Turma</th>
@@ -38,14 +40,26 @@
                 </tfoot>
                 <tbody>
                     <!-- FOR de DADOS -->
-                {% for aluno in alunos %}
+                    {% for aluno in alunos %}
                     <tr>
+                        
+                        <td class="padding">
+                            <a href="{% url 'frequencia_semana_anterior_aluno' aluno.id %}">
+                                <i class="fa fa-fast-backward" aria-hidden="true"></i>
+                                Anterior
+                            </a>
+                            <br/>
+                            <a href="{% url 'frequencia_semana_atual_aluno' aluno.id %}">
+                                <i class="fa fa-step-forward" aria-hidden="true"></i>
+                                Atual
+                            </a>
+                        </td>
                         <td>{{aluno.pessoa.nome}}</td>
                         <td>{{aluno.matricula}}</td>
                         <td>{{aluno.turma.nome}}</td>
                         <td><i class="fas fa-table me-1"></i>{{aluno.data_cadastro}}</td>
                     </tr>
-                {% endfor%}
+                    {% endfor%}
                 </tbody>
             </table>
         </div>

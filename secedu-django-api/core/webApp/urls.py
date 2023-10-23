@@ -7,7 +7,15 @@ urlpatterns = [
     
     path('turmas/', views.listTurmas, name='listar_turmas'),
     path('alunos/', views.listAlunos, name='listar_alunos'),
-    path('frequencias/', views.listFrequencia, name='listar_frequencias'),
+
+    # FREQUENCIAS ALUNOS
+    # GERAL
+    path('frequencias/atuais', views.frequenciaAtuais, name='frequencias_mes_atual'),
+    path('frequencias/anteriores/', views.frequenciasAnteriores, name='frequencias_mes_anterior'),
+    # SEMANAL ALUNO
+    path('frequencias/semana/atual/<int:aluno_id>/', views.frequenciaSemanaAtual, name='frequencia_semana_atual_aluno'),
+    path('frequencias/semana/anterior/<int:aluno_id>/', views.frequenciasSemanaAnterior, name='frequencia_semana_anterior_aluno'),
+
 
 
 

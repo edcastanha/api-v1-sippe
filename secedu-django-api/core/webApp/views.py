@@ -9,6 +9,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from core.loggingMe import logger
 
+from datetime import date, timedelta
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+
+
 capture_path = settings.MEDIA_ROOT + '/capturas/'
 #logger.debug(f'Path de capturas: {capture_path}')
 
@@ -56,14 +61,206 @@ def listFrequencia(request):
         data = []
         frequencias_list = FrequenciasEscolar.objects.all()
         for frequencia in frequencias_list:
-            logger.debug(f'Frequencias: {frequencia}')
             data.append({'aluno': frequencia.aluno, 'matricula': frequencia.aluno.matricula, 'local': frequencia.camera.descricao , 'data': frequencia.data})
         context = {"results": data}
     except FrequenciasEscolar.DoesNotExist:
         raise Http404("Nao encontramos nenhuma frequencia com essa descricao")
     
     return render(request, "alunos/listar_frequencias.html", context)
+
+## Frequencias da mesna SEMANA
+def frequenciaAtuais(request):
+    try:
+        data = []
+        today = date.today()
+        #next_monday = today + timedelta(days=(7 - today.weekday())) #Semana Atual
+        #next_monday = today - timedelta(days=today.weekday() + 7) #Semana Anterior
+        # Se hoje for domingo, obtenha a data da segunda-feira da semana anterior
+        if today.weekday() == 6:  # 6 representa domingo
+            last_monday = today - timedelta(days=6) - timedelta(weeks=1)
+        else:
+            # Caso contrário, obtenha a data da segunda-feira da semana atual
+            last_monday = today - timedelta(days=today.weekday())
+        
+        alunos = Aluno.objects.all()
+        for aluno in alunos:
+            frequencia_aluno = FrequenciasEscolar.objects.filter(
+                aluno=aluno,
+                data__gte=last_monday,
+                data__lte=last_monday + timedelta(days=4)
+            ).order_by('data')
+            
+            if frequencia_aluno:
+                for freq in frequencia_aluno:
+                    data.append({
+                        'aluno': aluno,
+                        'matricula': aluno.matricula,
+                        'turma': aluno.turma.nome,
+                        'local': freq.camera.descricao,
+                        'data': freq.data,
+                        'presente': 'Sim',
+                    })
+            else:
+                for day in range(5):
+                    data.append({
+                        'aluno': aluno,
+                        'matricula': aluno.matricula,
+                        'turma': aluno.turma.nome,
+                        'local': '- - -',
+                        'data': last_monday + timedelta(days=day),
+                        'presente': 'Não'
+                    })
+        
+        context = {"results": data}
+    except Aluno.DoesNotExist:
+        raise Http404("Aluno não encontrado")
     
+    return render(request, "alunos/listar_frequencias.html", context)
+
+# Frequencias da SEMANA ANTERIOR
+def frequenciasAnteriores(request):
+    try:
+        data = []
+        today = date.today()
+
+        # Se hoje for domingo, obtenha a data da segunda-feira da semana anterior
+        if today.weekday() == 6:  # 6 representa domingo
+            last_monday = today - timedelta(days=6)
+            last_friday = today - timedelta(days=2)
+        else:
+            # Caso contrário, obtenha a data da segunda-feira da semana atual
+            last_monday = today - timedelta(days=today.weekday())
+            last_friday = today - timedelta(days=today.weekday() - 4)
+        
+        alunos = Aluno.objects.all()
+        for aluno in alunos:
+            frequencia_aluno = FrequenciasEscolar.objects.filter(
+                aluno=aluno,
+                data__gte=last_monday,
+                data__lte=last_friday
+            ).order_by('data')
+            
+            if frequencia_aluno:
+                for freq in frequencia_aluno:
+                    data.append({
+                        'aluno': aluno,
+                        'matricula': aluno.matricula,
+                        'turma': aluno.turma.nome,
+                        'local': freq.camera.descricao,
+                        'data': freq.data,
+                        'presente': 'Sim',
+                    })
+            else:
+                for day in range(5):
+                    data.append({
+                        'aluno': aluno,
+                        'matricula': aluno.matricula,
+                        'turma': aluno.turma.nome,
+                        'local': '- - -',
+                        'data': last_monday + timedelta(days=day),
+                        'presente': 'Não'
+                    })
+        
+        context = {"results": data}
+    except Aluno.DoesNotExist:
+        raise Http404("Aluno não encontrado")
+    
+    return render(request, "alunos/listar_frequencias.html", context)
+
+def frequenciaSemanaAtual(request, aluno_id):
+    try:
+        data = []
+        aluno = get_object_or_404(Aluno, pk=aluno_id)
+        today = date.today()
+
+        if today.weekday() == 6:
+            last_monday = today - timedelta(days=6) - timedelta(weeks=1)
+        else:
+            last_monday = today - timedelta(days=today.weekday())
+        
+        frequencia_aluno = FrequenciasEscolar.objects.filter(
+            aluno=aluno,
+            data__gte=last_monday,
+            data__lte=last_monday + timedelta(days=4)
+        ).order_by('data')
+        
+        if frequencia_aluno:
+            for freq in frequencia_aluno:
+                data.append({
+                    'aluno': aluno,
+                    'matricula': aluno.matricula,
+                    'turma': aluno.turma.nome,
+                    'local': freq.camera.descricao,
+                    'data': freq.data,
+                    'presente': 'Sim',
+                })
+        else:
+            for day in range(5):
+                data.append({
+                    'aluno': aluno,
+                    'matricula': aluno.matricula,
+                    'turma': aluno.turma.nome,
+                    'local': '- - -',
+                    'data': last_monday + timedelta(days=day),
+                    'presente': 'Não'
+                })
+        
+        context = {"results": data}
+    except Aluno.DoesNotExist:
+        raise Http404("Aluno não encontrado")
+    
+    return render(request, "frequencias/frequencias_semana_atual_aluno.html", context)
+
+def frequenciasSemanaAnterior(request, aluno_id):
+    try:
+        data = []
+        aluno = get_object_or_404(Aluno, pk=aluno_id)
+        today = date.today()
+        
+        # Defina as datas de segunda-feira e sexta-feira da semana anterior (de 16 a 20)
+        last_monday = today - timedelta(days=today.weekday() + 7)
+        last_friday = last_monday + timedelta(days=4)
+
+        frequencia_aluno = FrequenciasEscolar.objects.filter(
+            aluno=aluno,
+            data__gte=last_monday,
+            data__lte=last_friday
+        ).order_by('data')
+        
+        if frequencia_aluno:
+            for freq in frequencia_aluno:
+                data.append({
+                    'aluno': aluno,
+                    'matricula': aluno.matricula,
+                    'turma': aluno.turma.nome,
+                    'local': freq.camera.descricao,
+                    'data': freq.data,
+                    'presente': 'Sim',
+                })
+        else:
+            for day in range(5):
+                data.append({
+                    'aluno': aluno,
+                    'matricula': aluno.matricula,
+                    'turma': aluno.turma.nome,
+                    'local': '- - -',
+                    'data': last_monday + timedelta(days=day),
+                    'presente': 'Não'
+                })
+                
+        context = {"results": data}
+    except Aluno.DoesNotExist:
+        raise Http404("Aluno não encontrado")
+    
+    return render(request, "frequencias/frequencias_semana_anterior_aluno.html", context)
+
+
+
+
+
+
+
+## API DeepFace Network
 def testAnalyze(request):
     return render(request, "dashboards/testAnalyze.html")
 
