@@ -12,7 +12,7 @@ var myLineChart = new Chart(ctx, {
       label: "Faces Detectadas",
       backgroundColor: "rgba(2,117,216,1)",
       borderColor: "rgba(2,117,216,1)",
-      data: [95, 102, 87, 0, 349],
+      data: [76, 51, 27, 0, 0],
     }],
   },
   options: {

@@ -37,7 +37,7 @@
                 <!-- FOR de DADOS -->
                     {% for result in results %}
                         <tr>
-                        <td><a>{{result.aluno}}</a></td>
+                        <td><a>{{result.aluno.pessoa.nome}}</a></td>
                         <td>{{result.matricula}}</td>
                         <td>{{result.turma}}</td>
                         <td>{{result.local}}</td>

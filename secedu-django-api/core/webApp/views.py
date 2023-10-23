@@ -1,3 +1,4 @@
+from itertools import count
 from django.shortcuts import render
 from django.http import Http404
 from django.conf import settings
@@ -12,6 +13,8 @@ from core.loggingMe import logger
 from datetime import date, timedelta
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
+
 
 
 capture_path = settings.MEDIA_ROOT + '/capturas/'
@@ -61,12 +64,41 @@ def listFrequencia(request):
         data = []
         frequencias_list = FrequenciasEscolar.objects.all()
         for frequencia in frequencias_list:
-            data.append({'aluno': frequencia.aluno, 'matricula': frequencia.aluno.matricula, 'local': frequencia.camera.descricao , 'data': frequencia.data})
+            data.append(
+                {'aluno': frequencia.aluno, 
+                 'matricula': frequencia.aluno.matricula, 
+                 'local': frequencia.camera.descricao , 
+                 'data': frequencia.data, 
+                 'presente': 'Sim'
+                 })
         context = {"results": data}
     except FrequenciasEscolar.DoesNotExist:
         raise Http404("Nao encontramos nenhuma frequencia com essa descricao")
     
-    return render(request, "alunos/listar_frequencias.html", context)
+    return render(request, "frequencias/listar_frequencias.html", context)
+
+def frequenciaIndividual(request, aluno_id):
+    try:
+        data = []
+        aluno = get_object_or_404(Aluno, pk=aluno_id)
+        
+        # Contagem de registros relacionados a um aluno específico
+        frequencia_aluno = FrequenciasEscolar.objects.filter(aluno=aluno).count()
+        
+        data.append({
+            'id': aluno_id,  # ID do aluno
+            'nome': aluno.pessoa.nome,
+            'matricula': aluno.matricula,
+            'turma': aluno.turma.nome,
+            'total_registros': frequencia_aluno,  # Número total de registros relacionados a este aluno
+        })
+
+        context = {"results": data}
+    except Aluno.DoesNotExist:
+        raise Http404("Aluno não encontrado")
+    
+    return render(request, "frequencias/frequencia_individual_aluno.html", context)
+
 
 ## Frequencias da mesna SEMANA
 def frequenciaAtuais(request):
@@ -98,7 +130,7 @@ def frequenciaAtuais(request):
                         'turma': aluno.turma.nome,
                         'local': freq.camera.descricao,
                         'data': freq.data,
-                        'presente': 'Sim',
+                        
                     })
             else:
                 for day in range(5):

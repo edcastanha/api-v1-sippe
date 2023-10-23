@@ -1,123 +1,113 @@
 {% extends 'layouts/base.html' %}
 {% block title %}SecEdu - Dashboards{% endblock title %}
 {% block content %}
-    <div class="container-fluid px-4">
-        <h1 class="mt-4">Dashboard</h1>
-        <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
-        <div class="row">
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-primary text-white mb-4">
-                    <div class="card-body">Emoção Neutra</div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <h2>37,6 %</h2>
-                        <a class="small text-white stretched-link" href="{% url "index" %}">Breve ...</a>
-                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-warning text-white mb-4">
-                    <div class="card-body">Emoção de Raiva</div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <h2>1,45 %</h2>
-                        <a class="small text-white stretched-link" href="#">Breve ...</a>
-                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-success text-white mb-4">
-                    <div class="card-body">Emoção de Felicidade</div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <h2>55,93 %</h2>
-                        <a class="small text-white stretched-link" href="#">Breve ...</a>
-                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-danger text-white mb-4">
-                    <div class="card-body">Emoção de Tristeza</div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <h2>5,02 %</h2>
-                        <a class="small text-white stretched-link" href="#">Breve ...</a>
-                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                    </div>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Dashboard</li>
+    </ol>
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">Emoção Neutra</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h2>0 %</h2>
+                    <a class="small text-white stretched-link" href="#">Breve ...</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xl-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="fas fa-chart-area me-1"></i>
-                        Reconhecimentos por Dia
-                    </div>
-                    <div class="card-body">
-                        <canvas id="myAreaChart" width="100%" height="40"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="fas fa-chart-bar me-1"></i>
-                        Detecções por dia
-                    </div>
-                    <div class="card-body">
-                        <canvas id="myBarChart" width="100%" height="40"></canvas>
-                    </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">Emoção de Raiva</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h2>0 %</h2>
+                    <a class="small text-white stretched-link" href="#">Breve ...</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-header">
-                <i class="fas fa-table me-1"></i>
-                Turmas
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">Emoção de Felicidade</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h2>0 %</h2>
+                    <a class="small text-white stretched-link" href="#">Breve ...</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
             </div>
-            <div class="card-body">
-                <table id="datatablesSimple">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Matricula</th>
-                            <th>Turma</th>
-                            <th>Local</th>
-                            <th>Dia</th>
-                            <th>Horario</th>
-                            <th>Data Processo</th>
-                        </tr>
-                    </thead>
-                    <tfoot>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Matricula</th>
-                            <th>Turma</th>
-                            <th>Local</th>
-                            <th>Dia</th>
-                            <th>Horario</th>
-                            <th>Data Processo</th>
-                        </tr>
-                    </tfoot>
-                    <tbody>
-                <!-- FOR de DADOS -->
-                    {% for aluno in alunos %}
-                        <tr>
-                        <td>{{aluno.pessoa.nome}}</td>
-                        <td>{{aluno.matricula}}</td>
-                        <td>{{aluno.turma.nome}}</td>
-                        <td> - - - </td>
-                        <td> H:i:s</td>
-                        <td>Y-m-d</td>
-                        <td><i class="fas fa-table me-1"></i>{{aluno.data_cadastro}}</td>
-                    </tr>
-                    {% endfor%}
-                    </tbody>
-                </table>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">Emoção de Tristeza</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <h2>0 %</h2>
+                    <a class="small text-white stretched-link" href="#">Breve ...</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
             </div>
         </div>
     </div>
-{% endblock content %} 
-
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-area me-1"></i>
+                    Reconhecimentos por Dia
+                </div>
+                <div class="card-body">
+                    <canvas id="myAreaChart" width="100%" height="40"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Detecções por dia
+                </div>
+                <div class="card-body">
+                    <canvas id="myBarChart" width="100%" height="40"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Turmas
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Matricula</th>
+                        <th>Turma</th>
+                        <th>Cadastro</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Matricula</th>
+                        <th>Turma</th>
+                        <th>Cadastro</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <!-- FOR de DADOS -->
+                    {% for aluno in alunos %}
+                    <tr>
+                        <td>{{aluno.pessoa.nome}}</td>
+                        <td>{{aluno.matricula}}</td>
+                        <td>{{aluno.turma.nome}}</td>
+                        <td><i class="fas fa-table me-1"></i>{{aluno.data_cadastro}}</td>
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}
