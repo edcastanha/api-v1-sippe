@@ -15,7 +15,7 @@ capture_path = settings.MEDIA_ROOT + '/capturas/'
 def index(request):
     alunos_list = Aluno.objects.all()
     context = {"alunos": alunos_list}
-    template_html = 'cadastros/index.html'
+    template_html = 'index.html'
     
     return render(request, template_html, context)
 
@@ -30,7 +30,7 @@ def listTurmas(request):
     except Turmas.DoesNotExist:
         raise Http404("Nao encontramos nenhuma turma com essa descricao")
     
-    return render(request, "cadastros/turmas/listaTurmas.html", context)
+    return render(request, "turmas/listaTurmas.html", context)
 
 def detalhesTurma(request, turma_id):
     try:
@@ -38,7 +38,7 @@ def detalhesTurma(request, turma_id):
         context = {"turma": queryObject}
     except Turmas.DoesNotExist:
         raise Http404("Nao encontramos nenhum turma com essa descricao")
-    return render(request, "cadastros/turmas/listaTurmas.html", context)
+    return render(request, "turmas/listar_turmas.html", context)
 
 #ALUNOS
 def listAlunos(request):
@@ -49,19 +49,20 @@ def listAlunos(request):
         raise Http404("Nao encontramos nenhum aluno com essa descricao")
     
     context = {"alunos": alunos_list}
-    return render(request, "cadastros/alunos/listaAlunos.html", context)
+    return render(request, "alunos/listar_alunos.html", context)
 
 def listFrequencia(request):
     try:
         data = []
         frequencias_list = FrequenciasEscolar.objects.all()
         for frequencia in frequencias_list:
-            data.append({'aluno': frequencia.aluno.pessoa.nome, 'local': frequencia.local.nome , 'data': frequencia.data})
-        context = {"frequencias": data}
+            logger.debug(f'Frequencias: {frequencia}')
+            data.append({'aluno': frequencia.aluno, 'matricula': frequencia.aluno.matricula, 'local': frequencia.camera.descricao , 'data': frequencia.data})
+        context = {"results": data}
     except FrequenciasEscolar.DoesNotExist:
         raise Http404("Nao encontramos nenhuma frequencia com essa descricao")
     
-    return render(request, "cadastros/alunos/Frequencia.html", context)
+    return render(request, "alunos/listar_frequencias.html", context)
     
 def testAnalyze(request):
     return render(request, "dashboards/testAnalyze.html")

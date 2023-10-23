@@ -59,7 +59,7 @@ class FrequenciasEscolar(baseModel):
         verbose_name = "Frequência Escolar"
 
     def __str__(self):
-        return f"{self.aluno.pessoa.nome} - {self.camera.descricao} - {self.data} - {self.aluno.turma.nome}"
+        return f"{self.aluno.pessoa.nome} - {self.data} :: {self.camera} - {self.data} - {self.aluno.turma.nome}"
 
 class Tarefas(baseModel):
 
