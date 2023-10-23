@@ -38,7 +38,7 @@ def listTurmas(request):
     except Turmas.DoesNotExist:
         raise Http404("Nao encontramos nenhuma turma com essa descricao")
     
-    return render(request, "turmas/listaTurmas.html", context)
+    return render(request, "turmas/listar_turmas.html", context)
 
 def detalhesTurma(request, turma_id):
     try:
@@ -67,6 +67,7 @@ def listFrequencia(request):
             data.append(
                 {'aluno': frequencia.aluno, 
                  'matricula': frequencia.aluno.matricula, 
+                 'turma': frequencia.aluno.turma.nome,
                  'local': frequencia.camera.descricao , 
                  'data': frequencia.data, 
                  'presente': 'Sim'

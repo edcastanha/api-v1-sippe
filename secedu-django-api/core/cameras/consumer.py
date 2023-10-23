@@ -1,0 +1,1 @@
+#CONSUMER PARA QUEUE embedding com router-key 'extrair'

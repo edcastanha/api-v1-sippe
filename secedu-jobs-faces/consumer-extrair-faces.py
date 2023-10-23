@@ -8,6 +8,7 @@ import json
 from datetime import datetime as dt
 import os
 import cv2
+import 
 
 from publicar import Publisher
 from loggingMe import logger
@@ -27,8 +28,8 @@ ASK_DEBUG = True
 BACKEND_DETECTOR='retinaface'
 MODEL_BACKEND ='Facenet'
 DISTANCE_METRIC = 'euclidean_l2'
-LIMITE_DETECTOR = 0.997
-LIMITE_AREA = 130
+LIMITE_DETECTOR = 0.999
+LIMITE_AREA = 60 # imagem 60x60
 
 DIR_CAPTURE = '/app/media/capturas/'
 
