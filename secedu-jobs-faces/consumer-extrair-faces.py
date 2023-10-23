@@ -1,4 +1,3 @@
-import dis
 from errno import EBUSY
 from hmac import new
 import pika
@@ -8,13 +7,11 @@ import pika
 import json
 from datetime import datetime as dt
 import os
-import numpy as np
 import cv2
-import mediapipe
-import pandas as pd
 
 from publicar import Publisher
 from loggingMe import logger
+
 from deepface import DeepFace
 
 REDIS_SERVER = 'redis-server'
@@ -27,14 +24,11 @@ ROUTE_KEY='extrair'
 QUEUE_CONSUMER='ftp'
 ASK_DEBUG = True
 
-#BACKEND_DETECTOR='retinaface'
-#MODEL_BACKEND ='Facenet'
-#LIMITE_DETECTOR = 0.996
-
 BACKEND_DETECTOR='retinaface'
 MODEL_BACKEND ='Facenet'
 DISTANCE_METRIC = 'euclidean_l2'
-LIMITE_DETECTOR = 0.99
+LIMITE_DETECTOR = 0.997
+LIMITE_AREA = 130
 
 DIR_CAPTURE = '/app/media/capturas/'
 
@@ -72,11 +66,13 @@ class ConsumerExtractor:
         )
         try:
             self.channel.start_consuming()
+        except KeyboardInterrupt:
+            self.channel.stop_consuming()
+        except Exception as e:
+            logger.error(f' <**_ConsumerExtractor_**> Try Run:: {e}')
         finally:
+            logger.debug(f' <**_ConsumerExtractor_**> Finally')
             self.connection.close()
-            logger.debug(f' <**_**> ConsumerExtractor: close')
-
-   
 
     def process_message(self, ch, method, properties, body):
         # Processamento da mensagem recebida
@@ -113,7 +109,7 @@ class ConsumerExtractor:
                     area = (face_obj['facial_area']['h']+face_obj['facial_area']['w'])/2
                     confidence = face_obj['confidence']
                     logger.debug(f' <**_ConsumerExtractor_**> area:: {area} confidence:: {face_obj["confidence"]}')
-                    if confidence >= LIMITE_DETECTOR and area >= 150:
+                    if confidence >= LIMITE_DETECTOR and area >= LIMITE_AREA:
                         face = face_obj['face']
                         new_face = os.path.join(str(self.path_capture), str(equipamento), str(data_captura), str(horario))
 

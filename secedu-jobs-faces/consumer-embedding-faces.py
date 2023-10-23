@@ -26,10 +26,6 @@ ASK_DEBUG = True
 DIR_CAPS ='/app/media/capturas'
 DIR_DATASET ='/app/media/dataset'
 
-#BACKEND_DETECTOR='retinaface'
-#MODEL_BACKEND ='Facenet'
-#LIMITE_DETECTOR = 0.996
-
 BACKEND_DETECTOR='retinaface'
 MODEL_BACKEND ='Facenet'
 DISTANCE_METRIC = 'euclidean_l2'
