@@ -85,10 +85,9 @@ class Tarefas(baseModel):
 class Processamentos(baseModel):
     CHOICE_STATUS = (
         ('Criado', 'Criado'),
-        ('Cancelado', 'Cancelado'),
-        ('Pendente', 'Pendente'),
-        ('Erro', 'Erro'),
         ('Processado', 'Processado'),
+        ('Verificado', 'Verificado'),
+        ('Error', 'Error'),
     )
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
     dia = models.CharField(max_length=10)
@@ -101,10 +100,10 @@ class Processamentos(baseModel):
     class Meta:
         verbose_name_plural = "Processamentos"
         verbose_name = "Processamento"
-        ordering = ['id']
+        ordering = ['status']
     
     def __str__(self):
-        return f"{self.camera.descricao} - {self.dia} as {self.horario} - {self.path}"
+        return f"{self.status} | {self.camera.modelo} - {self.dia} as {self.horario}"
 
 class Faces(baseModel):
     processamento = models.ForeignKey(Processamentos, on_delete=models.CASCADE)

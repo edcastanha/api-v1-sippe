@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 from publicar import Publisher
 from loggingMe import logger
+from conectionDB import DatabaseConnection    
 
 REDIS_SERVER = 'redis-server'
 RMQ_SERVER = 'broker-server'
@@ -30,8 +31,6 @@ BACKEND_DETECTOR='retinaface'
 MODEL_BACKEND ='Facenet'
 DISTANCE_METRIC = 'euclidean_l2'
 LIMITE_DETECTOR = 0.997
-
-METRICS = 'euclidean'
 
 class ConsumerEmbbeding:
     def __init__(self):
@@ -100,6 +99,14 @@ class ConsumerEmbbeding:
                     'metrics': self.distance_metric,
                 }
 
+                # Exemplo de consulta de atualização
+                id_procesamento = data['proccess_id']
+                update_query = """
+                    UPDATE cameras_processamentos
+                    SET status = %s
+                    WHERE id = %s
+                """
+
                 target_embedding = DeepFace.represent(
                     img_path=file,
                     model_name=self.model_backend,
@@ -138,19 +145,20 @@ class ConsumerEmbbeding:
                             enforce_detection=False,
                         )
 
-                        logger.info(f' <**__ConsumerEmbbeding__**>DeepFace:: {verify} VERIFY')
+                        logger.info(f' <*_ConsumerEmbbeding_*>DeepFace:: {verify} VERIFY')
                         message_dict.update({'file_dataset': dataset_file})
                         message_dict.update({'distance' : distance})
 
                         message_str = json.dumps(message_dict)
-                        logger.info(f' <**ConsumerEmbbeding**> Publisher :: {message_str} ')
                         publisher.start_publisher(exchange=EXCHANGE, 
                                                   routing_name=ROUTE_KEY, 
                                                   message=message_str
                                                   )
-                
+                        db_connection.update(update_query, ('Processado', id_procesamento))
+
                 publisher.close()
-                
+                db_connection.close()
+
             except Exception as e:
                 logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
 

@@ -6,6 +6,7 @@ from core.cameras.models import Cameras, Locais, FrequenciasEscolar, NotaFiscal,
 #     list_filter = ('data_cadastro', 'modelo', 'status')
 #     search_fields = ('descricao',  'modelo', 'usuario')
 
+
 admin.site.register(Cameras)
 admin.site.register(Processamentos)
 admin.site.register(NotaFiscal)
