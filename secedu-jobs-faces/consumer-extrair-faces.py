@@ -32,9 +32,9 @@ class Configuration:
     """
     INSER_QUERY = """
         INSERT INTO cameras_faces 
-            (data_cadastro, processamento_id, path_face, backend_detector)
+            (data_cadastro, data_atualizacao, processamento_id, path_face, backend_detector, model_detector, distance_metric, auditado)
         VALUES 
-            (%s, %s, %s)
+            (%s, %s, %s, %s, %s, %s, %s, %s)
     """
 
 class ConsumerExtractor:
@@ -139,7 +139,7 @@ class ConsumerExtractor:
                                                             message=message_str
                                                         )
 
-                            values =  (dt.now(), int(id_procesamento), save_path, Configuration.BACKEND_DETECTOR)
+                            values =  (dt.now(), dt.now(), int(id_procesamento), save_path, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, False)
 
                             get_update = self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
                             get_insert = self.db_connection.insert(Configuration.INSER_QUERY, values)
