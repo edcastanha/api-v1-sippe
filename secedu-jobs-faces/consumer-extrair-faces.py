@@ -12,18 +12,21 @@ class Configuration:
     RMQ_SERVER = 'broker-server'
     RMQ_PORT = 5672
     RMQ_USER = 'secedu'
-    RBMQ_PASS = 'ep4X1!br'
+    RMQ_PASS = 'ep4X1!br'
     RMQ_EXCHANGE = 'secedu'
     RMQ_QUEUE_PUBLISHIR = 'faces'
     RMQ_ROUTE_KEY = 'extrair'
     RMQ_QUEUE_CONSUMER = 'ftp'
     RMQ_ASK_DEBUG = True
+
     BACKEND_DETECTOR = 'retinaface'
     MODEL_BACKEND = 'Facenet'
     DISTANCE_METRIC = 'euclidean_l2'
     LIMITE_DETECTOR = 0.96
     LIMITE_AREA = 80
+    
     DIR_CAPTURE = '/app/media/capturas'
+    
     UPDATE_QUERY = """
         UPDATE 
             cameras_processamentos 
@@ -46,7 +49,7 @@ class ConsumerExtractor:
             pika.ConnectionParameters(
                 host = Configuration.RMQ_SERVER,
                 port = Configuration.RMQ_PORT,
-                credentials = pika.PlainCredentials(Configuration.RMQ_USER, Configuration.RBMQ_PASS)
+                credentials = pika.PlainCredentials(Configuration.RMQ_USER, Configuration.RMQ_PASS)
             )
         )
         self.channel = self.connection.channel()

@@ -7,8 +7,8 @@ tunnels:
     #domain: secedu.com.br
     addr: 127.0.0.1:7000
     basic_auth:
-      - secedu_1:password_1
-      - secedu_2:password_2
+      - secedu_1:secedu_1
+      - secedu_2:secedu_2
     
     # -------------------------
     # Additional options

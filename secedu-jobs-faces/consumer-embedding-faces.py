@@ -3,66 +3,90 @@ import json
 from datetime import datetime as dt
 from deepface import DeepFace
 import numpy as np
-
 import redis
 from redis.commands.search.field import VectorField, TagField
 from redis.commands.search.query import Query
-
 import matplotlib.pyplot as plt
-
 from publicar import Publisher
 from loggingMe import logger
 from conectionDB import DatabaseConnection    
 
-REDIS_SERVER = 'redis-server'
-RMQ_SERVER = 'broker-server'
+class Configuration:
+    RMQ_SERVER = 'broker-server'
+    RMQ_PORT = 5672
+    RMQ_USER = 'secedu'
+    RMQ_PASS = 'ep4X1!br'
+    RMQ_EXCHANGE = 'secedu'
+    RMQ_QUEUE_PUBLISHIR = 'embedding'
+    RMQ_QUEUE_CONSUMER = 'faces'
+    RMQ_ROUTE_KEY = 'verify'
+    RMQ_ASK_DEBUG = True
 
-QUEUE_PUBLISHIR='embedding'
-EXCHANGE='secedu'
-ROUTE_KEY='verify'
+    REDIS_SERVER = 'redis-server'
+    REDIS_PORT = 6379
+    REDIS_DB = 0
+    REDIS_SSL = False
 
-QUEUE_CONSUMER='faces'
-ASK_DEBUG = True
+    BACKEND_DETECTOR = 'retinaface'
+    MODEL_BACKEND = 'Facenet'
+    DISTANCE_METRIC = 'euclidean_l2'
+    LIMITE_DETECTOR = 0.96
+    LIMITE_AREA = 80
+    ENFORCE_DETECTION = False
 
-DIR_CAPS ='/app/media/capturas'
-DIR_DATASET ='/app/media/dataset'
+    DIR_CAPS ='/app/media/capturas'
+    DIR_DATASET ='/app/media/dataset'
 
-BACKEND_DETECTOR='retinaface'
-MODEL_BACKEND ='Facenet'
-DISTANCE_METRIC = 'euclidean_l2'
-LIMITE_DETECTOR = 0.997
+    UPDATE_QUERY = """
+        UPDATE 
+            cameras_processamentos 
+        SET 
+            status = %s WHERE id = %s
+    """
+
+    INSER_QUERY = """
+        INSERT INTO cameras_faces 
+            (data_cadastro, data_atualizacao, processamento_id, path_face, backend_detector, model_detector, distance_metric, auditado)
+        VALUES 
+            (%s, %s, %s, %s, %s, %s, %s, %s)
+    """
 
 class ConsumerEmbbeding:
     def __init__(self):
-        self.detector_backend = BACKEND_DETECTOR
-        self.model_backend = MODEL_BACKEND
-        self.distance_metric = DISTANCE_METRIC
-        self.peso = self.findThreshold(self.model_backend)
+        self.peso = self.findThreshold(Configuration.MODEL_BACKEND)
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
-                host=RMQ_SERVER,
-                port=5672,
-                credentials=pika.PlainCredentials('secedu', 'ep4X1!br')
+                host = Configuration.RMQ_SERVER,
+                port = Configuration.RMQ_PORT,
+                credentials=pika.PlainCredentials(
+                    Configuration.RMQ_USER, 
+                    Configuration.RMQ_PASS
+                )
             )
         )
         self.channel = self.connection.channel()
         self.channel.queue_bind(
-            queue=QUEUE_PUBLISHIR,
-            exchange=EXCHANGE,
-            routing_key=ROUTE_KEY
+            queue = Configuration.RMQ_QUEUE_PUBLISHIR,
+            exchange = Configuration.RMQ_EXCHANGE,
+            routing_key = Configuration.RMQ_ROUTE_KEY
         )
-        self.redis_client = redis.Redis(host=REDIS_SERVER , port=6379, db=0, ssl=False)
+        self.redis_client = redis.Redis(
+            host = Configuration.REDIS_SERVER, 
+            port = Configuration.REDIS_PORT, 
+            db = Configuration.REDIS_DB, 
+            ssl = Configuration.REDIS_SSL
+        )
 
     def run(self):
         logger.info(f' <**ConsumerEmbbeding**> : Init ')
         self.channel.basic_consume(           
-            queue=QUEUE_CONSUMER,
-            on_message_callback=self.process_message,
-            auto_ack=ASK_DEBUG
+            queue = Configuration.RMQ_QUEUE_CONSUMER,
+            on_message_callback = self.process_message,
+            auto_ack = Configuration.RMQ_ASK_DEBUG
         )
 
         try:
-            logger.info(f' <**_start consumer_**> FILA:: {QUEUE_CONSUMER}')
+            logger.info(f' <**_start consumer_**> FILA:: {Configuration.RMQ_QUEUE_CONSUMER}')
             self.channel.start_consuming()
         finally:
             self.connection.close()
@@ -94,9 +118,9 @@ class ConsumerEmbbeding:
 
                 message_dict = {
                     'caminho_do_face': file,
-                    'detector_backend': self.detector_backend,
-                    'model_name': self.model_backend,
-                    'metrics': self.distance_metric,
+                    'detector_backend': Configuration.BACKEND_DETECTOR,
+                    'model_name': Configuration.MODEL_BACKEND,
+                    'metrics': Configuration.DISTANCE_METRIC,
                 }
 
                 # Exemplo de consulta de atualização
@@ -108,11 +132,11 @@ class ConsumerEmbbeding:
                 """
 
                 target_embedding = DeepFace.represent(
-                    img_path=file,
-                    model_name=self.model_backend,
-                    detector_backend=self.detector_backend,
-                    enforce_detection=False,
-                    )[0]["embedding"]
+                    img_path = file,
+                    model_name = Configuration.MODEL_BACKEND,
+                    detector_backend = Configuration.BACKEND_DETECTOR,
+                    enforce_detection = Configuration.ENFORCE_DETECTION,
+                )[0]["embedding"]
 
                 query_vector = np.array(target_embedding).astype(np.float32).tobytes()
 
@@ -137,12 +161,12 @@ class ConsumerEmbbeding:
                     distance = float(result.distance)
                     if distance <= self.peso:
                         verify = DeepFace.verify(
-                            img1_path=file,
-                            img2_path=dataset_file,
-                            model_name=self.model_backend,
-                            detector_backend=self.detector_backend,
-                            distance_metric=self.distance_metric,
-                            enforce_detection=False,
+                            img1_path = file,
+                            img2_path = dataset_file,
+                            model_name = Configuration.MODEL_BACKEND,
+                            detector_backend = Configuration.BACKEND_DETECTOR,
+                            distance_metric = Configuration.DISTANCE_METRIC,
+                            enforce_detection = Configuration.ENFORCE_DETECTION,
                         )
 
                         logger.info(f' <*_ConsumerEmbbeding_*>DeepFace:: {verify} VERIFY')
@@ -150,9 +174,9 @@ class ConsumerEmbbeding:
                         message_dict.update({'distance' : distance})
 
                         message_str = json.dumps(message_dict)
-                        publisher.start_publisher(exchange=EXCHANGE, 
-                                                  routing_name=ROUTE_KEY, 
-                                                  message=message_str
+                        publisher.start_publisher(exchange = Configuration.RMQ_EXCHANGE, 
+                                                  routing_name = Configuration.RMQ_ROUTE_KEY, 
+                                                  message = message_str
                                                   )
                         db_connection.update(update_query, ('Processado', id_procesamento))
 
