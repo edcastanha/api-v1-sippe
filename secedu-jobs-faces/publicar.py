@@ -15,14 +15,19 @@ class Publisher:
             )
         )
         self.channel = self.connection.channel()
-        #logger.info('<**_ 1 _**> Inicializado: encaminha pastas de devices')
 
     def start_publisher(self, exchange, routing_name, message):
-        self.routing = routing_name
-        self.channel.basic_publish(exchange=exchange, 
-                                   routing_key=routing_name, 
-                                   body=message)
-        logger.info(f' <**_PUBLISHER_ **> ROUTER_KEY:: {self.routing}')
+        try:
+            self.channel.queue_declare(queue=routing_name, durable=True)
+            self.routing = routing_name
+            self.channel.basic_publish(exchange=exchange, 
+                                    routing_key=routing_name, 
+                                    body=message)
+            logger.info(f' <**_PUBLISHER_ **> ROUTER_KEY:: {self.routing}')
+            return True
+        except Exception as e:
+            logger.error(f' <**_PUBLISHER_ **> ROUTER_KEY:: {self.routing} - ERROR:: {e}')
+            return False
 
     def close(self):
         logger.info(f' <**_CLOSE_**> ROUTER_KEY:: {self.routing}')

@@ -9,19 +9,6 @@ from core.loggingMe import logger
 from core.publisher import Publisher
 
 class ProducerCameras:
-    """
-    Class that handles the production of messages related to cameras and their processing.
-
-    Attributes:
-        exchanges (str): The name of the exchange to be used for publishing messages.
-        routing_key (str): The routing key to be used for publishing messages.
-        queue (str): The name of the queue to be used for publishing messages.
-        local (str): The name of the location where the camera is installed.
-        device (str): The ID of the camera device.
-        capture_date (str): The date when the image was captured.
-        capture_hour (str): The time when the image was captured.
-    """
-
     def __init__(self):
         self.exchanges = 'secedu'
         self.routing_key = 'path'
@@ -31,16 +18,9 @@ class ProducerCameras:
         self.capture_date = None
         self.capture_hour = None
         self.processamento_path = None
-        self.processamento_exists = None
         self.task_date = dt.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def get_cameras(self):
-        """
-        Retrieve all cameras and their associated locations from the database.
-
-        Returns:
-            list: A list of dictionaries containing the location, camera ID and access path for each camera.
-        """
         cameras = Cameras.objects.all()
         acessos = []
         for camera in cameras:
@@ -55,12 +35,6 @@ class ProducerCameras:
         return acessos
     
     def find_image_files(self, path):
-        """
-        Find all image files in the specified path and create a processamento object for each new file.
-
-        Args:
-            path (str): The path to search for image files.
-        """
         message_dict = {
             'data_processo': self.task_date,
             'data_captura': self.capture_date,
@@ -74,17 +48,17 @@ class ProducerCameras:
                     self.processamento_path = str(os.path.join(root, file))
                     self.capture_hour = self.is_valid_hour_path()
                     try:
-                        self.processamento_exists = Processamentos.objects.get(path=self.processamento_path)
+                        processamento_exists = Processamentos.objects.get(path=self.processamento_path)
                         # Finalizar a task Celery com success
-                        logger.info('<**_ProducerCameras_**>PATH EXIST :: %s | PATH ::  %s', self.processamento_exists, self.processamento_path)
+                        logger.info('<**_ProducerCameras_**>PATH EXIST :: %s |   %s', self.processamento_path ,  processamento_exists)
                     except Processamentos.DoesNotExist:
                         self.processamento_exists = False
                         message_dict.update({'path_file': self.processamento_path})
                         message_dict.update({'horario': self.capture_hour})
-                        logger.info('<**_ProducerCameras_**> PATH  EXIST::%s | PATH :: %s', self.processamento_exists, self.processamento_path)
+                        logger.info('<**_ProducerCameras_**> PATH  DoesNotExist:: | PATH :: %s', self.processamento_path)
                         self.create_processamento(message_dict)                       
                     except Exception as e:
-                        logger.error('<**_ProducerCameras_**> Error: %s ', e)
+                        logger.error('<**_ProducerCameras_**> Exception - Error: %s ', e)
     
     def is_valid_hour_path(self):       
         """
@@ -150,12 +124,6 @@ class ProducerCameras:
             logger.debug('Error creating Processamentos object: %s', e)
         
     def process_message(self, message):
-        """
-        Publish a message to the RabbitMQ exchange.
-
-        Args:
-            message (str): The message to be published.
-        """
         publisher = Publisher()
         try:
             publisher.start_publisher(
@@ -181,6 +149,7 @@ class ProducerCameras:
                         for dir in dirs:
                             path_data = os.path.join(root_path, dir)
                             if self.is_valid_date_path(path_data):
+                                logger.debug(f'<**_ProducerCameras_**> path_data::{root_path}//{dir} | DIA::{self.capture_date}')
                                 self.capture_date = dir
                                 try:
                                     self.find_image_files(path=path_data)
