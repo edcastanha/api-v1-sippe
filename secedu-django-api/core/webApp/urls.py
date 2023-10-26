@@ -13,15 +13,17 @@ urlpatterns = [
     # FREQUENCIAS ALUNOS
     path('frequencias/alunos/', views.listFrequencia, name='listar_frequencias'),
     path('frequencias/aluno/<int:aluno_id>/', views.frequenciaIndividual, name='frequencia_individual_aluno'),
+    
     # SEMANAL ALUNO
     path('frequencias/semana/atual/<int:aluno_id>/', views.frequenciaSemanaAtual, name='frequencia_semana_atual_aluno'),
     path('frequencias/semana/anterior/<int:aluno_id>/', views.frequenciasSemanaAnterior, name='frequencia_semana_anterior_aluno'),
 
-    # GERAL
+    # MES ALUNO
     path('frequencias/atuais/', views.frequenciaAtuais, name='frequencias_mes_atual'),
     path('frequencias/anteriores/', views.frequenciasAnteriores, name='frequencias_mes_anterior'),
 
 
+    path('analises/media/mensal', views.analiseMensal, name='analise_mensal'),
 
 
     path('testAnalyze/', views.testAnalyze, name='test_Analyze'),

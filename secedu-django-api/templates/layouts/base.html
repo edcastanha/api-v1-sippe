@@ -63,7 +63,7 @@
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
                             data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                            Cadastros
+                            Listagens em Geral
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
                         <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne"
@@ -71,7 +71,10 @@
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="{% url 'listar_turmas' %}">Listar Turmas</a>
                                 <a class="nav-link" href="{% url 'listar_alunos' %}">Listar Alunos</a>
-                                <a class="nav-link" href="{% url 'listar_frequencias' %}">Listar Presentes</a>
+                                <a class="nav-link" href="{% url 'listar_frequencias' %}">Listar Ultimas Capturas</a>
+                                <a class="nav-link" href="{% url 'listar_frequencias' %}">Listar Frequencias</a>
+                                <a class="nav-link" href="{% url '' %}">Listar Previsao Emocional</a>
+
                             </nav>
                         </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"

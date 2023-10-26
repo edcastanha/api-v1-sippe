@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import Http404
 from django.conf import settings
 from core.cadastros.models import Turmas,  Aluno
-from core.cameras.models import FrequenciasEscolar
+from core.cameras.models import Faces, FrequenciasEscolar
 import os
 import requests
 from django.http import JsonResponse
@@ -288,7 +288,9 @@ def frequenciasSemanaAnterior(request, aluno_id):
     return render(request, "frequencias/frequencias_semana_anterior_aluno.html", context)
 
 
-
+# ANALISES EMOÇÕES
+def analiseMensal(request):
+    faces = Faces.objects.all()
 
 
 

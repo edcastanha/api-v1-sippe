@@ -1,5 +1,5 @@
 from django.contrib import admin
-from core.cameras.models import Cameras, Locais, FrequenciasEscolar, NotaFiscal, Tarefas, Processamentos
+from core.cameras.models import Cameras, Locais, FrequenciasEscolar, NotaFiscal, Tarefas, Processamentos,Faces
 
 # class CamerasAdmin(admin.ModelAdmin):
 #     list_display = ('data_cadastro', 'data_atualizacao', 'descricao', 'acesso', 'modelo', )
@@ -8,8 +8,9 @@ from core.cameras.models import Cameras, Locais, FrequenciasEscolar, NotaFiscal,
 
 
 admin.site.register(Cameras)
-admin.site.register(Processamentos)
 admin.site.register(NotaFiscal)
 admin.site.register(Locais)
 admin.site.register(FrequenciasEscolar)
 admin.site.register(Tarefas)
+admin.site.register(Processamentos)
+admin.site.register(Faces)

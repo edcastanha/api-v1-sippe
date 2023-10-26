@@ -57,3 +57,6 @@ class DatabaseConnection:
             self.cursor.close()
         if self.conn:
             self.conn.close()
+    
+    def is_connected(self):
+        return self.conn is not None

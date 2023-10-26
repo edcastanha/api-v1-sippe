@@ -11,8 +11,8 @@ from core.publisher import Publisher
 class ProducerCameras:
     def __init__(self):
         self.exchanges = 'secedu'
-        self.routing_key = 'path'
         self.queue = 'ftp'
+        self.routing_key = 'path'
         self.local = None
         self.device = None
         self.capture_date = None
@@ -50,7 +50,6 @@ class ProducerCameras:
                     try:
                         processamento_exists = Processamentos.objects.get(path=self.processamento_path)
                         # Finalizar a task Celery com success
-                        logger.info('<**_ProducerCameras_**>PATH EXIST :: %s |   %s', self.processamento_path ,  processamento_exists)
                     except Processamentos.DoesNotExist:
                         self.processamento_exists = False
                         message_dict.update({'path_file': self.processamento_path})
@@ -131,10 +130,8 @@ class ProducerCameras:
                 routing_name=self.routing_key,
                 message=message
             )
-            logger.info('<**_ProducerCameras_**> 8 process_message :: %s', message)
         finally:
             publisher.close()
-            logger.info('<**_ProducerCameras_**> 9 CLOSE PUBLISHER :: %s', message)
 
     def start_run(self):
         cameras = self.get_cameras()

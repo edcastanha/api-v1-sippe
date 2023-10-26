@@ -17,8 +17,8 @@ class Configuration:
     RMQ_USER = 'secedu'
     RMQ_PASS = 'ep4X1!br'
     RMQ_EXCHANGE = 'secedu'
-    RMQ_QUEUE_PUBLISHIR = 'embedding'
     RMQ_QUEUE_CONSUMER = 'faces'
+    RMQ_QUEUE_PUBLISHIR = 'embedding'
     RMQ_ROUTE_KEY = 'verify'
     RMQ_ASK_DEBUG = True
 
@@ -76,6 +76,8 @@ class ConsumerEmbbeding:
             db = Configuration.REDIS_DB, 
             ssl = Configuration.REDIS_SSL
         )
+        self.publisher = Publisher()
+        self.db_connection = DatabaseConnection()
 
     def run(self):
         logger.info(f' <**ConsumerEmbbeding**> : Init ')
@@ -115,7 +117,6 @@ class ConsumerEmbbeding:
         
         if file.endswith(('.jpg', '.jpeg', '.png')):
             try:
-
                 message_dict = {
                     'caminho_do_face': file,
                     'detector_backend': Configuration.BACKEND_DETECTOR,
@@ -145,7 +146,6 @@ class ConsumerEmbbeding:
                 query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
                 results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
                 
-                publisher = Publisher()
                 for idx, result in enumerate(results.docs):
                     logger.info(f"O vizinho mais próximo é {result.id} com distância {result.distance}")
 
@@ -174,14 +174,14 @@ class ConsumerEmbbeding:
                         message_dict.update({'distance' : distance})
 
                         message_str = json.dumps(message_dict)
-                        publisher.start_publisher(exchange = Configuration.RMQ_EXCHANGE, 
+                        self.publisher.start_publisher(exchange = Configuration.RMQ_EXCHANGE, 
                                                   routing_name = Configuration.RMQ_ROUTE_KEY, 
                                                   message = message_str
                                                   )
-                        db_connection.update(update_query, ('Processado', id_procesamento))
+                        self.db_connection.update(update_query, ('Processado', id_procesamento))
 
-                publisher.close()
-                db_connection.close()
+                self.publisher.close()
+                self.db_connection.close()
 
             except Exception as e:
                 logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')

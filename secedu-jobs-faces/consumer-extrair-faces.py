@@ -7,15 +7,11 @@ from conectionDB import DatabaseConnection
 from publicar import Publisher
 from loggingMe import logger
 from deepface import DeepFace
+from configuration import Configuration as config
 
-class Configuration:
-    RMQ_SERVER = 'broker-server'
-    RMQ_PORT = 5672
-    RMQ_USER = 'secedu'
-    RMQ_PASS = 'ep4X1!br'
-    RMQ_EXCHANGE = 'secedu'
+class Configuration(config):
     RMQ_QUEUE_PUBLISHIR = 'faces'
-    RMQ_ROUTE_KEY = 'extrair'
+    RMQ_ROUTE_KEY = 'init'
     RMQ_QUEUE_CONSUMER = 'ftp'
     RMQ_ASK_DEBUG = True
 
@@ -62,7 +58,7 @@ class ConsumerExtractor:
         self.db_connection = DatabaseConnection()
 
     def run(self):
-        logger.debug('<*_ConsumerExtractor_*> Run Init')
+        logger.debug('<*_ConsumerExtractor_*> Run - Init')
         self.channel.basic_consume(
             queue = Configuration.RMQ_QUEUE_CONSUMER,
             on_message_callback = self.process_message,
@@ -76,11 +72,11 @@ class ConsumerExtractor:
         except Exception as e:
             logger.error(f'<*_ConsumerExtractor_*> Exception-Run : Error::{e}')
         finally:
-            logger.debug('<*_ConsumerExtractor_*> Finally : Run:')
+            logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
             if self.connection.is_open:
                 self.connection.close()
-            self.publisher.close()
-            self.db_connection.close()
+            if self.db_connection.is_connected():
+                self.db_connection.close()
 
 
     def process_message(self, ch, method, properties, body):
@@ -130,29 +126,40 @@ class ConsumerExtractor:
 
                             face_uint8 = (face * 255).astype('uint8')
                             save_path = os.path.join(new_face, f"face_{index}_noises.jpg")
+        
                             cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
-
+                            if not os.path.exists(save_path):
+                                raise Exception(f'Não foi possível salvar a imagem {save_path}')
+                            
                             message_dict.update({'caminho_do_face': save_path})
                             message_dict.update({'area': area})
                             message_dict.update({'confidence': confidence})
                             message_dict.update({'detector_backend': Configuration.BACKEND_DETECTOR})
                             message_str = json.dumps(message_dict)
+                            db_path = save_path.replace('/app/', '')
                             get_publisher = self.publisher.start_publisher(exchange=Configuration.RMQ_EXCHANGE, 
+                                                            queue_name=Configuration.RMQ_QUEUE_PUBLISHIR,
                                                             routing_name=Configuration.RMQ_ROUTE_KEY, 
                                                             message=message_str
                                                         )
-
-                            values =  (dt.now(), dt.now(), int(id_procesamento), save_path, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, False)
-
+                            if not get_publisher:
+                                raise Exception(f'Não foi possível publicar a mensagem {message_str}')
+                            
+                            values =  (dt.now(), dt.now(), int(id_procesamento), db_path, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, False)
                             get_update = self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
+                            if not get_update:
+                                raise Exception(f'Não foi possível atualizar o processamento {id_procesamento}')
                             get_insert = self.db_connection.insert(Configuration.INSER_QUERY, values)
+                            if not get_insert:
+                                raise Exception(f'Não foi possível inserir o face {db_path}')
                             logger.debug(f'<*_ConsumerExtractor_*> ProccessMessage - Pub={get_publisher}:Up={get_update}:Ins={get_insert}')
                     
         except Exception as e:
+            error_message = f"An exception of type {type(e).__name__} occurred with the message: {str(e)}"
+            logger.error(f'<*_ConsumerExtractor_*> New Face: {error_message}')
             self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', data['proccess_id']))
-            logger.error(f'<*_ConsumerExtractor_*> Try:New Face: {e}')
         finally:
-            logger.debug('<*_ConsumerExtractor_*> Finally:ProcessMessage')
+            logger.debug('<*_ConsumerExtractor_*> Finally - ProcessMessage')
             
 
 if __name__ == "__main__":
