@@ -96,31 +96,31 @@ def verify(
     normalization="base",
 ):
     """
-    This function verifies an image pair is same person or different persons. In the background,
-    verification function represents facial images as vectors and then calculates the similarity
-    between those vectors. Vectors of same person images should have more similarity (or less
-    distance) than vectors of different persons.
+    Esta função verifica se um par de imagens é a mesma pessoa ou pessoas diferentes. Em segundo plano,
+    função de verificação representa as imagens faciais como vectores e depois calcula a semelhança
+    entre esses vectores. Os vectores das imagens da mesma pessoa devem ter mais semelhança (ou menos
+    distância) do que os vectores de pessoas diferentes.
 
-    Parameters:
-            img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded
-            images are also welcome. If one of pair has more than one face, then we will compare the
-            face pair with max similarity.
+    Parâmetros:
+            img1_path, img2_path: caminho exato da imagem como string. array numpy (BGR) ou imagens codificadas em based64
+            também são bem-vindas. Se um dos pares tiver mais do que uma face, então comparamos o par de faces
+            par de faces com similaridade máxima.
 
-            model_name (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib
-            , ArcFace and SFace
+            nome_do_modelo (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib
+            ArcFace e SFace
 
             distance_metric (string): cosine, euclidean, euclidean_l2
 
-            enforce_detection (boolean): If no face could not be detected in an image, then this
-            function will return exception by default. Set this to False not to have this exception.
-            This might be convenient for low resolution images.
+            enforce_detection (booleano): Se não for possível detetar nenhuma face numa imagem, então esta
+            função devolverá uma exceção por defeito. Defina este valor como False para não ter esta exceção.
+            Isto pode ser conveniente para imagens de baixa resolução.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+            detector_backend (string): define o backend do detetor de faces para opencv, retinaface, mtcnn, ssd,
+            dlib, mediapipe ou yolov8.
 
-            align (boolean): alignment according to the eye positions.
+            align (boolean): alinhamento de acordo com as posições dos olhos.
 
-            normalization (string): normalize the input image before feeding to model
+            normalization (string): normaliza a imagem de entrada antes de alimentar o modelo
 
     Returns:
             Verify function returns a dictionary.
@@ -408,7 +408,7 @@ def find(
     silent=False,
 ):
     """
-    This function applies verification several times and find the identities in a database
+    Esta função aplica a verificação várias vezes e encontra as identidades numa base de dados
 
     Parameters:
             img_path: exact image path, numpy array (BGR) or based64 encoded image.
@@ -537,15 +537,15 @@ def find(
 
         if not silent:
             print(
-                f"Representations stored in {db_path}/{file_name} file."
-                + "Please delete this file when you add new identities in your database."
+                f"Representações armazenadas em {db_path}/{file_name} file."
+                + "Por favor, apague este ficheiro quando adicionar novas identidades à sua base de dados."
             )
 
     # ----------------------------
-    # now, we got representations for facial database
+    # agora, temos representações para a base de dados facial
     df = pd.DataFrame(representations, columns=["identity", f"{model_name}_representation"])
 
-    # img path might have more than once face
+    # img path pode ter mais do que um rosto
     target_objs = functions.extract_faces(
         img=img_path,
         target_size=target_size,
@@ -569,7 +569,7 @@ def find(
 
         target_representation = target_embedding_obj[0]["embedding"]
 
-        result_df = df.copy()  # df will be filtered in each img
+        result_df = df.copy()  # df serão filtrados em cada img
         result_df["source_x"] = target_region["x"]
         result_df["source_y"] = target_region["y"]
         result_df["source_w"] = target_region["w"]
@@ -611,7 +611,7 @@ def find(
     toc = time.time()
 
     if not silent:
-        print("find function lasts ", toc - tic, " seconds")
+        print("a função encontrar dura ", toc - tic, " seconds")
 
     return resp_obj
 
@@ -772,31 +772,31 @@ def extract_faces(
     grayscale=False,
 ):
     """
-    This function applies pre-processing stages of a face recognition pipeline
-    including detection and alignment
+    Esta função aplica as fases de pré-processamento de um pipeline de reconhecimento facial
+    incluindo a deteção e o alinhamento
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image.
-            Source image can have many face. Then, result will be the size of number
-            of faces appearing in that source image.
+    Parâmetros:
+            img_path: caminho exato da imagem, matriz numpy (BGR) ou imagem codificada em base64.
+            A imagem de origem pode ter muitas faces. Então, o resultado será o tamanho do número
+            de faces que aparecem nessa imagem de origem.
 
-            target_size (tuple): final shape of facial image. black pixels will be
-            added to resize the image.
+            target_size (tupla): forma final da imagem facial. Os pixéis pretos serão
+            adicionados para redimensionar a imagem.
 
-            detector_backend (string): face detection backends are retinaface, mtcnn,
-            opencv, ssd or dlib
+            detector_backend (string): os backends de deteção facial são retinaface, mtcnn,
+            opencv, ssd ou dlib
 
-            enforce_detection (boolean): function throws exception if face cannot be
-            detected in the fed image. Set this to False if you do not want to get
-            an exception and run the function anyway.
+            enforce_detection (boolean): a função lança uma exceção se a face não puder ser
+            detectada na imagem alimentada. Defina este valor como False se não pretender obter
+            uma exceção e executar a função na mesma.
 
-            align (boolean): alignment according to the eye positions.
+            align (booleano): alinhamento de acordo com as posições dos olhos.
 
-            grayscale (boolean): extracting faces in rgb or gray scale
+            grayscale (boolean): extração de faces em rgb ou escala de cinzentos
 
-    Returns:
-            list of dictionaries. Each dictionary will have facial image itself,
-            extracted area from the original image and confidence score.
+    Retorna:
+            lista de dicionários. Cada dicionário terá a própria imagem da face,
+            área extraída da imagem original e pontuação de confiança.
 
     """
 
@@ -825,69 +825,3 @@ def extract_faces(
     return resp_objs
 
 
-# ---------------------------
-# deprecated functions
-
-
-@deprecated(version="0.0.78", reason="Use DeepFace.extract_faces instead of DeepFace.detectFace")
-def detectFace(
-    img_path, target_size=(224, 224), detector_backend="opencv", enforce_detection=True, align=True
-):
-    """
-    Deprecated function. Use extract_faces for same functionality.
-
-    This function applies pre-processing stages of a face recognition pipeline
-    including detection and alignment
-
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image.
-            Source image can have many face. Then, result will be the size of number
-            of faces appearing in that source image.
-
-            target_size (tuple): final shape of facial image. black pixels will be
-            added to resize the image.
-
-            detector_backend (string): face detection backends are retinaface, mtcnn,
-            opencv, ssd or dlib
-
-            enforce_detection (boolean): function throws exception if face cannot be
-            detected in the fed image. Set this to False if you do not want to get
-            an exception and run the function anyway.
-
-            align (boolean): alignment according to the eye positions.
-
-            grayscale (boolean): extracting faces in rgb or gray scale
-
-    Returns:
-            detected and aligned face as numpy array
-
-    """
-    print("⚠️ Function detectFace is deprecated. Use extract_faces instead.")
-    face_objs = extract_faces(
-        img_path=img_path,
-        target_size=target_size,
-        detector_backend=detector_backend,
-        enforce_detection=enforce_detection,
-        align=align,
-        grayscale=False,
-    )
-
-    extracted_face = None
-    if len(face_objs) > 0:
-        extracted_face = face_objs[0]["face"]
-    return extracted_face
-
-
-# ---------------------------
-# main
-
-functions.initialize_folder()
-
-
-def cli():
-    """
-    command line interface function will be offered in this block
-    """
-    import fire
-
-    fire.Fire()

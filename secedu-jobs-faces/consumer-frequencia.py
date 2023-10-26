@@ -14,10 +14,16 @@ from conectionDB import DatabaseConnection
 from configuration import Configuration as config
 
 class Configuration(config):
-    RMQ_QUEUE_CONSUMER = 'faces'
-    RMQ_QUEUE_PUBLISHIR = 'embedding'
-    RMQ_ROUTE_KEY = 'verify'
+    
+    RMQ_QUEUE_CONSUMER = 'embedding'
     RMQ_ASK_DEBUG = False
+
+    BACKEND_DETECTOR = 'retinaface'
+    MODEL_BACKEND = 'Ensemble'
+    DISTANCE_METRIC = 'euclidean_l2'
+    LIMITE_DETECTOR = 0.96
+    LIMITE_AREA = 80
+    ENFORCE_DETECTION = False
 
     UPDATE_QUERY = """
         UPDATE 
@@ -33,7 +39,7 @@ class Configuration(config):
             (%s, %s, %s, %s, %s, %s, %s, %s)
     """
 
-class ConsumerEmbbeding:
+class ConsumerFrequency:
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
@@ -80,12 +86,12 @@ class ConsumerEmbbeding:
                 self.publisher.close()
             if self.redis_client.connection_pool:
                 try:
-                    if self.redis_client.connection_pool:
-                        self.redis_client.connection_pool.disconnect()
-                        self.redis_client.close()
+                    self.redis_client.connection_pool.disconnect()
+                    self.redis_client.close()
                 except Exception as e:
                     # Handle the exception
                     print(f"An error occurred: {e}")
+
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
@@ -105,21 +111,6 @@ class ConsumerEmbbeding:
                 # Exemplo de consulta de atualização
                 id_procesamento = data['proccess_id']
 
-                target_embedding = DeepFace.represent(
-                    img_path = file,
-                    model_name = Configuration.MODEL_BACKEND,
-                    detector_backend = Configuration.BACKEND_DETECTOR,
-                    enforce_detection = Configuration.ENFORCE_DETECTION,
-                    normalization=Configuration.MODEL_BACKEND
-                )[0]["embedding"]
-
-                query_vector = np.array(target_embedding).astype(np.float32).tobytes()
-
-                k = 2
-                base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
-                query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
-                results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
-                
                 for idx, result in enumerate(results.docs):
                     logger.info(f"Index:: {idx+1} mais próximo {result.id} com distância {result.distance}")
 
@@ -130,7 +121,6 @@ class ConsumerEmbbeding:
                     message_dict.update({'hora_captura': data['hora_captura']})
                     message_dict.update({'captura_base': data['captura_base']})
 
-
                     verify = DeepFace.verify(
                         img1_path = file,
                         img2_path = dataset_file,
@@ -138,9 +128,7 @@ class ConsumerEmbbeding:
                         detector_backend = Configuration.BACKEND_DETECTOR,
                         distance_metric = Configuration.DISTANCE_METRIC,
                         enforce_detection = Configuration.ENFORCE_DETECTION,
-                        normalization=Configuration.MODEL_BACKEND
                     )
-                    logger.info(f"Index:: {result.id} Verify:: {verify['verified']}")
                     confirm = verify['verified']
                     if confirm == True:
                         # Expressão regular para corresponder ao padrão "/app/media/dataset/188/" e capturar "188"
@@ -163,7 +151,7 @@ class ConsumerEmbbeding:
                                                         routing_name = Configuration.RMQ_ROUTE_KEY, 
                                                         message = message_str
                                                     )
-                        self.db_connection.update(Configuration.UPDATE_QUERY, ('Verificado', id_procesamento))
+                        self.db_connection.update(Configuration.UPDATE_QUERY, ('F', id_procesamento))
                         self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), id_procesamento, file, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, confirm))
 
 
@@ -172,5 +160,5 @@ class ConsumerEmbbeding:
                 logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
 
 if __name__ == "__main__":
-    job = ConsumerEmbbeding()
+    job = ConsumerFrequency()
     job.run()

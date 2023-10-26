@@ -36,9 +36,9 @@ ALLOWED_HOSTS =os.environ.get('ALLOWED_HOSTS').split(',')
 # Application definition
 INSTALLED_APPS = [
     # General use templates & template tags (should appear first)
-    'adminlte3',
+    #'adminlte3',
      # Optional: Django admin theme (must be before django.contrib.admin)
-    'adminlte3_theme',
+    #'adminlte3_theme',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

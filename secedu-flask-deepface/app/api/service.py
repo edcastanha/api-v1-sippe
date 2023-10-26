@@ -20,12 +20,13 @@ def represent(img_path, model_name, detector_backend, enforce_detection, align):
         detector_backend=detector_backend,
         enforce_detection=enforce_detection,
         align=align,
+        normalization=model_name,
     )
     result["results"] = embedding_objs
     return result
 
 def verify(
-    img1_path, img2_path, model_name, detector_backend, distance_metric, enforce_detection, align
+    img1_path, img2_path, model_name, detector_backend, distance_metric, enforce_detection, align,
 ):
     obj = DeepFace.verify(
         img1_path=img1_path,
@@ -35,6 +36,7 @@ def verify(
         distance_metric=distance_metric,
         align=align,
         enforce_detection=enforce_detection,
+        normalization=model_name,
     )
     return obj
 
@@ -127,6 +129,6 @@ def analyze_mediapipe(img_path, actions, detector_backend='mediapipe', enforce_d
             })
     
     if not result:
-        return {"results": "No face detected"}
+        return {"results": "Nenhum rosto detectado"}
     
     return result

@@ -45,7 +45,8 @@ class Trainning:
             img_path=img_path, 
             model_name=self.models[1], 
             detector_backend=self.detector[4],
-            enforce_detection=False
+            enforce_detection=False,
+            normalization=self.models[1]
         )
         print(embedding_obj)
         embedding = embedding_obj[0]["embedding"]

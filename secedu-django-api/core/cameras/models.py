@@ -1,5 +1,7 @@
+from re import search
 from django.db import models
-from core.cadastros.models import Escolas, Aluno, Escalas, Fotos
+from core.cadastros.models import Escolas, Aluno, Escalas
+from core.cadastros.models import Pessoas
 
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
@@ -75,6 +77,7 @@ class Processamentos(baseModel):
         ('Criado', 'Criado'),
         ('Processado', 'Processado'),
         ('Verificado', 'Verificado'),
+        ('Analisado', 'Analisado'),
         ('Error', 'Error'),
     )
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
@@ -84,11 +87,10 @@ class Processamentos(baseModel):
     status = models.CharField(max_length=20, choices=CHOICE_STATUS, default='Criado')
     retry = models.IntegerField(default=0)
 
-
     class Meta:
         verbose_name_plural = "Processamentos"
         verbose_name = "Processamento"
-        ordering = ['status']
+        ordering = ['status',]
     
     def __str__(self):
         return f"{self.status} | {self.camera.modelo} - {self.dia} as {self.horario}"
@@ -107,7 +109,7 @@ class Faces(baseModel):
         ordering = ['id', 'auditado',]
     
     def __str__(self):
-        return f"{self.path_face} :: {self.processamento.dia} as {self.processamento.horario} - {self.auditado}"
+        return f"{self.id} :: {self.processamento.dia} as {self.processamento.horario} - {self.auditado}"
 
 class FrequenciasEscolar(baseModel):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)
@@ -122,25 +124,20 @@ class FrequenciasEscolar(baseModel):
         return f"{self.aluno.pessoa.nome} - {self.data} :: {self.camera} - {self.data} - {self.aluno.turma.nome}"
 
 
-class Auditados(baseModel):
-    auditado = models.BooleanField(default=False)
-    model_backend = models.CharField(max_length=100, null=True)
-    detector_backend = models.CharField(max_length=100, null=True)
-    camera = models.ForeignKey(Cameras, on_delete=models.CASCADE, null=True)
-    caminho_do_face = models.CharField(max_length=250)
-    detector_backend = models.CharField(max_length=20)
-    model_name = models.CharField(max_length=20)
-    metrics = models.CharField(max_length=20)
+class FaceVerify(baseModel):
+    captura_base = models.CharField(max_length=250)
     data_captura = models.DateField()
     hora_captura = models.CharField(max_length=20)
-    captura_base = models.CharField(max_length=250)
-    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, null=True)
+    camera = models.ForeignKey(Cameras, on_delete=models.CASCADE, null=True)
+    caminho_do_face = models.CharField(max_length=250)
+    pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE, null=True)
     file_dataset = models.CharField(max_length=250)
     verify = models.BooleanField(default=False)
+    auditado = models.BooleanField(default=False)
     
     class Meta:
         verbose_name_plural = "Auditados"
         verbose_name = "Auditado"
 
     def __str__(self):
-        return f"{self.aluno.matricula} - {self.aluno} - {self.data_captura} - {self.auditado}"
+        return f"{self.id} - {self.pessoa.nome} - {self.data_captura} - {self.auditado}"

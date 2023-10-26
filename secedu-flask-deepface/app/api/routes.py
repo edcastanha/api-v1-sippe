@@ -17,7 +17,7 @@ blueprint = Blueprint("routes", __name__)
 def home():
     return "<h1>Bem-vindo à SecEdu API!</h1>"
 
-@blueprint.route("/dataset")
+@blueprint.route("/dataset" , methods=["GET"])
 def dataset():
     trainning = Trainning()
     trainning.flush_redis()
