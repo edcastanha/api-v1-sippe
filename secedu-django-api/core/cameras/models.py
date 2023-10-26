@@ -1,5 +1,5 @@
 from django.db import models
-from core.cadastros.models import Escolas, Aluno, Escalas
+from core.cadastros.models import Escolas, Aluno, Escalas, Fotos
 
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
@@ -120,3 +120,27 @@ class FrequenciasEscolar(baseModel):
 
     def __str__(self):
         return f"{self.aluno.pessoa.nome} - {self.data} :: {self.camera} - {self.data} - {self.aluno.turma.nome}"
+
+
+class Auditados(baseModel):
+    auditado = models.BooleanField(default=False)
+    model_backend = models.CharField(max_length=100, null=True)
+    detector_backend = models.CharField(max_length=100, null=True)
+    camera = models.ForeignKey(Cameras, on_delete=models.CASCADE, null=True)
+    caminho_do_face = models.CharField(max_length=250)
+    detector_backend = models.CharField(max_length=20)
+    model_name = models.CharField(max_length=20)
+    metrics = models.CharField(max_length=20)
+    data_captura = models.DateField()
+    hora_captura = models.CharField(max_length=20)
+    captura_base = models.CharField(max_length=250)
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, null=True)
+    file_dataset = models.CharField(max_length=250)
+    verify = models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name_plural = "Auditados"
+        verbose_name = "Auditado"
+
+    def __str__(self):
+        return f"{self.aluno.matricula} - {self.aluno} - {self.data_captura} - {self.auditado}"

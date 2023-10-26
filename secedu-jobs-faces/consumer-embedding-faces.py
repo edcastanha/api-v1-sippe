@@ -1,4 +1,5 @@
 import pika
+import re
 import json
 from datetime import datetime as dt
 from deepface import DeepFace
@@ -20,7 +21,7 @@ class Configuration:
     RMQ_QUEUE_CONSUMER = 'faces'
     RMQ_QUEUE_PUBLISHIR = 'embedding'
     RMQ_ROUTE_KEY = 'verify'
-    RMQ_ASK_DEBUG = True
+    RMQ_ASK_DEBUG = False
 
     REDIS_SERVER = 'redis-server'
     REDIS_PORT = 6379
@@ -29,7 +30,7 @@ class Configuration:
 
     BACKEND_DETECTOR = 'retinaface'
     MODEL_BACKEND = 'Facenet'
-    DISTANCE_METRIC = 'euclidean_l2'
+    DISTANCE_METRIC = 'euclidean'
     LIMITE_DETECTOR = 0.96
     LIMITE_AREA = 80
     ENFORCE_DETECTION = False
@@ -91,8 +92,10 @@ class ConsumerEmbbeding:
             logger.info(f' <**_start consumer_**> FILA:: {Configuration.RMQ_QUEUE_CONSUMER}')
             self.channel.start_consuming()
         finally:
-            self.connection.close()
             logger.info(f' <**_**> ConsumerEmbbeding: close')
+            self.connection.close()
+            self.publisher.close()
+            self.db_connection.close()
 
     def findThreshold(self, model_name):
         threshold = 0
@@ -147,7 +150,7 @@ class ConsumerEmbbeding:
                 results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
                 
                 for idx, result in enumerate(results.docs):
-                    logger.info(f"O vizinho mais próximo é {result.id} com distância {result.distance}")
+                    logger.info(f"Index:: {idx+1} mais próximo {result.id} com distância {result.distance}")
 
                     dataset_file = str(result.id)
                     
@@ -158,30 +161,41 @@ class ConsumerEmbbeding:
 
 
 
-                    distance = float(result.distance)
-                    if distance <= self.peso:
-                        verify = DeepFace.verify(
-                            img1_path = file,
-                            img2_path = dataset_file,
-                            model_name = Configuration.MODEL_BACKEND,
-                            detector_backend = Configuration.BACKEND_DETECTOR,
-                            distance_metric = Configuration.DISTANCE_METRIC,
-                            enforce_detection = Configuration.ENFORCE_DETECTION,
-                        )
+                    #distance = float(result.distance)
+                    #if distance <= self.peso:
+                    verify = DeepFace.verify(
+                        img1_path = file,
+                        img2_path = dataset_file,
+                        model_name = Configuration.MODEL_BACKEND,
+                        detector_backend = Configuration.BACKEND_DETECTOR,
+                        distance_metric = Configuration.DISTANCE_METRIC,
+                        enforce_detection = Configuration.ENFORCE_DETECTION,
+                    )
+                    confirm = verify['verified']
+                    if confirm == True:
+                        # Expressão regular para corresponder ao padrão "/app/media/dataset/188/" e capturar "188"
+                        pattern = r"/app/media/dataset/(\d+)/"
+                        # Use re.search para encontrar a correspondência
+                        match = re.search(pattern, str(dataset_file))
+                        # Verifique se houve uma correspondência antes de acessar o grupo capturado
+                        if match:
+                            dataset_id = match.group(1)  # Captura o valor "188"
+                            message_dict.update({'aluno_id': dataset_id})
 
-                        logger.info(f' <*_ConsumerEmbbeding_*>DeepFace:: {verify} VERIFY')
-                        message_dict.update({'file_dataset': dataset_file})
-                        message_dict.update({'distance' : distance})
+                        path_dataset = dataset_file.replace('/app/', '')
+                        message_dict.update({'file_dataset': str(path_dataset)})
+                        message_dict.update({'verify' : str(confirm)})
 
                         message_str = json.dumps(message_dict)
-                        self.publisher.start_publisher(exchange = Configuration.RMQ_EXCHANGE, 
-                                                  routing_name = Configuration.RMQ_ROUTE_KEY, 
-                                                  message = message_str
-                                                  )
-                        self.db_connection.update(update_query, ('Processado', id_procesamento))
+                        logger.debug(f' <*_ConsumerEmbbeding_*>DeepFace:: {message_str} ')
+                        self.publisher.start_publisher(exchange = Configuration.RMQ_EXCHANGE,
+                                                        queue_name = Configuration.RMQ_QUEUE_PUBLISHIR,
+                                                        routing_name = Configuration.RMQ_ROUTE_KEY, 
+                                                        message = message_str
+                                                    )
+                        #self.db_connection.update(update_query, ('Verificado', id_procesamento))
 
-                self.publisher.close()
-                self.db_connection.close()
+
 
             except Exception as e:
                 logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
