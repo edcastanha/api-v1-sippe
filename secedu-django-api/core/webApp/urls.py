@@ -23,7 +23,7 @@ urlpatterns = [
     path('frequencias/anteriores/', views.frequenciasAnteriores, name='frequencias_mes_anterior'),
 
 
-    path('analises/media/mensal', views.analiseMensal, name='analise_mensal'),
+    path('analises/mensal', views.analiseMensal, name='listar_analise_mensal'),
 
 
     path('testAnalyze/', views.testAnalyze, name='test_Analyze'),

@@ -1,4 +1,5 @@
 from itertools import count
+import re
 from django.shortcuts import render
 from django.http import Http404
 from django.conf import settings
@@ -290,7 +291,25 @@ def frequenciasSemanaAnterior(request, aluno_id):
 
 # ANALISES EMOÇÕES
 def analiseMensal(request):
-    faces = Faces.objects.all()
+    try:
+        faces = Faces.objects.all()
+        results = []
+        # Converta o horário antes de passá-lo para o template
+        for resultado in faces:
+            horario = resultado.processamento.horario.replace('h', ':').replace('m', ':').replace('s', '') if resultado.processamento and resultado.processamento.horario else ''
+            dia = f'{resultado.processamento.dia}T{horario}'
+            results.append({
+                'id': resultado.pk,
+                'dia': dia,
+                'path_face': resultado.path_face,
+                'auditado': resultado.auditado,
+            })
+
+        context = {"results": results}
+    except Faces.DoesNotExist:
+        raise Http404("Nao encontramos nenhuma face com essa descricao")
+
+    return render(request, "analises/index.html", context)
 
 
 

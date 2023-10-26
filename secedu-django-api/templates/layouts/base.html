@@ -3,12 +3,25 @@
 <html lang="pt-br" class="h-100">
 
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="System Face Recognition Studant" />
+    <meta name="author" content="Edson L. B. Filho" />
     <title>{% block title %} Dashboard - SecEdu {% endblock%}</title>
+
+    <!-- Bootstrap CSS Calendar -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'calendar-20/fonts/icomoon/style.css' %}">
+    <link href="{% static 'calendar-20/fullcalendar/packages/core/main.css' %}" rel='stylesheet' />
+    <link href="{% static 'calendar-20/fullcalendar/packages/daygrid/main.css' %}" rel='stylesheet' />
+    <link rel="stylesheet" href="{% static 'calendar-20/css/bootstrap.min.css' %}">
+    
+    <!-- Style -->
+    <link rel="stylesheet" href="{% static 'css/style.css'%}">
+
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="{% static 'css/styles.css'  %}" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -73,7 +86,7 @@
                                 <a class="nav-link" href="{% url 'listar_alunos' %}">Listar Alunos</a>
                                 <a class="nav-link" href="{% url 'listar_frequencias' %}">Listar Ultimas Capturas</a>
                                 <a class="nav-link" href="{% url 'listar_frequencias' %}">Listar Frequencias</a>
-                                <a class="nav-link" href="{% url '' %}">Listar Previsao Emocional</a>
+                                <a class="nav-link" href="{% url 'listar_analise_mensal' %}">Listar Previsao Emocional</a>
 
                             </nav>
                         </div>

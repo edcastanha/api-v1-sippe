@@ -104,15 +104,7 @@ class Faces(baseModel):
     class Meta:
         verbose_name_plural = "Faces Detectadas"
         verbose_name = "Face Detectada"
-        ordering = ['id']
-
-    def exibir_imagem(self):
-        # Substitua 'media' pelo caminho correto para a pasta de mídia onde as imagens estão armazenadas
-        return format_html('<img src="{}" style="max-width:100px;max-height:100px" />', self.path_face)
-
-    exibir_imagem.allow_tags = True
-    exibir_imagem.short_description = 'Imagem'
-
+        ordering = ['id', 'auditado',]
     
     def __str__(self):
         return f"{self.path_face} :: {self.processamento.dia} as {self.processamento.horario} - {self.auditado}"
