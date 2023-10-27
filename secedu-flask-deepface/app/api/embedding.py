@@ -4,7 +4,6 @@ from tqdm import tqdm
 import redis
 import json
 import numpy as np
-
 from redis.commands.search.field import VectorField
 
 class Trainning:

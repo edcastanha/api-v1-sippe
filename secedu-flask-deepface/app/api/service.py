@@ -54,7 +54,7 @@ def analyze(img_path, actions, detector_backend, enforce_detection, align):
     result["results"] = demographies
     return result
 
-def analyze_mediapipe(img_path, actions, detector_backend='mediapipe', enforce_detection=False, align=True):
+def analyze_mediapipe(img_path, actions, detector_backend='retinaface', enforce_detection=False, align=True):
     result = []
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True)

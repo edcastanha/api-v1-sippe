@@ -13,13 +13,7 @@ class Configuration(config):
     RMQ_QUEUE_PUBLISHIR = 'faces'
     RMQ_ROUTE_KEY = 'init'
     RMQ_QUEUE_CONSUMER = 'ftp'
-    RMQ_ASK_DEBUG = True
-
-    BACKEND_DETECTOR = 'retinaface'
-    MODEL_BACKEND = 'Facenet'
-    DISTANCE_METRIC = 'euclidean_l2'
-    LIMITE_DETECTOR = 0.96
-    LIMITE_AREA = 80
+    RMQ_ASK_DEBUG = False
     
     DIR_CAPTURE = '/app/media/capturas'
     
@@ -126,8 +120,17 @@ class ConsumerExtractor:
 
                             face_uint8 = (face * 255).astype('uint8')
                             save_path = os.path.join(new_face, f"face_{index}_noises.jpg")
-        
                             cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
+
+                            # Aplique a filtragem bilateral
+                            save_filter = os.path.join(new_face, f"face_{index}_filter.jpg")
+                            # Aplique a filtragem de mediana com um tamanho de kernel (por exemplo, 5x5)
+                            imagem_filtrada = cv2.medianBlur(face_uint8, 5)  # Ajuste o tamanho do kernel conforme necessário
+                            imagem_suavizada = cv2.bilateralFilter(imagem_filtrada, d=3, sigmaColor=35, sigmaSpace=65)
+
+                            cv2.imwrite(save_filter, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))
+
+
                             if not os.path.exists(save_path):
                                 raise Exception(f'Não foi possível salvar a imagem {save_path}')
                             

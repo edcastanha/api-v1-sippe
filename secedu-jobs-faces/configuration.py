@@ -17,5 +17,7 @@ class Configuration:
 
     BACKEND_DETECTOR = 'retinaface'
     MODEL_BACKEND = 'Facenet'
-    DISTANCE_METRIC = 'euclidean_l2'
+    DISTANCE_METRIC = 'euclidean'
     ENFORCE_DETECTION = False
+    LIMITE_DETECTOR = 0.9
+    LIMITE_AREA = 90
