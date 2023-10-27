@@ -163,8 +163,8 @@ class ConsumerEmbbeding:
                                                         routing_name = Configuration.RMQ_ROUTE_KEY, 
                                                         message = message_str
                                                     )
-                        self.db_connection.update(Configuration.UPDATE_QUERY, ('Verificado', id_procesamento))
-                        self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), id_procesamento, file, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, confirm))
+                        #self.db_connection.update(Configuration.UPDATE_QUERY, ('Verificado', id_procesamento))
+                        #self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), id_procesamento, file, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, confirm))
 
 
 

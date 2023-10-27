@@ -125,7 +125,7 @@ class ConsumerExtractor:
                             # Aplique a filtragem bilateral
                             save_filter = os.path.join(new_face, f"face_{index}_filter.jpg")
                             # Aplique a filtragem de mediana com um tamanho de kernel (por exemplo, 5x5)
-                            imagem_filtrada = cv2.medianBlur(face_uint8, 5)  # Ajuste o tamanho do kernel conforme necessário
+                            imagem_filtrada = cv2.medianBlur(face_uint8, 3)  # Ajuste o tamanho do kernel conforme necessário
                             imagem_suavizada = cv2.bilateralFilter(imagem_filtrada, d=3, sigmaColor=35, sigmaSpace=65)
 
                             cv2.imwrite(save_filter, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))

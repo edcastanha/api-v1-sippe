@@ -9,7 +9,7 @@ class Configuration:
     REDIS_SERVER = 'redis-server'
     REDIS_PORT = 6379
     REDIS_DB = 0
-    REDIS_SSL = False
+    REDIS_SSL = True
 
     DIR_CAPS ='/app/media/capturas'
     DIR_DATASET ='/app/media/dataset'
