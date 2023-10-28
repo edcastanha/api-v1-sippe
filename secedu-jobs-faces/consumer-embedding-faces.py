@@ -17,7 +17,7 @@ class Configuration(config):
     RMQ_QUEUE_CONSUMER = 'faces'
     RMQ_QUEUE_PUBLISHIR = 'embedding'
     RMQ_ROUTE_KEY = 'verify'
-    RMQ_ASK_DEBUG = False
+    RMQ_ASK_DEBUG = True
 
     UPDATE_QUERY = """
         UPDATE 
@@ -33,7 +33,7 @@ class Configuration(config):
             (%s, %s, %s, %s, %s, %s, %s, %s)
     """
 
-class ConsumerEmbbeding:
+class ConsumerEmbedding:
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
@@ -70,6 +70,11 @@ class ConsumerEmbbeding:
 
         try:
             self.channel.start_consuming()
+        except KeyboardInterrupt:
+            logger.info(f' <**_**> ConsumerEmbbeding: KeyboardInterrupt')
+            self.channel.stop_consuming()
+        except Exception as e:
+            logger.error(f' <**_**> ConsumerEmbbeding: Exception : {str(e)}')
         finally:
             logger.info(f' <**_**> ConsumerEmbbeding: close')
             if self.connection.is_open:
@@ -80,12 +85,10 @@ class ConsumerEmbbeding:
                 self.publisher.close()
             if self.redis_client.connection_pool:
                 try:
-                    if self.redis_client.connection_pool:
                         self.redis_client.connection_pool.disconnect()
                         self.redis_client.close()
                 except Exception as e:
-                    # Handle the exception
-                    print(f"An error occurred: {e}")
+                    logger.error(f' <**_**> ConsumerEmbbeding: Exception Close Redis : {str(e)}')
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
@@ -163,7 +166,7 @@ class ConsumerEmbbeding:
                                                         routing_name = Configuration.RMQ_ROUTE_KEY, 
                                                         message = message_str
                                                     )
-                        #self.db_connection.update(Configuration.UPDATE_QUERY, ('Verificado', id_procesamento))
+                        self.db_connection.update(Configuration.UPDATE_QUERY, ('Verificado', id_procesamento))
                         #self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), id_procesamento, file, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, confirm))
 
 
@@ -172,5 +175,5 @@ class ConsumerEmbbeding:
                 logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
 
 if __name__ == "__main__":
-    job = ConsumerEmbbeding()
+    job = ConsumerEmbedding()
     job.run()

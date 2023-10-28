@@ -75,6 +75,7 @@ services:
       - ../secedu-django-api/:/api/
       - dataset_data:/api/media/dataset/
       - captura_data:/api/media/capturas/
+      - faces-oval:/api/media/faces-oval/
       - ftp_data:/api/media/ftp/
       - logs_data:/api/media/logs/
     ports:
@@ -100,6 +101,7 @@ services:
       - ../secedu-django-api/:/api/
       - dataset_data:/api/media/dataset/
       - captura_data:/api/media/capturas/
+      - faces-oval:/api/media/faces-oval/
       - ftp_data:/api/media/ftp/
       - logs_data:/api/media/logs/
     networks:
@@ -123,6 +125,7 @@ services:
       - ../secedu-django-api/:/api/
       - dataset_data:/api/media/dataset/
       - captura_data:/api/media/capturas/
+      - faces-oval:/api/media/faces-oval/
       - ftp_data:/api/media/ftp/
       - logs_data:/api/media/logs/
     networks:
@@ -140,12 +143,15 @@ services:
       - FPT_PATH = /app/media/ftp/
       - DATASET_PATH = /app/media/dataset/
       - CAPTURAS_PATH = /app/media/capturas/
+      - LOGS_PATH = /app/media/logs/
+      - API_FACE_PATH = /root/.deepface/weights/
     volumes:
       - ../secedu-flask-deepface/app/api/:/app/
       - dataset_data:/app/media/dataset/
       - captura_data:/app/media/capturas/
       - ftp_data:/app/media/ftp/
       - api_face_data:/root/.deepface/weights/
+      - faces-oval:/app/media/faces-oval/
     restart: always
     deploy:
       resources:
@@ -282,3 +288,10 @@ volumes:
       type: none
       o: bind
       device: C:\workspace\volumes\dataset
+  
+  faces-oval:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\faces-oval
