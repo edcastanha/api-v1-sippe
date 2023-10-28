@@ -19,6 +19,8 @@ class ProducerCameras:
         self.capture_hour = None
         self.processamento_path = None
         self.task_date = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.publisher = Publisher()  # Crie uma instância do Publisher
+
 
     def get_cameras(self):
         cameras = Cameras.objects.all()
@@ -89,9 +91,7 @@ class ProducerCameras:
             bool: True if the path contains a valid date, False otherwise.
         """
         # Padrão regex para AAAA-MM-DD
-        date_pattern = r'\d{4}-\d{2}-\d{2}'
-        #logger.info(f'<**_ProducerCameras_**> is_valid_date_path:: {path}')
-        
+        date_pattern = r'\d{4}-\d{2}-\d{2}'        
         # Verifica se o caminho contém o padrão AAAA-MM-DD em algum lugar
         return re.search(date_pattern, path) is not None
 
@@ -110,27 +110,25 @@ class ProducerCameras:
                 horario=self.capture_hour,
                 path=self.processamento_path
             )
-            message_dict.update({'proccess_id': new_registro.id})
-            logger.info('<**_ProducerCameras_**> 6 Create_Processamento :: %s', new_registro.id)
-            
+            message_dict.update({'proccess_id': new_registro.id})            
             message_str = json.dumps(message_dict)
-            logger.info('<**_ProducerCameras_**> 7 Publisher :: %s', message_str)
             self.process_message(message_str)
         except ObjectDoesNotExist as e:
-            logger.debug('Error object: %s', e)    
+            logger.debug('<**_Create Processamento_**> ObjectDoesNotExist Cameras%s', str(e))    
         except ValueError as e:
-            logger.debug('Error creating Processamentos object: %s', e)
+            logger.debug('<**_Create Processamento_**> Error Creating Processamentos object: %s', str(e))
         
     def process_message(self, message):
-        publisher = Publisher()
         try:
-            publisher.start_publisher(
+            self.publisher.start_publisher(
                 exchange=self.exchanges,
                 routing_name=self.routing_key,
                 message=message
             )
+        except Exception as e:
+            logger.error('<**_ProducerCameras_**> Error Publisher:: %s', str(e))
         finally:
-            publisher.close()
+            logger.info('<**_ProducerCameras_**> Process_Message Finally:: %s', message)
 
     def start_run(self):
         cameras = self.get_cameras()
@@ -145,11 +143,11 @@ class ProducerCameras:
                         for dir in dirs:
                             path_data = os.path.join(root_path, dir)
                             if self.is_valid_date_path(path_data):
-                                logger.debug(f'<**_ProducerCameras_**> path_data::{root_path}//{dir} | DIA::{self.capture_date}')
+                                logger.info(f'<**_ProducerCameras_**> path_data::{root_path}//{dir} | DIA::{self.capture_date}')
                                 self.capture_date = dir
                                 try:
                                     self.find_image_files(path=path_data)
                                 except Exception as e:
-                                    logger.error(f'<**_ProducerCameras_**> Error processing path: {e}')
-            
-            logger.info('<**_ProducerCameras_**> END PRODUCER | date: %s - file exist: %s | %s',self.task_date, self.processamento_path)
+                                    logger.error(f'<**_ProducerCameras_**> Error processing path: {str(e)}')
+        self.publisher.close()
+        logger.info('<**_ProducerCameras_**> END PRODUCER: {self.task_date}')
