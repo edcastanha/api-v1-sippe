@@ -21,5 +21,9 @@ admin.site.register(NotaFiscal)
 admin.site.register(Locais)
 admin.site.register(FrequenciasEscolar)
 admin.site.register(Tarefas)
-admin.site.register(Processamentos)
+#admin.site.register(Processamentos)
+@admin.register(Processamentos)
+class ProcessamentosAdmin(admin.ModelAdmin):
+    list_filter = ('status',)
+
 admin.site.register(Faces)

@@ -1,6 +1,6 @@
 import pika
 import json
-from datatime import time
+import time
 import os
 import cv2
 from datetime import datetime as dt
@@ -41,32 +41,15 @@ class Configuration(config):
 
 class ConsumerExtractor:
     def __init__(self):
+        self.reconnect_attempts = 0  # Adicione uma contagem de tentativas de reconexão
+        self.max_reconnect_attempts = 3  # Defina um limite de tentativas de reconexão
         self.path_capture = Configuration.DIR_CAPTURE
-        self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(
-                host = Configuration.RMQ_SERVER,
-                port = Configuration.RMQ_PORT,
-                credentials = pika.PlainCredentials(
-                    Configuration.RMQ_USER, 
-                    Configuration.RMQ_PASS
-                    ),
-                heartbeat=300  # Aumente o valor do heartbeat em segundos (ex: 10 minutos)
-            )
-        )
         self.reconnecting = False
-        self.channel = self.connection.channel()
-        self.channel.queue_bind(
-            queue = Configuration.RMQ_QUEUE_PUBLISHIR,
-            exchange = Configuration.RMQ_EXCHANGE,
-            routing_key = Configuration.RMQ_ROUTE_KEY
-        )
-        self.channel.basic_consume(
-            queue = Configuration.RMQ_QUEUE_CONSUMER,
-            on_message_callback = self.process_message,
-            auto_ack = Configuration.RMQ_ASK_DEBUG
-        )
+        self.connection = None
+        self.channel = None
+        
         # Configuração do prefetch count para controlar a taxa de consumo
-        self.channel.basic_qos(prefetch_size=0, prefetch_count=1)  # Defina o valor desejado (1 neste exemplo)
+        #self.channel.basic_qos(prefetch_count=1)  # Defina o valor desejado (1 neste exemplo)
         self.reconnecting = False
         self.publisher = Publisher()
         self.db_connection = DatabaseConnection()
@@ -76,34 +59,60 @@ class ConsumerExtractor:
         while True:
             try:
                 if not self.reconnecting:
-                    self.connection = pika.BlockingConnection(
-                        pika.ConnectionParameters(
-                            host=Configuration.RMQ_SERVER,
-                            port=Configuration.RMQ_PORT,
-                            credentials=pika.PlainCredentials(Configuration.RMQ_USER, Configuration.RMQ_PASS),
-                            heartbeat=600
-                        )
-                    )    
-            
+                    self.connect_to_rabbitmq()
+
                 self.channel.start_consuming()
             except KeyboardInterrupt:
                 self.channel.stop_consuming()
             except Exception as e:
-                logger.error(f'<*_ConsumerExtractor_*> Exception-Run: {type(e).__name__} Error::{e}')
-                self.reconnecting = True
-                # Aguarde um tempo antes de tentar reconectar
-                time.sleep(10) 
+                error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
+                logger.error(f'<*_ConsumerExtractor_*> Exception-Run: {error_message}')
+                self.reconnect_attempts += 1
+                if self.reconnect_attempts <= self.max_reconnect_attempts:
+                    time.sleep(2)
+                else:
+                    logger.error("Máximo de tentativas de reconexão atingido. Saindo.")
+                    break
             finally:
                 #Postgres Connection
                 if self.db_connection.is_connected():
-                    #self.db_connection.close()
-                    logger.debug('<*_ConsumerExtractor_*> Run - DB Connection Close')
+                    self.db_connection.close()
+                    #logger.debug('<*_ConsumerExtractor_*> Run - DB Connection Close')
                 logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
+
+    def connect_to_rabbitmq(self):
+        try:
+            self.connection = pika.BlockingConnection(
+                pika.ConnectionParameters(
+                    host=Configuration.RMQ_SERVER,
+                    port=Configuration.RMQ_PORT,
+                    credentials=pika.PlainCredentials(Configuration.RMQ_USER, Configuration.RMQ_PASS),
+                    heartbeat=6000
+                )
+            )
+            self.channel = self.connection.channel()
+            self.channel.queue_bind(
+                queue = Configuration.RMQ_QUEUE_PUBLISHIR,
+                exchange = Configuration.RMQ_EXCHANGE,
+                routing_key = Configuration.RMQ_ROUTE_KEY
+            )
+            self.channel.basic_consume(
+                queue = Configuration.RMQ_QUEUE_CONSUMER,
+                on_message_callback = self.process_message,
+                auto_ack = Configuration.RMQ_ASK_DEBUG
+            )
+            
+            self.reconnect_attempts = 0  # Redefina a contagem de tentativas após uma conexão bem-sucedida
+            self.reconnecting = False
+        except Exception as e:
+            error_message = f"Erro de conexão ao RabbitMQ: {str(e)}"
+            logger.error(f'<*_ConsumerExtractor_*> Connection Error: {error_message}')
+            self.reconnecting = True
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
         try:
-            logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: JSON{data}')
+            #logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: JSON{data}')
             if 'path_file' in data and 'proccess_id' in data  :
                 file = data['path_file']
                 if file.lower().endswith(('.jpg', '.jpeg', '.png')):
@@ -113,7 +122,7 @@ class ConsumerExtractor:
                     hora = horario[:2]
                     minuto = horario[3:5]
                     segundo = horario[6:8]
-                    logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: Hora:{hora} Minuto:{minuto} Segundo:{segundo}')
+                    #logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: Hora:{hora} Minuto:{minuto} Segundo:{segundo}')
                     device = data['local']
                     id_procesamento = data['proccess_id']
                     equipamento = data['nome_equipamento']
@@ -139,7 +148,7 @@ class ConsumerExtractor:
                         area = (face_obj['facial_area']['h'] + face_obj['facial_area']['w']) / 2
                         confidence = face_obj['confidence']
                         
-                        logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage:Area: {area} confidence:: {confidence}')
+                        #logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage:Area: {area} confidence:: {confidence}')
                         
                         if confidence >= Configuration.LIMITE_DETECTOR and area >= Configuration.LIMITE_AREA:
                             face = face_obj['face']
@@ -150,16 +159,16 @@ class ConsumerExtractor:
 
                             face_uint8 = (face * 255).astype('uint8')
                            
-                           #save_path = os.path.join(new_face, f"face_{index}_noises.jpg")
-                            #cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
+                            save_path = os.path.join(new_face, f"{segundo}s_face_{index}.jpg")
+                            cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
 
                             # Aplique a filtragem bilateral
-                            save_path = os.path.join(new_face, f"{str(segundo)}_face_{index}.jpg")
+                            #save_path = os.path.join(new_face, f"{str(segundo)}_face_{index}.jpg")
                             # Aplique a filtragem de mediana com um tamanho de kernel (por exemplo: 3x3, 5x5 ou 7x7)
-                            imagem_filtrada = cv2.medianBlur(face_uint8, 3)  # Ajuste o tamanho do kernel conforme necessário
-                            imagem_suavizada = cv2.bilateralFilter(imagem_filtrada, d=5, sigmaColor=35, sigmaSpace=65)
+                            #imagem_filtrada = cv2.medianBlur(face_uint8, 3)  # Ajuste o tamanho do kernel conforme necessário
+                            #imagem_suavizada = cv2.bilateralFilter(imagem_filtrada, d=5, sigmaColor=35, sigmaSpace=65)
 
-                            cv2.imwrite(save_path, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))
+                            #cv2.imwrite(save_path, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))
 
 
                             if not os.path.exists(save_path):
@@ -185,11 +194,11 @@ class ConsumerExtractor:
                             values =  (dt.now(), dt.now(), db_path, Configuration.BACKEND_DETECTOR, False, id_procesamento)
                             get_insert = self.db_connection.insert(Configuration.INSER_QUERY, values)
                             
-                            logger.debug(f'<*_ConsumerExtractor_*> ProccessMessage - Pub={get_publisher}:Up={get_update}:Ins={get_insert}')
+                            #logger.debug(f'<*_ConsumerExtractor_*> ProccessMessage - Pub={get_publisher}:Up={get_update}:Ins={get_insert}')
                     
         except Exception as e:
-            error_message = f"An exception of type {type(e).__name__} occurred with the message: {str(e)}"
-            logger.error(f'<*_ConsumerExtractor_*> New Face: {error_message}')
+            error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
+            logger.error(f'<*_ConsumerExtractor_*> Process_Message: {error_message}')
             self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', data['proccess_id']))
 
             # Reenvie a mensagem para a fila "retry" em caso de erro
@@ -198,8 +207,6 @@ class ConsumerExtractor:
                 routing_key=Configuration.RMQ_RETRY_QUEUE,  # Roteamento para a fila "retry"
                 body=body
             )
-        finally:
-            logger.debug('<*_ConsumerExtractor_*> Terminado - Process Message')
          
 if __name__ == "__main__":
     job = ConsumerExtractor()

@@ -316,10 +316,10 @@ def analiseMensal(request):
 
 ## API DeepFace Network
 def testAnalyze(request):
-    return render(request, "dashboards/testAnalyze.html")
+    return render(request, "secedu/testAnalyze.html")
 
 def testVerify(request):
-    return render(request, "dashboards/testVerify.html")
+    return render(request, "secedu/testVerify.html")
 
 @csrf_exempt  # Use apenas se você desativou o CSRF para essa view
 def get_image_and_analyze(request):

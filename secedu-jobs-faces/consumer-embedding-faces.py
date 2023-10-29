@@ -42,7 +42,9 @@ class ConsumerEmbedding:
                 credentials=pika.PlainCredentials(
                     Configuration.RMQ_USER, 
                     Configuration.RMQ_PASS
-                )
+                ),
+                heartbeat=300  # Aumente o valor do heartbeat em segundos (ex: 10 minutos)
+
             )
         )
         self.channel = self.connection.channel()
@@ -106,7 +108,7 @@ class ConsumerEmbedding:
                 }
 
                 # Exemplo de consulta de atualização
-                id_procesamento = data['proccess_id']
+                id_procesamento = data['id_procesamento']
 
                 target_embedding = DeepFace.represent(
                     img_path = file,
