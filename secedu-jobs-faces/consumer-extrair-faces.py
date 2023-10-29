@@ -15,7 +15,6 @@ class Configuration(config):
     RMQ_ROUTE_KEY = 'init'
     RMQ_QUEUE_CONSUMER = 'ftp'
     RMQ_RETRY_QUEUE = 'retry'
-    RMQ_ASK_DEBUG = True
     
     DIR_CAPTURE = '/app/media/capturas'
     
@@ -47,38 +46,8 @@ class ConsumerExtractor:
         self.reconnecting = False
         self.connection = None
         self.channel = None
-        
-        # Configuração do prefetch count para controlar a taxa de consumo
-        #self.channel.basic_qos(prefetch_count=1)  # Defina o valor desejado (1 neste exemplo)
-        self.reconnecting = False
         self.publisher = Publisher()
         self.db_connection = DatabaseConnection()
-
-    def run(self):
-        logger.debug('<*_ConsumerExtractor_*> Run - Init')
-        while True:
-            try:
-                if not self.reconnecting:
-                    self.connect_to_rabbitmq()
-
-                self.channel.start_consuming()
-            except KeyboardInterrupt:
-                self.channel.stop_consuming()
-            except Exception as e:
-                error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
-                logger.error(f'<*_ConsumerExtractor_*> Exception-Run: {error_message}')
-                self.reconnect_attempts += 1
-                if self.reconnect_attempts <= self.max_reconnect_attempts:
-                    time.sleep(2)
-                else:
-                    logger.error("Máximo de tentativas de reconexão atingido. Saindo.")
-                    break
-            finally:
-                #Postgres Connection
-                if self.db_connection.is_connected():
-                    self.db_connection.close()
-                    #logger.debug('<*_ConsumerExtractor_*> Run - DB Connection Close')
-                logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
 
     def connect_to_rabbitmq(self):
         try:
@@ -99,7 +68,6 @@ class ConsumerExtractor:
             self.channel.basic_consume(
                 queue = Configuration.RMQ_QUEUE_CONSUMER,
                 on_message_callback = self.process_message,
-                auto_ack = Configuration.RMQ_ASK_DEBUG
             )
             
             self.reconnect_attempts = 0  # Redefina a contagem de tentativas após uma conexão bem-sucedida
@@ -108,6 +76,33 @@ class ConsumerExtractor:
             error_message = f"Erro de conexão ao RabbitMQ: {str(e)}"
             logger.error(f'<*_ConsumerExtractor_*> Connection Error: {error_message}')
             self.reconnecting = True
+
+    def run(self):
+            logger.debug('<*_ConsumerExtractor_*> Run - Init')
+            while True:
+                try:
+                    if not self.reconnecting:
+                        self.connect_to_rabbitmq()
+
+                    self.channel.start_consuming()
+                except KeyboardInterrupt:
+                    self.channel.stop_consuming()
+                except Exception as e:
+                    error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
+                    logger.error(f'<*_ConsumerExtractor_*> Exception-Run: {error_message}')
+                    self.reconnect_attempts += 1
+                    if self.reconnect_attempts <= self.max_reconnect_attempts:
+                        time.sleep(2)
+                    else:
+                        logger.error("Máximo de tentativas de reconexão atingido. Saindo.")
+                        break
+                finally:
+                    #Postgres Connection
+                    if self.db_connection.is_connected():
+                        self.db_connection.close()
+                        #logger.debug('<*_ConsumerExtractor_*> Run - DB Connection Close')
+                    logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
+
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)

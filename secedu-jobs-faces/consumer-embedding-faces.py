@@ -1,6 +1,7 @@
 import pika
 import re
 import json
+import time
 from datetime import datetime as dt
 from deepface import DeepFace
 import numpy as np
@@ -17,7 +18,10 @@ class Configuration(config):
     RMQ_QUEUE_CONSUMER = 'faces'
     RMQ_QUEUE_PUBLISHIR = 'embedding'
     RMQ_ROUTE_KEY = 'verify'
-    RMQ_ASK_DEBUG = True
+    RMQ_RETRY_QUEUE = 'retry'
+
+    DIR_CAPTURE = '/app/media/capturas'
+    DIR_DATASET = '/app/media/dataset'
 
     UPDATE_QUERY = """
         UPDATE 
@@ -35,24 +39,13 @@ class Configuration(config):
 
 class ConsumerEmbedding:
     def __init__(self):
-        self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(
-                host = Configuration.RMQ_SERVER,
-                port = Configuration.RMQ_PORT,
-                credentials=pika.PlainCredentials(
-                    Configuration.RMQ_USER, 
-                    Configuration.RMQ_PASS
-                ),
-                heartbeat=300  # Aumente o valor do heartbeat em segundos (ex: 10 minutos)
+        logger.info(f' <**ConsumerEmbbeding**> : Init ')
+        self.reconnect_attempts = 0  # Adicione uma contagem de tentativas de reconexão
+        self.max_reconnect_attempts = 3  # Defina um limite de tentativas de reconexão
+        self.reconnecting = False
+        self.connection = None
+        self.channel = None
 
-            )
-        )
-        self.channel = self.connection.channel()
-        self.channel.queue_bind(
-            queue = Configuration.RMQ_QUEUE_PUBLISHIR,
-            exchange = Configuration.RMQ_EXCHANGE,
-            routing_key = Configuration.RMQ_ROUTE_KEY
-        )
         self.redis_client = redis.Redis(
             host = Configuration.REDIS_SERVER, 
             port = Configuration.REDIS_PORT, 
@@ -62,53 +55,82 @@ class ConsumerEmbedding:
         self.publisher = Publisher()
         self.db_connection = DatabaseConnection()
 
-    def run(self):
-        logger.info(f' <**ConsumerEmbbeding**> : Init ')
-        self.channel.basic_consume(           
-            queue = Configuration.RMQ_QUEUE_CONSUMER,
-            on_message_callback = self.process_message,
-            auto_ack = Configuration.RMQ_ASK_DEBUG
-        )
-
+    def connect_to_rabbitmq(self):
         try:
-            self.channel.start_consuming()
-        except KeyboardInterrupt:
-            logger.info(f' <**_**> ConsumerEmbbeding: KeyboardInterrupt')
-            self.channel.stop_consuming()
+            self.connection = pika.BlockingConnection(
+                pika.ConnectionParameters(
+                    host=Configuration.RMQ_SERVER,
+                    port=Configuration.RMQ_PORT,
+                    credentials=pika.PlainCredentials(Configuration.RMQ_USER, Configuration.RMQ_PASS),
+                    heartbeat=6000
+                )
+            )
+            self.channel = self.connection.channel()
+            self.channel.queue_bind(
+                queue = Configuration.RMQ_QUEUE_PUBLISHIR,
+                exchange = Configuration.RMQ_EXCHANGE,
+                routing_key = Configuration.RMQ_ROUTE_KEY
+            )
+            self.channel.basic_consume(
+                queue = Configuration.RMQ_QUEUE_CONSUMER,
+                on_message_callback = self.process_message,
+            )
+            
+            self.reconnect_attempts = 0  # Redefina a contagem de tentativas após uma conexão bem-sucedida
+            self.reconnecting = False
         except Exception as e:
-            logger.error(f' <**_**> ConsumerEmbbeding: Exception : {str(e)}')
-        finally:
-            logger.info(f' <**_**> ConsumerEmbbeding: close')
-            if self.connection.is_open:
-                self.connection.close()
-            if self.db_connection.is_connected():
-                self.db_connection.close()
-            if self.publisher.connection.is_open:
-                self.publisher.close()
-            if self.redis_client.connection_pool:
-                try:
-                        self.redis_client.connection_pool.disconnect()
-                        self.redis_client.close()
-                except Exception as e:
-                    logger.error(f' <**_**> ConsumerEmbbeding: Exception Close Redis : {str(e)}')
+            error_message = f"Erro de conexão ao RabbitMQ: {str(e)}"
+            logger.error(f'<*_ConsumerExtractor_*> Connection Error: {error_message}')
+            self.reconnecting = True
+
+    def run(self):
+        while True:
+            logger.info(f' <**ConsumerEmbbeding**> : start RUN FUNCTION')
+            try:
+                if not self.reconnecting:
+                    self.connect_to_rabbitmq()
+
+                self.channel.start_consuming()
+            except KeyboardInterrupt:
+                self.channel.stop_consuming()
+            except Exception as e:
+                message = f'error do tipo {type(e).__name__} com mensagem {str(e)}'
+                logger.error(f' <**_**> ConsumerEmbbeding: Exception : {message}')
+                self.reconnect_attempts += 1
+                if self.reconnect_attempts <= self.max_reconnect_attempts:
+                    time.sleep(2)
+                else:
+                    logger.error("Máximo de tentativas de reconexão atingido. Saindo.")
+                    break
+            finally:
+                if self.db_connection.is_connected():
+                    self.db_connection.close()
+                if self.redis_client.connection_pool:
+                    self.redis_client.connection_pool.disconnect()
+                    self.redis_client.close()
+                logger.error(f' <**_**> ConsumerEmbbeding: finally RUN FUNCTION')
 
     def process_message(self, ch, method, properties, body):
-        data = json.loads(body)
-        file = str(data['caminho_do_face'])
-        if data['detector_backend'] != None and data['detector_backend'] != '':
-            self.detector_backend = str(data['detector_backend'])
-        
-        if file.endswith(('.jpg', '.jpeg', '.png')):
-            try:
+        try:
+            data = json.loads(body)
+            file = data['caminho_do_face']
+            
+            if file.endswith(('.jpg', '.jpeg', '.png')):
+                id_procesamento = data['id_procesamento']
                 message_dict = {
+                    'id_equipamento': data['nome_equipamento'],
+                    'id_procesamento': id_procesamento,
+                    'data_captura': data['data_captura'],
+                    'hora_captura': data['hora_captura'],
+                    'captura_base': data['captura_base'],
                     'caminho_do_face': file,
                     'detector_backend': Configuration.BACKEND_DETECTOR,
-                    'model_name': Configuration.MODEL_BACKEND,
+                    'model_detector': Configuration.MODEL_BACKEND,
                     'metrics': Configuration.DISTANCE_METRIC,
+                    'normalization': Configuration.MODEL_BACKEND
                 }
 
                 # Exemplo de consulta de atualização
-                id_procesamento = data['id_procesamento']
 
                 target_embedding = DeepFace.represent(
                     img_path = file,
@@ -129,12 +151,7 @@ class ConsumerEmbedding:
                     logger.info(f"Index:: {idx+1} mais próximo {result.id} com distância {result.distance}")
 
                     dataset_file = str(result.id)
-                    
-                    message_dict.update({'id_equipamento':data['nome_equipamento']})
-                    message_dict.update({'data_captura': data['data_captura']})
-                    message_dict.update({'hora_captura': data['hora_captura']})
-                    message_dict.update({'captura_base': data['captura_base']})
-
+                
 
                     verify = DeepFace.verify(
                         img1_path = file,
@@ -171,10 +188,11 @@ class ConsumerEmbedding:
                         self.db_connection.update(Configuration.UPDATE_QUERY, ('Verificado', id_procesamento))
                         #self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), id_procesamento, file, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, confirm))
 
+            self.channel.basic_ack(delivery_tag=method.delivery_tag)
 
-
-            except Exception as e:
-                logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
+        except Exception as e:
+            logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
+            self.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
 
 if __name__ == "__main__":
     job = ConsumerEmbedding()

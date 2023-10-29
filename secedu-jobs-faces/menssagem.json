@@ -1,0 +1,9 @@
+{
+    "hora_captura": "05h00m57s",
+    "local_equipamento": "Sala jogos",
+    "captura_base": "media/ftp/sippe3/Sippe3/2023-10-18/001/jpg/05/00.57[M][0@0][0].jpg",
+    "caminho_do_face": "/app/media/capturas/3/2023-10-18/05/00/57s_face_0.jpg",
+    "area": 125.0,
+    "confidence": 0.9990893602371216,
+    "detector_backend": "retinaface"
+}
