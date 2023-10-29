@@ -18,13 +18,19 @@ class Publisher:
     def start_publisher(self, exchange, queue_name, routing_name, message):
         try:
             self.channel.queue_declare(queue=queue_name, durable=True)
-            self.channel.basic_publish(exchange=exchange, 
-                                    routing_key=routing_name, 
-                                    body=message)
+            self.channel.basic_publish(
+                exchange=exchange, 
+                routing_key=routing_name, 
+                body=message,
+                properties=pika.BasicProperties(
+                    delivery_mode = 2,
+                )
+            )
             return True
         except Exception as e:
             logger.error(f' <**_PUBLISHER_ **> ERROR:: {e}')
             return False
     
     def close(self):
-        self.connection.close()
+        if self.connection.is_open:
+            self.connection.close()

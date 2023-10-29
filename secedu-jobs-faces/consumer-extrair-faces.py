@@ -1,5 +1,6 @@
 import pika
 import json
+from datatime import time
 import os
 import cv2
 from datetime import datetime as dt
@@ -13,6 +14,7 @@ class Configuration(config):
     RMQ_QUEUE_PUBLISHIR = 'faces'
     RMQ_ROUTE_KEY = 'init'
     RMQ_QUEUE_CONSUMER = 'ftp'
+    RMQ_RETRY_QUEUE = 'retry'
     RMQ_ASK_DEBUG = True
     
     DIR_CAPTURE = '/app/media/capturas'
@@ -44,9 +46,14 @@ class ConsumerExtractor:
             pika.ConnectionParameters(
                 host = Configuration.RMQ_SERVER,
                 port = Configuration.RMQ_PORT,
-                credentials = pika.PlainCredentials(Configuration.RMQ_USER, Configuration.RMQ_PASS)
+                credentials = pika.PlainCredentials(
+                    Configuration.RMQ_USER, 
+                    Configuration.RMQ_PASS
+                    ),
+                heartbeat=300  # Aumente o valor do heartbeat em segundos (ex: 10 minutos)
             )
         )
+        self.reconnecting = False
         self.channel = self.connection.channel()
         self.channel.queue_bind(
             queue = Configuration.RMQ_QUEUE_PUBLISHIR,
@@ -58,26 +65,40 @@ class ConsumerExtractor:
             on_message_callback = self.process_message,
             auto_ack = Configuration.RMQ_ASK_DEBUG
         )
+        # Configuração do prefetch count para controlar a taxa de consumo
+        self.channel.basic_qos(prefetch_size=0, prefetch_count=1)  # Defina o valor desejado (1 neste exemplo)
+        self.reconnecting = False
         self.publisher = Publisher()
         self.db_connection = DatabaseConnection()
 
     def run(self):
         logger.debug('<*_ConsumerExtractor_*> Run - Init')
-        
-        try:
-            self.db_connection.connect()
-            self.channel.start_consuming()
-        except KeyboardInterrupt:
-            self.channel.stop_consuming()
-        except Exception as e:
-            logger.error(f'<*_ConsumerExtractor_*> Exception-Run : Error::{e}')
-        finally:
-            logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
-            if self.connection.is_open:
-                self.connection.close()
-            if self.db_connection.is_connected():
-                self.db_connection.close()
-
+        while True:
+            try:
+                if not self.reconnecting:
+                    self.connection = pika.BlockingConnection(
+                        pika.ConnectionParameters(
+                            host=Configuration.RMQ_SERVER,
+                            port=Configuration.RMQ_PORT,
+                            credentials=pika.PlainCredentials(Configuration.RMQ_USER, Configuration.RMQ_PASS),
+                            heartbeat=600
+                        )
+                    )    
+            
+                self.channel.start_consuming()
+            except KeyboardInterrupt:
+                self.channel.stop_consuming()
+            except Exception as e:
+                logger.error(f'<*_ConsumerExtractor_*> Exception-Run: {type(e).__name__} Error::{e}')
+                self.reconnecting = True
+                # Aguarde um tempo antes de tentar reconectar
+                time.sleep(10) 
+            finally:
+                #Postgres Connection
+                if self.db_connection.is_connected():
+                    #self.db_connection.close()
+                    logger.debug('<*_ConsumerExtractor_*> Run - DB Connection Close')
+                logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
@@ -87,7 +108,12 @@ class ConsumerExtractor:
                 file = data['path_file']
                 if file.lower().endswith(('.jpg', '.jpeg', '.png')):
                     now = dt.now()
-                    horario = data['horario']
+                    horario = str(data['horario'])
+                    # Extrair horas, minutos e segundos usando fatiamento
+                    hora = horario[:2]
+                    minuto = horario[3:5]
+                    segundo = horario[6:8]
+                    logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: Hora:{hora} Minuto:{minuto} Segundo:{segundo}')
                     device = data['local']
                     id_procesamento = data['proccess_id']
                     equipamento = data['nome_equipamento']
@@ -117,22 +143,23 @@ class ConsumerExtractor:
                         
                         if confidence >= Configuration.LIMITE_DETECTOR and area >= Configuration.LIMITE_AREA:
                             face = face_obj['face']
-                            new_face = os.path.join(str(self.path_capture), str(equipamento), str(data_captura), str(horario))
+                            new_face = os.path.join(str(self.path_capture), str(equipamento), str(data_captura), str(hora), str(minuto))
 
                             if not os.path.exists(new_face):
                                 os.makedirs(new_face, exist_ok=True)
 
                             face_uint8 = (face * 255).astype('uint8')
-                            save_path = os.path.join(new_face, f"face_{index}_noises.jpg")
-                            cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
+                           
+                           #save_path = os.path.join(new_face, f"face_{index}_noises.jpg")
+                            #cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
 
                             # Aplique a filtragem bilateral
-                            save_filter = os.path.join(new_face, f"face_{index}_filter.jpg")
+                            save_path = os.path.join(new_face, f"{str(segundo)}_face_{index}.jpg")
                             # Aplique a filtragem de mediana com um tamanho de kernel (por exemplo: 3x3, 5x5 ou 7x7)
                             imagem_filtrada = cv2.medianBlur(face_uint8, 3)  # Ajuste o tamanho do kernel conforme necessário
                             imagem_suavizada = cv2.bilateralFilter(imagem_filtrada, d=5, sigmaColor=35, sigmaSpace=65)
 
-                            cv2.imwrite(save_filter, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))
+                            cv2.imwrite(save_path, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))
 
 
                             if not os.path.exists(save_path):
@@ -144,12 +171,13 @@ class ConsumerExtractor:
                             message_dict.update({'detector_backend': Configuration.BACKEND_DETECTOR})
                             message_str = json.dumps(message_dict)
                             db_path = save_path.replace('/app/', '')
-                            
+
                             get_publisher = self.publisher.start_publisher(exchange=Configuration.RMQ_EXCHANGE, 
                                                             queue_name=Configuration.RMQ_QUEUE_PUBLISHIR,
                                                             routing_name=Configuration.RMQ_ROUTE_KEY, 
                                                             message=message_str
                                                         )
+                            self.db_connection.connect()
                             # Update Processos -  status de Criado para Processado
                             get_update = self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
                            
@@ -163,9 +191,16 @@ class ConsumerExtractor:
             error_message = f"An exception of type {type(e).__name__} occurred with the message: {str(e)}"
             logger.error(f'<*_ConsumerExtractor_*> New Face: {error_message}')
             self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', data['proccess_id']))
+
+            # Reenvie a mensagem para a fila "retry" em caso de erro
+            self.channel.basic_publish(
+                exchange=Configuration.RMQ_EXCHANGE,
+                routing_key=Configuration.RMQ_RETRY_QUEUE,  # Roteamento para a fila "retry"
+                body=body
+            )
         finally:
-            logger.debug('<*_ConsumerExtractor_*> Finally - ProcessMessage')
-            
+            logger.debug('<*_ConsumerExtractor_*> Terminado - Process Message')
+         
 if __name__ == "__main__":
     job = ConsumerExtractor()
     job.run()
