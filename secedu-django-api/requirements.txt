@@ -15,13 +15,12 @@ cron-descriptor==1.4.0
 dill==0.3.7
 distlib==0.3.7
 Django==4.2.5
-django-adminlte3==0.1.6
 django-celery-beat==2.5.0
 django-celery-results==2.5.1
 django-extensions==3.2.3
+django-jazzmin==2.6.0
 django-timezone-field==6.0.1
 djangorestframework==3.14.0
-django-jazzmin==2.6.0
 filelock==3.12.4
 gunicorn==21.2.0
 identify==2.5.30
