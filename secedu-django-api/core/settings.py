@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     # Apps
     'core.cadastros.apps.CadastrosConfig',
     'core.cameras.apps.CamerasConfig',
-    'core.webApp.apps.WebappConfig',
 ]
 
 LOGIN_REDIRECT_URL = '/'

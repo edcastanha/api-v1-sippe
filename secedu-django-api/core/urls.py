@@ -1,16 +1,15 @@
 from django.urls import include, path
-from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
-from rest_framework import routers
 #URLs API
+from rest_framework import routers
 from core.cadastros.urls import router as cadastros_router
 from core.cameras.urls import router as cameras_router
 
-from django.views.generic import TemplateView
+#URLs ADMIN e SITE
+from django.contrib import admin
+from core.cameras import urls as cameras_urls
 
-# URLs WEB APP
-from core.webApp import urls as ulrWebApp
 
 
 # URLs DE API
@@ -22,7 +21,7 @@ router.registry.extend(cameras_router.registry)
 urlpatterns = [
     path('admin/', admin.site.urls),  # ADMIN
     path('api/v1/', include(router.urls)),  # API REST
-    path('', include(ulrWebApp)),  # WEB APP
+    path('', include(cameras_urls)),  # SITE
 ]
 
 # INCLUDES static e media
