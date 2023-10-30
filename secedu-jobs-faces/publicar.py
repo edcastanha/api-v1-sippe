@@ -26,10 +26,8 @@ class Publisher:
                     delivery_mode = 2,
                 )
             )
-            return True
         except Exception as e:
             logger.error(f' <**_PUBLISHER_ **> ERROR:: {e}')
-            return False
     
     def close(self):
         if self.connection.is_open:

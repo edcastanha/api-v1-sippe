@@ -31,11 +31,9 @@ class DatabaseConnection:
             self.cursor.execute(query, params)
             self.conn.commit()
             logger.info(f"<*_ConnectionDB_*> Connection e Commit - OK: {query}")
-            return True
         except psycopg2.Error as e:
             self.conn.rollback()
             logger.error(f"Error executing update query: {e}")
-            return False
 
     def insert(self, query, params=None):
         if not self.conn:
@@ -45,11 +43,9 @@ class DatabaseConnection:
             self.cursor.execute(query, params)
             self.conn.commit()
             logger.info(f"<*_ConnectionDB_*> Connection e Commit - OK: {query}")
-            return True
         except psycopg2.Error as e:
             self.conn.rollback()
             logger.error(f"Error executing insert query: {e}")
-            return False
 
     def close(self):
         logger.info(f"<*_ConnectionDB_*> Close Connection DB")

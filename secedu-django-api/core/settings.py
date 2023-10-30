@@ -259,10 +259,10 @@ JAZZMIN_SETTINGS = {
     #"navigation_expanded": True,
 
     # Hide these apps when generating side menu e.g (auth)
-    "hide_apps": ['django_celery_beat', 'django_celery_results', 'django_extensions'],
+    "hide_apps": ['django_celery_beat', 'django_celery_results', 'django_extensions', ],
 
-    # Hide these models when generating side menu (e.g auth.user)
-    "hide_models": [],
+    # Ocultar estes modelos ao gerar o menu lateral (e.g auth.user)
+    "hide_models": ['core.cadastros_contratos','core.cameras_notafiscal',],
 
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
     #"order_with_respect_to": ["auth", "books", "books.author", "books.book"],

@@ -14,7 +14,8 @@ class Configuration(config):
     RMQ_QUEUE_PUBLISHIR = 'faces'
     RMQ_ROUTE_KEY = 'init'
     RMQ_QUEUE_CONSUMER = 'ftp'
-    RMQ_RETRY_QUEUE = 'ftp_retry'
+    RMQ_RETRY_QUEUE = 'retry' 
+    RMQ_RETRY_ROUTE= 'ftp_retry'
     
     DIR_CAPTURE = '/app/media/capturas'
     
@@ -78,53 +79,36 @@ class ConsumerExtractor:
             error_message = f"Erro de conexão ao RabbitMQ: {str(e)}"
             logger.error(f'<*_ConsumerExtractor_*> Connection Error: {error_message}')
             self.reconnecting = True
-
-    def ack_message(self, delivery_tag):
-        self.channel.basic_ack(delivery_tag)
-
-    def nack_message(self, delivery_tag):
-        self.channel.basic_nack(delivery_tag, requeue=False)  # Configurar requeue como True se desejar que a mensagem seja reenfileirada
-
-    def enviar_para_fila_de_retentativa(self, body, id):
-        self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', id))
-        # Reenvie a mensagem para a fila "retry" em caso de erro
-        self.channel.basic_publish(
-            exchange=Configuration.RMQ_EXCHANGE,
-            routing_key=Configuration.RMQ_RETRY_QUEUE,  # Roteamento para a fila "retry"
-            body=body
-        )
+  
     def run(self):
             logger.debug('<*_ConsumerExtractor_*> Run - Init')
-            while True:
-                try:
-                    if not self.reconnecting:
-                        self.connect_to_rabbitmq()
+            try:
+                if not self.reconnecting:
+                    self.connect_to_rabbitmq()
 
-                    self.channel.start_consuming()
-                except KeyboardInterrupt:
-                    self.channel.stop_consuming()
-                except Exception as e:
-                    error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
-                    logger.error(f'<*_ConsumerExtractor_*> Exception-Run: {error_message}')
-                    self.reconnect_attempts += 1
-                    if self.reconnect_attempts <= self.max_reconnect_attempts:
-                        time.sleep(2)
-                    else:
-                        logger.error("<*_ConsumerExtractor_*> Exception-Run: Máximo de tentativas de reconexão atingido. Saindo.")
-                        break
-                finally:
-                    #Postgres Connection
-                    if self.db_connection.is_connected():
-                        self.db_connection.close()
-                        #logger.debug('<*_ConsumerExtractor_*> Run - DB Connection Close')
-                    logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
+                self.channel.start_consuming()
+            except KeyboardInterrupt:
+                self.channel.stop_consuming()
+            except Exception as e:
+                error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
+                logger.error(f'<*_ConsumerExtractor_*> Exception-Run: {error_message}')
+                self.reconnect_attempts += 1
+                if self.reconnect_attempts <= self.max_reconnect_attempts:
+                    time.sleep(2)
+            finally:
+                #Postgres Connection
+                if self.db_connection.is_connected():
+                    self.db_connection.close()
+                    #logger.debug('<*_ConsumerExtractor_*> Run - DB Connection Close')
+                logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
-        id_procesamento = data['id_procesamento']
         file = data['path_file']
-        try:
-            if 'path_file' in data and 'id_procesamento' in data and file.lower().endswith(('.jpg', '.jpeg', '.png')):
+        id_procesamento = int(data['id_procesamento'])
+        self.db_connection.connect()
+        if 'path_file' in data and 'id_procesamento' in data and file.lower().endswith(('.jpg', '.jpeg', '.png')):
+            try:
                 now = dt.now()
                 horario = str(data['horario'])
                 # Extrair horas, minutos e segundos usando fatiamento
@@ -132,14 +116,12 @@ class ConsumerExtractor:
                 minuto = horario[3:5]
                 segundo = horario[6:8]
                 #logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: Hora:{hora} Minuto:{minuto} Segundo:{segundo}')
-                device = data['local']
                 equipamento = data['nome_equipamento']
                 data_captura = data['data_captura']
                 message_dict = {
                     'data_captura': data_captura,
                     'hora_captura': horario,
-                    'nome_equipamento': equipamento,
-                    'local_equipamento': device,
+                    'equipamento': equipamento,
                     'captura_base': file,
                     'id_procesamento': id_procesamento
                 }
@@ -162,7 +144,7 @@ class ConsumerExtractor:
                         
                         if confidence >= Configuration.LIMITE_DETECTOR and area >= Configuration.LIMITE_AREA:
                             face = face_obj['face']
-                            new_face = os.path.join(str(self.path_capture), str(equipamento), str(data_captura), str(hora), str(minuto))
+                            new_face = os.path.join(self.path_capture, str(equipamento), data_captura,hora, minuto)
 
                             if not os.path.exists(new_face):
                                 os.makedirs(new_face, exist_ok=True)
@@ -178,10 +160,6 @@ class ConsumerExtractor:
                             imagem_suavizada = cv2.bilateralFilter(imagem_filtrada, d=5, sigmaColor=35, sigmaSpace=65)
 
                             cv2.imwrite(save_path, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))
-
-
-                            if not os.path.exists(save_path):
-                                raise Exception(f'Não foi possível salvar a imagem {save_path}')
                             
                             message_dict.update({'caminho_do_face': save_path})
                             message_dict.update({'area': area})
@@ -190,37 +168,30 @@ class ConsumerExtractor:
                             message_str = json.dumps(message_dict)
                             db_path = save_path.replace('/app/', '')
 
-                            try:
-                                self.publisher.start_publisher(exchange=Configuration.RMQ_EXCHANGE, 
-                                                            queue_name=Configuration.RMQ_QUEUE_PUBLISHIR,
-                                                            routing_name=Configuration.RMQ_ROUTE_KEY, 
-                                                            message=message_str
-                                                        )
-                                self.db_connection.connect()
-                                # Update Processos -  status de Criado para Processado
-                                self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
+
+                            # Update Processos -  status de Criado para Processado
+                            self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
+                        
+                            # Insert Faces
+                            values =  (now, now, db_path, Configuration.BACKEND_DETECTOR, False, id_procesamento)
+                            self.db_connection.insert(Configuration.INSER_QUERY, values)
+
+                            self.publisher.start_publisher(exchange=Configuration.RMQ_EXCHANGE, 
+                                                        queue_name=Configuration.RMQ_QUEUE_PUBLISHIR,
+                                                        routing_name=Configuration.RMQ_ROUTE_KEY, 
+                                                        message=message_str
+                                                    )
                             
-                                # Insert Faces
-                                values =  (dt.now(), dt.now(), db_path, Configuration.BACKEND_DETECTOR, False, id_procesamento)
-                                self.db_connection.insert(Configuration.INSER_QUERY, values)
-                                # Confirmar a mensagem
-                                self.ack_message(method.delivery_tag)
-                            except Exception as e:
-                                error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
-                                logger.error(f'<*_ConsumerExtractor_*> Process_Message: {error_message}')
-                                self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
-                                self.enviar_para_fila_de_retentativa(body, id_procesamento)
-                                self.ack_message(method.delivery_tag)
-                else:
-                    self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
-                    # Confirmar a mensagem
-                    self.ack_message(method.delivery_tag)
-            else:
-                raise Exception(f'Não foi possível processar a mensagem: {body}')
-        except Exception as e:
-            error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
-            logger.error(f'<*_ConsumerExtractor_*> Process_Message: {error_message}')
-            self.nack_message(method.delivery_tag)
+                self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
+                    
+            except Exception as e:
+                self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', id_procesamento))
+
+                error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
+                logger.error(f'<*_ConsumerExtractor_*> Process_Message: {error_message}')
+                self.channel.basic_nack(method.delivery_tag, requeue=True)  
+            finally:
+                self.channel.basic_ack(method.delivery_tag)
          
 if __name__ == "__main__":
     job = ConsumerExtractor()
