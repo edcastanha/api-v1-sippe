@@ -110,7 +110,7 @@ class ProducerCameras:
                 horario=self.capture_hour,
                 path=self.processamento_path
             )
-            message_dict.update({'proccess_id': new_registro.id})            
+            message_dict.update({'id_procesamento': new_registro.id})            
             message_str = json.dumps(message_dict)
             self.process_message(message_str)
         except ObjectDoesNotExist as e:

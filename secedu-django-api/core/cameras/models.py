@@ -76,6 +76,7 @@ class Processamentos(baseModel):
     CHOICE_STATUS = (
         ('Criado', 'Criado'),
         ('Processado', 'Processado'),
+        ('Enviado', 'Enviado'),
         ('Verificado', 'Verificado'),
         ('Analisado', 'Analisado'),
         ('Error', 'Error'),

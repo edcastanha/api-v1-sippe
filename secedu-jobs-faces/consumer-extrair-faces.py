@@ -14,7 +14,7 @@ class Configuration(config):
     RMQ_QUEUE_PUBLISHIR = 'faces'
     RMQ_ROUTE_KEY = 'init'
     RMQ_QUEUE_CONSUMER = 'ftp'
-    RMQ_RETRY_QUEUE = 'retry'
+    RMQ_RETRY_QUEUE = 'ftp_retry'
     
     DIR_CAPTURE = '/app/media/capturas'
     
@@ -55,10 +55,12 @@ class ConsumerExtractor:
                 pika.ConnectionParameters(
                     host=Configuration.RMQ_SERVER,
                     port=Configuration.RMQ_PORT,
-                    credentials=pika.PlainCredentials(Configuration.RMQ_USER, Configuration.RMQ_PASS),
-                    heartbeat=6000
+                    credentials=pika.PlainCredentials(
+                        Configuration.RMQ_USER,
+                        Configuration.RMQ_PASS),
+                        heartbeat=6000
+                    )
                 )
-            )
             self.channel = self.connection.channel()
             self.channel.queue_bind(
                 queue = Configuration.RMQ_QUEUE_PUBLISHIR,
@@ -77,6 +79,20 @@ class ConsumerExtractor:
             logger.error(f'<*_ConsumerExtractor_*> Connection Error: {error_message}')
             self.reconnecting = True
 
+    def ack_message(self, delivery_tag):
+        self.channel.basic_ack(delivery_tag)
+
+    def nack_message(self, delivery_tag):
+        self.channel.basic_nack(delivery_tag, requeue=False)  # Configurar requeue como True se desejar que a mensagem seja reenfileirada
+
+    def enviar_para_fila_de_retentativa(self, body, id):
+        self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', id))
+        # Reenvie a mensagem para a fila "retry" em caso de erro
+        self.channel.basic_publish(
+            exchange=Configuration.RMQ_EXCHANGE,
+            routing_key=Configuration.RMQ_RETRY_QUEUE,  # Roteamento para a fila "retry"
+            body=body
+        )
     def run(self):
             logger.debug('<*_ConsumerExtractor_*> Run - Init')
             while True:
@@ -94,7 +110,7 @@ class ConsumerExtractor:
                     if self.reconnect_attempts <= self.max_reconnect_attempts:
                         time.sleep(2)
                     else:
-                        logger.error("Máximo de tentativas de reconexão atingido. Saindo.")
+                        logger.error("<*_ConsumerExtractor_*> Exception-Run: Máximo de tentativas de reconexão atingido. Saindo.")
                         break
                 finally:
                     #Postgres Connection
@@ -103,42 +119,41 @@ class ConsumerExtractor:
                         #logger.debug('<*_ConsumerExtractor_*> Run - DB Connection Close')
                     logger.debug('<*_ConsumerExtractor_*> Run - Finally :')
 
-
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
+        id_procesamento = data['id_procesamento']
+        file = data['path_file']
         try:
-            #logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: JSON{data}')
-            if 'path_file' in data and 'proccess_id' in data  :
-                file = data['path_file']
-                if file.lower().endswith(('.jpg', '.jpeg', '.png')):
-                    now = dt.now()
-                    horario = str(data['horario'])
-                    # Extrair horas, minutos e segundos usando fatiamento
-                    hora = horario[:2]
-                    minuto = horario[3:5]
-                    segundo = horario[6:8]
-                    #logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: Hora:{hora} Minuto:{minuto} Segundo:{segundo}')
-                    device = data['local']
-                    id_procesamento = data['proccess_id']
-                    equipamento = data['nome_equipamento']
-                    data_captura = data['data_captura']
-                    message_dict = {
-                        'data_captura': data_captura,
-                        'hora_captura': horario,
-                        'nome_equipamento': equipamento,
-                        'local_equipamento': device,
-                        'captura_base': file,
-                        'id_procesamento': id_procesamento
-                    }
+            if 'path_file' in data and 'id_procesamento' in data and file.lower().endswith(('.jpg', '.jpeg', '.png')):
+                now = dt.now()
+                horario = str(data['horario'])
+                # Extrair horas, minutos e segundos usando fatiamento
+                hora = horario[:2]
+                minuto = horario[3:5]
+                segundo = horario[6:8]
+                #logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage: Hora:{hora} Minuto:{minuto} Segundo:{segundo}')
+                device = data['local']
+                equipamento = data['nome_equipamento']
+                data_captura = data['data_captura']
+                message_dict = {
+                    'data_captura': data_captura,
+                    'hora_captura': horario,
+                    'nome_equipamento': equipamento,
+                    'local_equipamento': device,
+                    'captura_base': file,
+                    'id_procesamento': id_procesamento
+                }
 
-                    
-                    face_objs = DeepFace.extract_faces(
-                        img_path=file,
-                        detector_backend=Configuration.BACKEND_DETECTOR,
-                        enforce_detection=Configuration.ENFORCE_DETECTION,
-                        align=True
-                    )
+                
+                face_objs = DeepFace.extract_faces(
+                    img_path=file,
+                    detector_backend=Configuration.BACKEND_DETECTOR,
+                    enforce_detection=Configuration.ENFORCE_DETECTION,
+                    align=True
+                )
 
+                if len(face_objs) > 0:
+                    #Detectado Face
                     for index, face_obj in enumerate(face_objs):
                         area = (face_obj['facial_area']['h'] + face_obj['facial_area']['w']) / 2
                         confidence = face_obj['confidence']
@@ -153,17 +168,16 @@ class ConsumerExtractor:
                                 os.makedirs(new_face, exist_ok=True)
 
                             face_uint8 = (face * 255).astype('uint8')
-                           
+                        
                             save_path = os.path.join(new_face, f"{segundo}s_face_{index}.jpg")
-                            cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
+                            #cv2.imwrite(save_path, cv2.cvtColor(face_uint8, cv2.COLOR_RGB2BGR))
 
                             # Aplique a filtragem bilateral
-                            #save_path = os.path.join(new_face, f"{str(segundo)}_face_{index}.jpg")
                             # Aplique a filtragem de mediana com um tamanho de kernel (por exemplo: 3x3, 5x5 ou 7x7)
-                            #imagem_filtrada = cv2.medianBlur(face_uint8, 3)  # Ajuste o tamanho do kernel conforme necessário
-                            #imagem_suavizada = cv2.bilateralFilter(imagem_filtrada, d=5, sigmaColor=35, sigmaSpace=65)
+                            imagem_filtrada = cv2.medianBlur(face_uint8, 3)  # Ajuste o tamanho do kernel conforme necessário
+                            imagem_suavizada = cv2.bilateralFilter(imagem_filtrada, d=5, sigmaColor=35, sigmaSpace=65)
 
-                            #cv2.imwrite(save_path, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))
+                            cv2.imwrite(save_path, cv2.cvtColor(imagem_suavizada, cv2.COLOR_RGB2BGR))
 
 
                             if not os.path.exists(save_path):
@@ -176,32 +190,37 @@ class ConsumerExtractor:
                             message_str = json.dumps(message_dict)
                             db_path = save_path.replace('/app/', '')
 
-                            get_publisher = self.publisher.start_publisher(exchange=Configuration.RMQ_EXCHANGE, 
+                            try:
+                                self.publisher.start_publisher(exchange=Configuration.RMQ_EXCHANGE, 
                                                             queue_name=Configuration.RMQ_QUEUE_PUBLISHIR,
                                                             routing_name=Configuration.RMQ_ROUTE_KEY, 
                                                             message=message_str
                                                         )
-                            self.db_connection.connect()
-                            # Update Processos -  status de Criado para Processado
-                            get_update = self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
-                           
-                           # Insert Faces
-                            values =  (dt.now(), dt.now(), db_path, Configuration.BACKEND_DETECTOR, False, id_procesamento)
-                            get_insert = self.db_connection.insert(Configuration.INSER_QUERY, values)
+                                self.db_connection.connect()
+                                # Update Processos -  status de Criado para Processado
+                                self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
                             
-                            #logger.debug(f'<*_ConsumerExtractor_*> ProccessMessage - Pub={get_publisher}:Up={get_update}:Ins={get_insert}')
-                    
+                                # Insert Faces
+                                values =  (dt.now(), dt.now(), db_path, Configuration.BACKEND_DETECTOR, False, id_procesamento)
+                                self.db_connection.insert(Configuration.INSER_QUERY, values)
+                                # Confirmar a mensagem
+                                self.ack_message(method.delivery_tag)
+                            except Exception as e:
+                                error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
+                                logger.error(f'<*_ConsumerExtractor_*> Process_Message: {error_message}')
+                                self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
+                                self.enviar_para_fila_de_retentativa(body, id_procesamento)
+                                self.ack_message(method.delivery_tag)
+                else:
+                    self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
+                    # Confirmar a mensagem
+                    self.ack_message(method.delivery_tag)
+            else:
+                raise Exception(f'Não foi possível processar a mensagem: {body}')
         except Exception as e:
             error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
             logger.error(f'<*_ConsumerExtractor_*> Process_Message: {error_message}')
-            self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', data['proccess_id']))
-
-            # Reenvie a mensagem para a fila "retry" em caso de erro
-            self.channel.basic_publish(
-                exchange=Configuration.RMQ_EXCHANGE,
-                routing_key=Configuration.RMQ_RETRY_QUEUE,  # Roteamento para a fila "retry"
-                body=body
-            )
+            self.nack_message(method.delivery_tag)
          
 if __name__ == "__main__":
     job = ConsumerExtractor()
