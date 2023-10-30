@@ -126,7 +126,6 @@ class ConsumerExtractor:
                     'id_procesamento': id_procesamento
                 }
 
-                
                 face_objs = DeepFace.extract_faces(
                     img_path=file,
                     detector_backend=Configuration.BACKEND_DETECTOR,
@@ -135,13 +134,10 @@ class ConsumerExtractor:
                 )
 
                 if len(face_objs) > 0:
-                    #Detectado Face
                     for index, face_obj in enumerate(face_objs):
                         area = (face_obj['facial_area']['h'] + face_obj['facial_area']['w']) / 2
                         confidence = face_obj['confidence']
-                        
-                        #logger.debug(f'<*_ConsumerExtractor_*> ProcessMessage:Area: {area} confidence:: {confidence}')
-                        
+                                                
                         if confidence >= Configuration.LIMITE_DETECTOR and area >= Configuration.LIMITE_AREA:
                             face = face_obj['face']
                             new_face = os.path.join(self.path_capture, str(equipamento), data_captura,hora, minuto)
@@ -168,12 +164,8 @@ class ConsumerExtractor:
                             message_str = json.dumps(message_dict)
                             db_path = save_path.replace('/app/', '')
 
-
-                            # Update Processos -  status de Criado para Processado
-                            self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
-                        
-                            # Insert Faces
                             values =  (now, now, db_path, Configuration.BACKEND_DETECTOR, False, id_procesamento)
+                            self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
                             self.db_connection.insert(Configuration.INSER_QUERY, values)
 
                             self.publisher.start_publisher(exchange=Configuration.RMQ_EXCHANGE, 
@@ -192,6 +184,7 @@ class ConsumerExtractor:
                 self.channel.basic_nack(method.delivery_tag, requeue=True)  
             finally:
                 self.channel.basic_ack(method.delivery_tag)
+                logger.info(f'<*_ConsumerExtractor_*> Process_Message - Finish')
          
 if __name__ == "__main__":
     job = ConsumerExtractor()

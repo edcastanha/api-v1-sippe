@@ -30,7 +30,7 @@ class DatabaseConnection:
         try:
             self.cursor.execute(query, params)
             self.conn.commit()
-            logger.info(f"<*_ConnectionDB_*> Connection e Commit - OK: {query}")
+            logger.info(f"<*_ConnectionDB_*> Update Success")
         except psycopg2.Error as e:
             self.conn.rollback()
             logger.error(f"Error executing update query: {e}")
@@ -42,7 +42,7 @@ class DatabaseConnection:
         try:
             self.cursor.execute(query, params)
             self.conn.commit()
-            logger.info(f"<*_ConnectionDB_*> Connection e Commit - OK: {query}")
+            logger.info(f"<*_ConnectionDB_*> Insert Success")
         except psycopg2.Error as e:
             self.conn.rollback()
             logger.error(f"Error executing insert query: {e}")

@@ -26,9 +26,11 @@ class Publisher:
                     delivery_mode = 2,
                 )
             )
+            logger.info(f' <**_PUBLISHER_ **> Mensagem enviada para fila: {queue_name} ')
         except Exception as e:
             logger.error(f' <**_PUBLISHER_ **> ERROR:: {e}')
     
     def close(self):
         if self.connection.is_open:
             self.connection.close()
+            logger.info(f' <**_PUBLISHER_ **> Connection closed')
