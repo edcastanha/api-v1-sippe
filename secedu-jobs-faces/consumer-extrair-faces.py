@@ -173,7 +173,11 @@ class ConsumerExtractor:
                                                         routing_name=Configuration.RMQ_ROUTE_KEY, 
                                                         message=message_str
                                                     )
+                    # Update Status Processamento -  Enviado devido localizado face`s
+                    self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
+
                             
+                # Update Status Processamento -  Processado devido nao haver faces
                 self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
                     
             except Exception as e:
