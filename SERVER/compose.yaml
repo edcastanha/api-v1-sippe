@@ -65,10 +65,12 @@ services:
       dockerfile: Dockerfile
     container_name: secedu-api
     image: secedu-admin-web-api
-    command: gunicorn --workers=2 --timeout=3600 --bind=0.0.0.0:7000 core.wsgi:application
+    command: gunicorn --workers=2 --timeout=3600 --bind=0.0.0.0:5005 core.wsgi:application
     depends_on:
       - postgres-server
     restart: always
+    ports:
+      - "5005:5005"
     env_file:
       - .env
     volumes:
@@ -78,10 +80,22 @@ services:
       - faces-oval:/api/media/faces-oval/
       - ftp_data:/api/media/ftp/
       - logs_data:/api/media/logs/
-    ports:
-      - "7000:7000"
     networks:
       - server-hosts
+      - web_network
+
+  secedu-nginx:
+      container_name: secedu-nginx
+      restart: always
+      image: "nginx:latest"
+      ports:
+        - "7000:7000"
+      volumes:
+        - ./nginx:/etc/nginx/conf.d
+      networks:
+        - web_network
+      depends_on:
+        - secedu-api
 
 # Celery - Secedu System Task Manager
   secedu-beat-scheduler:
@@ -231,6 +245,9 @@ services:
 networks:
   server-hosts:
     driver: bridge
+  web_network:
+    driver: bridge
+
 
 volumes:
   postgres_data:

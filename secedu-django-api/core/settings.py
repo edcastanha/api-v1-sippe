@@ -52,9 +52,21 @@ INSTALLED_APPS = [
     # Apps
     'core.cadastros.apps.CadastrosConfig',
     'core.cameras.apps.CamerasConfig',
+    # Forms
+    'crispy_forms',
+    'crispy_bootstrap5',
 ]
 
-LOGIN_REDIRECT_URL = '/'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+
+# LOGIN / LOGOUT
+LOGIN_REDIRECT_URL = 'backend'
+LOGOUT_REDIRECT_URL = 'frontend'
+
+#LOGIN_REDIRECT_URL = '/'
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
@@ -67,6 +79,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://secedu.com.br', 'http://localhost']
 
 ROOT_URLCONF = 'core.urls'
 
@@ -147,7 +161,6 @@ MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    #os.path.join(BASE_DIR, 'staticfiles'),
 ]
 # python manage.py collectstatic
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

@@ -6,54 +6,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SecEdu{% endblock %}</title>
-    <!--Bootstrap CSS-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!--Bootstrap 5 CSS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
     <!--Font Awesome-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-
     <!--DataTable CSS-->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+    <!-- CSS STATIC -->
+    <link href={% static "cameras/img/icons/favicon.ico" %} rel="shortcut icon" type="image/x-icon">
+    <!-- Logo -->
+    <link href={% static "cameras/img/icons/logo.ico" %} rel="shortcut icon" type="image/x-icon">
+    <!-- Static CSS -->
+    <link href={% static "cameras/css/style.css" %} rel="stylesheet">
+</head>
 
 <body>
     <div class="wrapper">
+        <!-- Navbar -->
         <header>
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <!-- FontAwesome + Title (Left side) -->
                 <div class="col-sm">
-                    <a class="navbar-brand flex-grow-1" href="{% url 'home' %}"
-                        style="text-align: center; margin-left: 25px; color: #fff;">
-                        {% block navbar-contant %}SecEdu{% endblock navbar-contant %}
+                    <a href="#" class="navbar-brand flex-grow-1 text-center text-light" style="margin-left: 25px;">
+                        {% block nav-content %}
+                        <i class="fa-solid fa-graduation-cap"></i>&nbsp;&nbsp; SecEdu IA
+                        {% endblock %}
                     </a>
                 </div>
-                <!-- Create a input outside -->
+                <!-- Button (Right side) -->
+                <div class="col-sm">
+                    {% block nav-btn %}
+                    <a href="{% url 'backend' %}" class="btn btn-outline-success btn-sm text-light" id="btn-nav">Conectar-se</a>
+                    {% endblock %}
+                </div>
             </nav>
         </header>
 
-        <!--  =======================Block content ROOT=====================  -->
+        <!-- ===== Block Content (ROOT) ===== -->
         {% block content %} {% endblock content %}
 
-    </div><!--END // wrapper-->
-
-    <footer class="bg-dark text-center text-lg-start" id="footer" style="color: #fff;">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">&copy;{% now "Y" %} Copyrigth
-            <a class="text-ligth" href="#" style="text-decoration: none;">
-                <span style="color: greenyellow;">www.secedu.com.br</span>
-            </a>
-        </div>
-    </footer>
+    </div> <!-- End // wrapper -->
+    <!-- === FOOTER === -->
+    {% include "layout/includes/footer.html" %} <!-- Extend the footer.html -->
 
     <!--Bootstrap JS-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+        crossorigin="anonymous"></script>
+
     <!--Jquery-->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <!--DataTable JQuery-->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Static JS -->
+    <script src={% static "cameras/js/script.js" %}></script>
 </body>
 
 </html>
