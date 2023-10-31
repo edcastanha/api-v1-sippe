@@ -4,31 +4,37 @@
 <!-- Block title -->
 {% block title %} Log in {% endblock %}
 
-<!-- Block navbar content -->
-{% block nav-content %}
-<i class="fas fa-key"></i>&nbsp;&nbsp; Area Administrativa
-{% endblock %}
-
-<!-- Login button -->
-{% block nav-btn %}
-<a href="{% url 'frontend' %}" class="btn btn-outline-secondary btn-sm text-light" id="btn-nav">Voltar atrás</a>
-{% endblock %}
-
 <!-- Block footer -->
 {% block footer %} style="color: #d3d3d3;" {% endblock %}
 
 <!-- Page content -->
-{% block content %} 
-<div class="container card p-3 border-dark mt-5" style="width: 30%;">
-    <!-- Title -->
-    <div class="text-center">ACESSO RESTRITO</div>
-    <hr>
-    <!-- Form -->
-    <form method="POST" autocomplete="off" novalidate>
-        {% csrf_token %}
-        {{ form|crispy }}
-        <br>
-        <button type="submit" class="w-100 btn btn-secondary">VALIDAR CREDENCIAIS</button>
-    </form>
+{% block content %}
+<div class="container card p-3 border-dark mt-5" style="width: 30%; height: 50%;">
+    <div class="card mb-3">
+
+        <div class="card-body">
+
+            <div class="pt-4 pb-2">
+                <h5 class="card-title text-center pb-0 fs-4">Area Restritiva</h5>
+                <p class="text-center small">Preencha com o seu credencial para iniciar sessão</p>
+            </div>
+            <!-- Form -->
+            <form class="row g-3 needs-validation" method="POST" autocomplete="off" novalidate>
+                {% csrf_token %}
+                {{ form|crispy }}
+                <br>
+                <button type="submit" class="btn btn-primary w-100">CONFERIR CREDENCIAIS</button>
+                <br>
+                <a href="{% url 'frontend' %}" class="btn btn-outline-secondary w-100  text-dark" id="btn-nav">
+                    RETORNAR A HOME
+                </a>
+            </form>
+            <div class="pt-4 pb-2">
+                <p>Caso deseje um apresentacão favor realizar contato.</p>
+            </div>
+
+        </div>
+    </div>
 </div>
+<br> <br> <br> <br> <br> <br>
 {% endblock content %}
