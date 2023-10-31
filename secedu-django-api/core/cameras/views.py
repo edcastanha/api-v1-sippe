@@ -13,19 +13,16 @@ from core.cameras.models import Cameras, Processamentos, Faces
 from core.cadastros.models import Aluno
 
 
-def home(request):
-    alunos_list = Aluno.objects.all()
-
-    content = {
-        'alunos': alunos_list
-    }
-
-    return render(request, "home.html", content)
-
-
 # Frontend
 def frontend(request):
     return render(request, "frontend.html")
+
+
+# Backend
+@login_required(login_url="login")
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def backend(request):
+    return render(request, "app/backend.html")
 
 def total_processamentos_por_dia(request):
     # Obter o total de processamentos por dia
@@ -40,8 +37,3 @@ def total_faces_por_dia(request):
         'total_processamentos_por_dia': total_processamentos_por_dia,
         'total_faces_por_dia': total_faces_por_dia
     }
-# Backend
-@login_required(login_url="login")
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def backend(request):
-    return render(request, "app/backend.html")
