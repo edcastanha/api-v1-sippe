@@ -1,60 +1,265 @@
 {% extends 'layout/base.html' %}
 
 <!-- Page content -->
+{% load static %}
 {% block content %}
+<!-- ======= Hero Section ======= -->
+<section id="hero">
 
-<div class="container">
-
-
-    <div class="row">
-
-        <div class="col-md">
-            <br>
-
-            <h1>Processamentos por Dia:</h1>
-            <canvas id="processamentos_por_dia" width="250" height="200"></canvas>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 pt-5 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center"
+                data-aos="fade-up">
+                <div>
+                    <h1>Educação Avançada com Tecnologia Inteligente</h1>
+                    <h2>Garanta segurança, eficiência e bem-estar na sua escola com a nossa inovadora solução!</h2>
+                    <a href="#sobre" class="btn-get-started scrollto">Saiba Mais</a>
+                </div>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="fade-left">
+                <img src="{% static 'web/assets/img/hero-img.png' %}" class="img-fluid" alt="">
+            </div>
         </div>
-
-        <div class="col-md">
-            <br>
-            <h1>Média Mensal por Emoções:</h1>
-            <canvas id="media_dia_emocoes" width="250" height="200"></canvas>
-        </div>
-
     </div>
 
-    <div class="row">
+</section><!-- End Hero -->
 
-        <div class="col-md">
-            <br>
 
-            <h1>Total de Capturas por Dia:</h1>
-            <canvas id="total_faces_por_dia" width="250" height="200"></canvas>
+<!-- ======= Hero ======= -->
+<main id="main">
+
+
+    <!-- ======= Características  ======= -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 mt-2 mb-tg-0 order-2 order-lg-1">
+                    <ul class="nav nav-tabs flex-column">
+                        <li class="nav-item" data-aos="fade-up">
+                            <a class="nav-link active show" data-bs-toggle="tab" href="#tab-1">
+                                <h4>Reconhecimento Facial de Alta Precisão:</h4>
+                                <p>
+                                    Utilizamos tecnologia de ponta para garantir a identificação precisa dos alunos.
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item mt-2" data-aos="fade-up" data-aos-delay="100">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab-2">
+                                <h4>Gestão de Frequência Automática: </h4>
+                                <p>
+                                    Registre a presença dos alunos de forma automática, eliminando a necessidade de
+                                    listas de chamada manuais.
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item mt-2" data-aos="fade-up" data-aos-delay="200">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab-3">
+                                <h4>Análise Emocional Avançada: </h4>
+                                <p>
+                                    Compreenda as emoções dos alunos, identificando momentos
+                                    de estresse, felicidade ou outros estados emocionais relevantes.
+
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item mt-2" data-aos="fade-up" data-aos-delay="300">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab-4">
+                                <h4>Relatórios Personalizados:</h4>
+                                <p>
+                                    Forneça relatórios detalhados para os professores, pais e diretores, permitindo uma
+                                    visão abrangente do progresso dos alunos.
+
+                                </p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 order-1 order-lg-2" data-aos="zoom-in">
+                    <div class="tab-content">
+                        <div class="tab-pane active show" id="tab-1">
+                            <figure>
+                                <img src="{% static 'web/assets/img/features-1.png' %}" alt="" class="img-fluid">
+                            </figure>
+                        </div>
+                        <div class="tab-pane" id="tab-2">
+                            <figure>
+                                <img src="{% static 'web/assets/img/features-3.png' %}" alt="" class="img-fluid">
+                            </figure>
+                        </div>
+                        <div class="tab-pane" id="tab-3">
+                            <figure>
+                                <img src="{% static 'web/assets/img/features-4.png' %}" alt="" class="img-fluid">
+                            </figure>
+                        </div>
+                        <div class="tab-pane" id="tab-4">
+                            <figure>
+                                <img src="{% static 'web/assets/img/features-2.png' %}" alt="" class="img-fluid">
+                            </figure>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
+    </section><!-- End Características  -->
 
-        <div class="col-md">
-            <br>
-            <h1>Total de Reconhecimento por Dia: </h1>
-            <canvas id="funcionarios_do_mes" width="250" height="200"></canvas>
+    <!-- ======= Sobre ======= -->
+    <section id="sobre" class="about">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-6" data-aos="zoom-in">
+                    <img src="{% static 'web/assets/img/about.jpg' %}" class="img-fluid" alt="">
+                    <p class="fst-italic">
+                        Imagine uma escola onde a segurança dos alunos é aprimorada, onde a presença dos alunos é
+                        registrada de forma eficiente, e onde os professores podem compreender as necessidades
+                        emocionais de seus estudantes.
+                    </p>
+                </div>
+                <div class="col-lg-6 d-flex flex-column justify-contents-center" data-aos="fade-left">
+                    <div class="content pt-4 pt-lg-0">
+                        <h3>Uma Solução Inovadora para Escolas</h3>
+
+                        <p>Por que o Reconhecimento Facial e a Gestão de Frequência são Importantes:</p>
+                        <ul>
+                            <li><i class="bi bi-check-circle"></i>
+                                <strong>Segurança Aprimorada:</strong> Garanta a segurança dos alunos monitorando quem
+                                entra e sai da escola com reconhecimento facial. Isso evita a entrada de pessoas não
+                                autorizadas e permite uma resposta rápida em caso de emergências.
+                            </li>
+                            <li><i class="bi bi-check-circle"></i>
+                                <strong>Presença Eficiente:</strong> Registre a presença dos alunos de forma rápida e
+                                eficiente, sem a necessidade de contato físico. Isso permite que os professores tenham
+                                mais tempo para se dedicar ao ensino e aos alunos.
+                            </li>
+                            <li><i class="bi bi-check-circle"></i>
+                                <strong>Previsão de Situações Socioemocionais:</strong> Nossa ferramenta vai além do
+                                reconhecimento facial. Utiliza algoritmos avançados para analisar a expressão facial dos
+                                alunos e prever suas necessidades emocionais. Isso possibilita uma abordagem
+                                personalizada para o desenvolvimento socioemocional de cada aluno.
+                            </li>
+                        </ul>
+                        <p>
+
+                        </p>
+                    </div>
+                </div>
+                <p class="text-justify"> Essa visão da educação é possível com a nossa inovadora
+                    ferramenta de Reconhecimento Facial e Gestão de Frequência, uma solução que une tecnologia
+                    de ponta com a preocupação pelo bem-estar dos alunos.
+                </p>
+            </div><!--row-->
+
         </div>
+    </section><!-- End Sobre -->
 
-    </div>
+    <!-- ======= F.A.Q Section ======= -->
+    <section id="faq" class="faq">
+        <div class="container">
+
+            <div class="section-title" data-aos="fade-up">
+                <h2>Perguntas mais frequentes</h2>
+            </div>
+
+            <ul class="faq-list">
+                <li>
+                    <div data-bs-toggle="collapse" class="collapsed question" href="#faq1">
+                        O que é uma ferramenta de reconhecimento facial?
+                        <i class="bi bi-chevron-down icon-show"></i>
+                        <i class="bi bi-chevron-up icon-close"></i>
+                    </div>
+                    <div id="faq1" class="collapse" data-bs-parent=".faq-list">
+                        <p>
+                            Uma ferramenta de reconhecimento facial é um software ou sistema que utiliza algoritmos para
+                            identificar e verificar a identidade de uma pessoa com base em suas características faciais
+                            únicas.
+
+                        </p>
+                    </div>
+                </li>
+
+                <li>
+                    <div data-bs-toggle="collapse" href="#faq2" class="collapsed question">
+                        Como funcionam as ferramentas de reconhecimento facial?
+                        <i class="bi bi-chevron-down icon-show"></i>
+                        <i class="bi bi-chevron-up icon-close"></i>
+                    </div>
+                    <div id="faq2" class="collapse" data-bs-parent=".faq-list">
+                        <p>
+                            As ferramentas de reconhecimento facial usam técnicas de visão computacional para analisar
+                            características faciais, como formato dos olhos, nariz e boca, e criam um modelo que pode
+                            ser comparado com um banco de dados para identificar indivíduos.
+                        </p>
+                    </div>
+                </li>
+
+                <li>
+                    <div data-bs-toggle="collapse" href="#faq3" class="collapsed question">
+                        Onde as ferramentas de reconhecimento facial são aplicadas?
+
+                        <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i>
+                    </div>
+                    <div id="faq3" class="collapse" data-bs-parent=".faq-list">
+                        <p>
+                            As ferramentas de reconhecimento facial são usadas em uma variedade de aplicações, incluindo
+                            segurança, controle de acesso, autenticação, organização de fotos, e até mesmo em redes
+                            sociais para marcação automática de rostos.
+
+                        </p>
+                    </div>
+                </li>
+
+                <li>
+                    <div data-bs-toggle="collapse" href="#faq4" class="collapsed question">
+                        Como o reconhecimento facial pode otimizar o atendimento ao cliente?
+                        <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i>
+                    </div>
+                    <div id="faq4" class="collapse" data-bs-parent=".faq-list">
+                        <p>
+                            No setor de atendimento ao cliente, o reconhecimento facial pode acelerar o processo de
+                            identificação de clientes, permitindo um atendimento mais personalizado e eficiente,
+                            melhorando a experiência do cliente.
+
+                        </p>
+                    </div>
+                </li>
+
+                <li>
+                    <div data-bs-toggle="collapse" href="#faq5" class="collapsed question">
+                        Quais são os benefícios do reconhecimento facial?
+                        <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i>
+                    </div>
+                    <div id="faq5" class="collapse" data-bs-parent=".faq-list">
+                        <p>
+                            O reconhecimento facial oferece benefícios em termos de segurança, eficiência e
+                            conveniência. Pode ser usado para reforçar a segurança em edifícios e dispositivos móveis,
+                            agilizar o processo de login em aplicativos e melhorar a organização de fotos.
+                        </p>
+                    </div>
+                </li>
+
+                <li>
+                    <div data-bs-toggle="collapse" href="#faq6" class="collapsed question">
+                        Como o reconhecimento facial está impulsionando a inovação?
+                        <i class="bi bi-chevron-down icon-show"></i><i class="bi bi-chevron-up icon-close"></i>
+                    </div>
+                    <div id="faq6" class="collapse" data-bs-parent=".faq-list">
+                        <p>
+                            O reconhecimento facial é uma tecnologia em constante evolução que impulsiona a inovação em
+                            várias áreas, desde segurança até medicina e entretenimento. Sua capacidade de identificar
+                            pessoas de forma rápida e precisa abre oportunidades para aplicativos criativos e avanços
+                            tecnológicos.
+                        </p>
+                    </div>
+                </li>
+
+            </ul>
+
+        </div>
+    </section><!-- End Frequently Asked Questions Section -->
 
 
-</div>
-<br>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.3/chart.min.js" integrity="sha512-fMPPLjF/Xr7Ga0679WgtqoSyfUoQgdt8IIxJymStR5zV3Fyb6B3u/8DcaZ6R6sXexk5Z64bCgo2TYyn760EdcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<!-- Renderiza JSON -->
-<script>
-    window.onload = function (e) {
-        renderiza_total_processamentos_por_dia('{% url "total_processamentos_por_dia" %}')
-        renderiza_total_faces_por_dia('{% url "total_faces_por_dia" %}')
-        renderiza_media_emocoes()
-    }
-</script>
-
-
+</main><!-- End #main -->
 
 {% endblock content %}
