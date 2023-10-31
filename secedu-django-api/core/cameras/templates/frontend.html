@@ -1,6 +1,60 @@
 {% extends 'layout/base.html' %}
 
 <!-- Page content -->
-{% block content %} 
-<h1 class="text-success text-center" style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%);">Frontend</h1>
+{% block content %}
+
+<div class="container">
+
+
+    <div class="row">
+
+        <div class="col-md">
+            <br>
+
+            <h1>Processamentos por Dia:</h1>
+            <canvas id="processamentos_por_dia" width="250" height="200"></canvas>
+        </div>
+
+        <div class="col-md">
+            <br>
+            <h1>Média Mensal por Emoções:</h1>
+            <canvas id="media_dia_emocoes" width="250" height="200"></canvas>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-md">
+            <br>
+
+            <h1>Total de Capturas por Dia:</h1>
+            <canvas id="total_faces_por_dia" width="250" height="200"></canvas>
+        </div>
+
+        <div class="col-md">
+            <br>
+            <h1>Total de Reconhecimento por Dia: </h1>
+            <canvas id="funcionarios_do_mes" width="250" height="200"></canvas>
+        </div>
+
+    </div>
+
+
+</div>
+<br>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.3/chart.min.js" integrity="sha512-fMPPLjF/Xr7Ga0679WgtqoSyfUoQgdt8IIxJymStR5zV3Fyb6B3u/8DcaZ6R6sXexk5Z64bCgo2TYyn760EdcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- Renderiza JSON -->
+<script>
+    window.onload = function (e) {
+        renderiza_total_processamentos_por_dia('{% url "total_processamentos_por_dia" %}')
+        renderiza_total_faces_por_dia('{% url "total_faces_por_dia" %}')
+        renderiza_media_emocoes()
+    }
+</script>
+
+
+
 {% endblock content %}

@@ -20,4 +20,8 @@ urlpatterns = [
     path('backend/', views.backend, name="backend"),
     # Login/Logout
     path('login/', include('django.contrib.auth.urls')),
+
+    # Charts
+    path('total_processamentos_por_dia/', views.total_processamentos_por_dia, name="total_processamentos_por_dia"),
+    path('total_faces_por_dia/', views.total_faces_por_dia, name="total_faces_por_dia"),
 ]
