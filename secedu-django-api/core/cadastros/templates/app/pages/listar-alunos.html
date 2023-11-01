@@ -1,0 +1,74 @@
+{% extends 'app/layout/base_admin.html' %}
+<!-- Block title -->
+{% block title %} SecEdu IA {% endblock %}
+
+
+<!-- Page content -->
+{% block content %}
+
+<section class="section dashboard">
+    <div class="row">
+
+
+        <div class="col-lg-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Alunos</h5>
+
+                    <!-- Table with stripped rows -->
+                    <table id="dataAlunos" class="table datatable">
+                        <thead>
+                            <tr>
+                                <th scope="col">#RA</th>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Turma</th>
+                                <th scope="col">Período</th>
+                                <th scope="col">Género</th>
+                                <th scope="col">Atualizado em</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for aluno in alunos %}
+                            <tr>
+                                <th scope="row">{{aluno.matricula}}</th>
+                                <td>{{aluno.nome}}</td>
+                                <td>{{aluno.turma}}</td>
+                                <td>{{aluno.periodo}}</td>
+                                <td>{{aluno.genero}}</td>
+                                <td>{{aluno.data_atualizacao}}</td>
+                            </tr>
+                            {% endfor %}
+                    </table>
+                    <!-- End Table with stripped rows -->
+                    <!-- Datatabls script # dataAlunos -->
+
+
+                </div>
+            </div>
+
+        </div>
+
+    </div><!-- Row 1-->
+</section>
+
+{% block js %}
+
+
+<script>
+    $(document).ready(function () {
+        $("#dataAlunos").DataTable({
+            language: {
+                url: "../json/dataTable-ptBR.json"
+            },
+            pageLength: 15,
+            autoWidth: true,
+            responsive: true,
+
+        });
+    });
+</script>
+{% endblock js %}
+
+
+{% endblock content %}<!-- End Page Content -->

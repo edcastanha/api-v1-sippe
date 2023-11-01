@@ -80,6 +80,7 @@ services:
       - faces-oval:/api/media/faces-oval/
       - ftp_data:/api/media/ftp/
       - logs_data:/api/media/logs/
+      - stasfiles:/api/staticfiles/
     networks:
       - server-hosts
       - web_network
@@ -92,6 +93,7 @@ services:
         - "7000:7000"
       volumes:
         - ./nginx:/etc/nginx/conf.d
+        - stasfiles:/api/staticfiles/
       networks:
         - web_network
       depends_on:
@@ -312,3 +314,10 @@ volumes:
       type: none
       o: bind
       device: C:\workspace\volumes\faces-oval
+
+  stasfiles: 
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: C:\workspace\volumes\staticfiles

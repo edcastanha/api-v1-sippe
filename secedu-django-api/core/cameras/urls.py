@@ -21,10 +21,4 @@ urlpatterns = [
 
     # Backend
     path('backend/', views.backend, name="backend"),
-    path('listar-pessoas/', views.listarPessoas, name="listar_pessoas"),
-    path('listar-alunos/', views.listarAlunos, name="listar_alunos"),
-
-    # Charts
-    path('total_processamentos_por_dia/', views.total_processamentos_por_dia, name="total_processamentos_por_dia"),
-    path('total_faces_por_dia/', views.total_faces_por_dia, name="total_faces_por_dia"),
 ]

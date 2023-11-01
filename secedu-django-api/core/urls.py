@@ -9,6 +9,7 @@ from core.cameras.urls import router as cameras_router
 #URLs ADMIN e SITE
 from django.contrib import admin
 from core.cameras import urls as cameras_urls
+from core.cadastros import urls as cadastros_urls
 
 
 
@@ -22,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # ADMIN
     path('api/v1/', include(router.urls)),  # API REST
     path('', include(cameras_urls)),  # SITE
+    path('', include(cadastros_urls)),  # SITE
 ]
 
 # INCLUDES static e media

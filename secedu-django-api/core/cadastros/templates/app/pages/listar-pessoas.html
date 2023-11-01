@@ -1,0 +1,51 @@
+{% extends 'app/layout/base_admin.html' %}
+
+<!-- Block title -->
+{% block title %} SecEdu IA {% endblock %}
+
+<!-- Page content -->
+{% block content %}
+
+<section class="section dashboard">
+    <div class="row">
+
+
+        <div class="col-lg-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Pessoas</h5>
+
+                    <!-- Table with stripped rows -->
+                    <table class="table datatable">
+                        <thead>
+                            <tr>
+                                <th scope="col"># ID</th>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Sexo</th>
+                                <th scope="col">Perfil</th>
+                                <th scope="col">Cadastrado em</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Pessoa test 1</td>
+                                <td>S/N</td>
+                                <td>Test</td>
+                                <td>2023-09-12</td>
+                            </tr>
+                           
+                        </tbody>
+                    </table>
+                    <!-- End Table with stripped rows -->
+
+                </div>
+            </div>
+
+        </div>
+
+    </div><!-- Row 1-->
+</section>
+
+{% endblock content %}<!-- End Page Content -->

@@ -70,6 +70,16 @@ class Pessoas(baseModel):
     def __str__(self):
         return f"{self.nome} - {self.perfil}"
     
+    def get_data(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'sexo': self.sexo,
+            'perfil': self.perfil,
+            'data_cadastro': self.data_cadastro.strftime("%d/%m/%Y %H:%M:%S"),
+            'data_atualizacao': self.data_atualizacao.strftime("%d/%m/%Y %H:%M:%S"),
+        }
+    
 class Turmas(baseModel):
     CHOICE_PERIODOS = (
         ('Morning', 'Morning'),
@@ -106,6 +116,18 @@ class Aluno(baseModel):
 
     def __str__(self):
         return f"{self.pessoa.nome} - {self.matricula} - {self.turma.nome}"
+    
+    def get_data(self):
+        return {
+            'id': self.id,
+            'data_cadastro': self.data_cadastro.strftime("%d/%m/%Y %H:%M:%S"),
+            'matricula': self.matricula,
+            'nome': self.pessoa.nome,
+            'turma': self.turma.nome,
+            'periodo': self.turma.periodo,
+            'genero': self.pessoa.sexo,
+            'data_atualizacao': self.data_atualizacao.strftime("%d/%m/%Y %H:%M:%S"),
+        }
 
 class Escalas(baseModel):
     CHOICE_TURNOS = (

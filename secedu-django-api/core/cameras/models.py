@@ -1,4 +1,3 @@
-from re import search
 from django.db import models
 from core.cadastros.models import Escolas, Aluno, Escalas
 from core.cadastros.models import Pessoas
@@ -95,7 +94,17 @@ class Processamentos(baseModel):
     
     def __str__(self):
         return f"{self.status} | {self.camera.modelo} - {self.dia} as {self.horario}"
-
+    
+    def get_data(self):
+        return {
+            'id': self.id,
+            'camera': self.camera.modelo,
+            'dia': self.dia,
+            'horario': self.horario,
+            'path': self.path,
+            'status': self.status,
+        } 
+    
 class Faces(baseModel):
     processamento = models.ForeignKey(Processamentos, on_delete=models.CASCADE)
     path_face = models.CharField(max_length=250, unique=True)
@@ -109,6 +118,9 @@ class Faces(baseModel):
     
     def __str__(self):
         return f"{self.id} :: {self.processamento.dia} as {self.processamento.horario} - {self.auditado}"
+
+
+
 
 class FrequenciasEscolar(baseModel):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)

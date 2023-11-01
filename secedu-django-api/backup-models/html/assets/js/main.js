@@ -303,15 +303,15 @@
   datatables.forEach(datatable => {
     new simpleDatatables.DataTable(datatable, {
       language: {
-        ulr: dataTableLanguegeUrl
+        url: 'app/assets/json/dataTable-pt-BR.json'
       },
       paging: true,
       pageLength: 20,
       lengthChange: true,
       autoWidth: true,
       searching: true,
-      bInfo: True,
-      bSort: True,
+      bInfo: true,
+      bSort: true,
       responsive: true,
     });
   })
