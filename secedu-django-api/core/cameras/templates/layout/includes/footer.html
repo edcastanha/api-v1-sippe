@@ -3,26 +3,6 @@
     <div class="footer-top">
         <div class="container">
             <div class="row">
-
-                <!--<div class="col-lg-3 col-md-6">
-            <div class="footer-info">
-              <h3>Scaffold</h3>
-              <p>
-                A108 Adam Street <br>
-                NY 535022, USA<br><br>
-                <strong>Phone:</strong> +1 5589 55488 55<br>
-                <strong>Email:</strong> info@example.com<br>
-              </p>
-              <div class="social-links mt-3">
-                <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
-                <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
-                <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
-                <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
-                <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
-              </div>
-            </div>
-          </div>
-        -->
                 <div class="col-lg-2 col-md-6 footer-links">
                     <h4>Links úteis</h4>
                     <ul>
@@ -38,27 +18,28 @@
                     <h4>A nossa newsletter</h4>
                     <p>Informece sobre u uso de tecnologias voltadas para o ensino</p>
                     <form action="" method="post">
-                        <input type="email" name="email"><input type="submit" value="Inscrever-se">
+                        <input aria-label="email" type="email" name="email"><input type="submit" value="Inscrever-se">
                     </form>
 
                 </div>
 
             </div>
         </div>
-    </div>
+    </div><!-- Footer Top -->
 
     <div class="container">
         <div class="copyright">
             &copy; {% now "Y" %} Copyright . Todos os direitos reservados:
             <strong>
                 <span>
-                {% block footer %}
+                    {% block footer %}
                     secedu.com.br
-                {% endblock %}
+                    {% endblock %}
                 </span>
             </strong>
         </div>
     </div>
 </footer><!-- End Footer -->
 
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+        class="bi bi-arrow-up-short"></i></a>
