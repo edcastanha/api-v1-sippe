@@ -52,23 +52,5 @@
     </div><!-- Row 1-->
 </section>
 
-{% block js %}
-
-
-<script>
-    $(document).ready(function () {
-        $("#dataAlunos").DataTable({
-            language: {
-                url: "../json/dataTable-ptBR.json"
-            },
-            pageLength: 15,
-            autoWidth: true,
-            responsive: true,
-
-        });
-    });
-</script>
-{% endblock js %}
-
 
 {% endblock content %}<!-- End Page Content -->

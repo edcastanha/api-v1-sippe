@@ -8,11 +8,6 @@
 
 /*--------------------------------------------------------------
 # General
-body {
-  font-family: "Open Sans", sans-serif;
-  background: #f6f9ff;
-  color: #444444;
-}
 --------------------------------------------------------------*/
 :root {
   scroll-behavior: smooth;
@@ -20,7 +15,7 @@ body {
 
 body {
   font-family: "Open Sans", sans-serif;
-  background: #0097fc;
+  background: #f6f9ff;
   color: #444444;
 }
 

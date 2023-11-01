@@ -24,7 +24,6 @@
         integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-
     <!-- Vendor CSS Files -->
     <link href="{% static 'web/assets/vendor/aos/aos.css' %}" rel="stylesheet">
     <link href="{% static 'web/assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -38,7 +37,6 @@
 </head>
 
 <body>
-
     <!-- ======= Header ======= -->
     <header id="header" class="fixed-top d-flex align-items-center">
         <div class="container d-flex align-items-center">
@@ -46,7 +44,8 @@
             <div class="logo me-auto">
                 <h1><a href="{% url 'frontend' %}">
                         {% block nav-content %}
-                        <i class="fa-solid fa-graduation-cap"></i>&nbsp;&nbsp; SecEdu IA
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        &nbsp;&nbsp; SecEdu IA
                         {% endblock %}
                     </a></h1>
                 <!-- Uncomment below if you prefer to use an image logo -->
