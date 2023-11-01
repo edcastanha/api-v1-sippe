@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>{% block title %}SecEdu{% endblock %}</title>
+
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="{% static 'images/icons/favicon.ico' %}" rel="icon">
+    <link href="{% static 'images/icons/logo.ico' %}" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
+
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'web/assets/vendor/aos/aos.css' %}" rel="stylesheet">
+    <link href="{% static 'web/assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'web/assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'web/assets/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'web/assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+    <link href="{% static 'web/assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="{% static 'web/assets/css/style.css' %}" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="fixed-top d-flex align-items-center">
+        <div class="container d-flex align-items-center">
+
+            <div class="logo me-auto">
+                <h1><a href="{% url 'frontend' %}">
+                        {% block nav-content %}
+                        <i class="fa-solid fa-graduation-cap"></i>&nbsp;&nbsp; SecEdu IA
+                        {% endblock %}
+                    </a></h1>
+                <!-- Uncomment below if you prefer to use an image logo -->
+                <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+            </div>
+
+            <nav id="navbar" class="navbar order-last order-lg-0">
+                <ul>
+                    <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
+                    <li class="dropdown"><a href="#"><span>Sobre</span> <i class="bi bi-chevron-down"></i></a>
+                        <ul>
+                            <li><a class="nav-link scrollto" href="#sobre">Sobre nós</a></li>
+                            <li><a class="nav-link scrollto" href="#team">Equipa</a></li>
+                            <li><a class="nav-link scrollto" href="#faq">Duvidas</a></li>
+                            <li class="dropdown"><a href="#"><span>Deep Modelos</span> <i
+                                        class="bi bi-chevron-right"></i></a>
+                                <ul>
+                                    <li><a href="#">Modelos 1</a></li>
+                                    <li><a href="#">Modelos 2</a></li>
+                                    <li><a href="#">Modelos 3</a></li>
+                                    <li><a href="#">Modelos 4</a></li>
+                                    <li><a href="#">Modelos 5</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a class="nav-link scrollto" href="#services">Serviços</a></li>
+                    <li><a class="nav-link scrollto" href="#contact">Contatos</a></li>
+                </ul>
+                <i class="bi bi-list mobile-nav-toggle"></i>
+            </nav><!-- .navbar -->
+
+            <div class="d-flex align-items-center" style="margin-left: 20px;">
+                {% block nav-btn %}
+                <a href="{% url 'backend' %}" class="btn btn-outline-success btn-sm " id="btn-nav">Conectar-se</a>
+                {% endblock %}
+            </div>
+
+        </div>
+    </header><!-- End Header -->
+    <!-- ===== Block Content (ROOT) ===== -->
+    {% block content %} {% endblock content %}
+
+    <!-- === FOOTER === -->
+    {% include "layout/includes/footer.html" %} <!-- Extend the footer.html -->
+
+    <!-- Vendor JS Files -->
+    <script src="{% static 'web/assets/vendor/aos/aos.js' %}"></script>
+    <script src="{% static 'web/assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'web/assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+    <script src="{% static 'web/assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'web/assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+
+    <!-- Template Main JS File -->
+    <script src="{% static 'web/assets/js/main.js' %}"></script>
+
+
+</body>
+
+</html>
