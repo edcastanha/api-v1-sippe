@@ -4,7 +4,181 @@
 {% block title %} SecEdu IA {% endblock %}
 
 <!-- Page content -->
-{% block content %} 
+{% block content %}
+
+<section class="section dashboard">
+    <div class="row">
+
+        <!-- Left side columns -->
+        <div class="col-lg-8">
+
+
+
+        </div><!-- End Left side columns -->
+
+        <!-- Right side columns-->
+        <div class="col-lg-4">
+
+            <!-- emocional Chart Report -->
+            <div class="card">
+                <div class="filter">
+                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <!--
+                        <li class="dropdown-header text-start">
+                            <h6>Filtrar</h6>
+                        </li>
+                    -->
+                        <li><a class="dropdown-item" href="#">Hoje</a></li>
+                        <li><a class="dropdown-item" href="#">Este Mês</a></li>
+                        <li><a class="dropdown-item" href="#">Este Ano</a></li>
+                    </ul>
+                </div>
+
+                <div class="card-body pb-0">
+                    <h5 class="card-title">Preditivos Emocional <span>| Este Mês</span></h5>
+                    <p> Consolidado de Máximas e Mínimas</p.>
+                    <div id="emocionalChart" style="min-height: 400px;" class="echart"></div>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            var budgetChart = echarts.init(document.querySelector("#emocionalChart")).setOption({
+                                legend: {
+                                    data: ['Máximas', 'Mínimas']
+                                },
+                                radar: {
+                                    // shape: 'circle',
+                                    indicator: [{
+                                        name: 'Raiva',
+                                        max: 100
+                                    },
+                                    {
+                                        name: 'Neutra',
+                                        max: 100
+                                    },
+                                    {
+                                        name: 'Feliz',
+                                        max: 100
+                                    },
+                                    {
+                                        name: 'Medo',
+                                        max: 100
+                                    },
+
+                                    {
+                                        name: 'Triste',
+                                        max: 100
+                                    }
+                                    ]
+                                },
+                                series: [{
+                                    name: 'Máximas vs Mínimas',
+                                    type: 'radar',
+                                    data: [{
+                                        value: [10, 90, 70, 20, 10, 20],
+                                        name: 'Maximas'
+                                    },
+                                    {
+                                        value: [5, 60, 30, 15, 5, 5],
+                                        name: 'Minimas'
+                                    }
+                                    ]
+                                }]
+                            });
+                        });
+                    </script>
+                </div>
+            </div><!-- End emocional Chart Report -->
+
+            <!-- Mediana Emocional -->
+            <div class="card">
+                <div class="filter">
+                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <!--
+                            <li class="dropdown-header text-start">
+                                <h6>Filtrar</h6>
+                            </li>
+                        -->
+
+                        <li><a class="dropdown-item" href="#">Hoje</a></li>
+                        <li><a class="dropdown-item" href="#">Este Mês</a></li>
+                        <li><a class="dropdown-item" href="#">Este Ano</a></li>
+                    </ul>
+                </div>
+
+                <div class="card-body pb-0">
+                    <h5 class="card-title">Mediana da Emoções (%)<span>| Este Mês</span></h5>
+
+                    <div id="medianaChart" style="min-height: 400px;" class="echart"></div>
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            echarts.init(document.querySelector("#medianaChart")).setOption({
+                                tooltip: {
+                                    trigger: 'item'
+                                },
+                                legend: {
+                                    top: '5%',
+                                    left: 'center'
+                                },
+                                series: [{
+                                    name: 'Media',
+                                    type: 'pie',
+                                    radius: ['30%', '70%'],
+                                    avoidLabelOverlap: false,
+                                    label: {
+                                        show: false,
+                                        position: 'center'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '14',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: false
+                                    },
+                                    data: [{
+                                        value: 95,
+                                        name: '% Neutro'
+                                    },
+                                    {
+                                        value: 85,
+                                        name: '% Feliz'
+                                    },
+                                    {
+                                        value: 5,
+                                        name: '% Medo'
+                                    },
+                                    {
+                                        value: 15,
+                                        name: '% Triste'
+                                    },
+                                    {
+                                        value: 2,
+                                        name: '% Nojo'
+                                    },
+                                    {
+                                        value: 4,
+                                        name: '% Raiva'
+                                    },
+                                    ]
+                                }]
+                            });
+                        });
+                    </script>
+
+                </div>
+            </div><!-- End Website Traffic -->
+
+
+
+
+        </div><!-- End Rigth side columns-->
+    </div><!-- Row 1-->
+</section>
 
 
 
@@ -13,6 +187,4 @@
 
 
 
-
-
-{% endblock content %}
+{% endblock content %}<!-- End Page Content -->

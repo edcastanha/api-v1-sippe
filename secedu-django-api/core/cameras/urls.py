@@ -16,10 +16,13 @@ from core.cameras import views
 urlpatterns = [
     # Frontend
     path('', views.frontend, name="frontend"),
-    # Backend
-    path('backend/', views.backend, name="backend"),
     # Login/Logout
     path('login/', include('django.contrib.auth.urls')),
+
+    # Backend
+    path('backend/', views.backend, name="backend"),
+    path('listar-pessoas/', views.listarPessoas, name="listar_pessoas"),
+    path('listar-alunos/', views.listarAlunos, name="listar_alunos"),
 
     # Charts
     path('total_processamentos_por_dia/', views.total_processamentos_por_dia, name="total_processamentos_por_dia"),

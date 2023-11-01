@@ -10,7 +10,7 @@ from django.db.models import Sum
 
 # Models
 from core.cameras.models import Cameras, Processamentos, Faces
-from core.cadastros.models import Aluno
+from core.cadastros.models import Aluno, Pessoas
 
 
 # Frontend
@@ -24,10 +24,28 @@ def frontend(request):
 def backend(request):
     return render(request, "app/backend.html")
 
+@login_required(login_url="login")
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def listarPessoas(request):
+    pessoasObjs = Pessoas.objects.all()
+    context = {'results': pessoasObjs}
+    return render(request, 'app/pages/listar-pessoas.html', context)
+
+@login_required(login_url="login")
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def listarAlunos(request):
+    alunossObjs = Aluno.objects.all()
+    context = {'results': alunossObjs}
+    return render(request, 'app/pages/listar-alunos.html', context)
+
+@login_required(login_url="login")
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def total_processamentos_por_dia(request):
     # Obter o total de processamentos por dia
     total_processamentos_por_dia = Processamentos.objects.values('dia').annotate(total=Count('id')).order_by('dia')
-    
+
+@login_required(login_url="login")
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def total_faces_por_dia(request):
     # Obter o total de faces por dia
     total_faces_por_dia = Faces.objects.select_related('processamento').values('processamento__dia').annotate(total_faces=Count('id')).order_by('processamento__dia')
@@ -37,3 +55,5 @@ def total_faces_por_dia(request):
         'total_processamentos_por_dia': total_processamentos_por_dia,
         'total_faces_por_dia': total_faces_por_dia
     }
+
+    return render(request, 'data.html')
