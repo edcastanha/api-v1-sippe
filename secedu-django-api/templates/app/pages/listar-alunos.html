@@ -9,39 +9,38 @@
 
 <section class="section dashboard">
     <div class="row">
-
-
-        <div class="col-lg-12">
+        <div class="col-12">
 
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Alunos</h5>
-
-                    <!-- Table with stripped rows -->
-                    <table id="dataAlunos" class="table datatable">
-                        <thead>
-                            <tr>
-                                <th scope="col">#RA</th>
-                                <th scope="col">Nome</th>
-                                <th scope="col">Turma</th>
-                                <th scope="col">Período</th>
-                                <th scope="col">Género</th>
-                                <th scope="col">Atualizado em</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for aluno in alunos %}
-                            <tr>
-                                <th scope="row">{{aluno.matricula}}</th>
-                                <td>{{aluno.nome}}</td>
-                                <td>{{aluno.turma}}</td>
-                                <td>{{aluno.periodo}}</td>
-                                <td>{{aluno.genero}}</td>
-                                <td>{{aluno.data_atualizacao}}</td>
-                            </tr>
-                            {% endfor %}
-                    </table>
-                    <!-- End Table with stripped rows -->
+                    <div class="table-responsive">
+                        <!-- Table with stripped rows -->
+                        <table id="dataAlunos" class="display table datatable">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#RA</th>
+                                    <th scope="col">Nome</th>
+                                    <th scope="col">Turma</th>
+                                    <th scope="col">Período</th>
+                                    <th scope="col">Género</th>
+                                    <th scope="col">Atualizado em</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for aluno in alunos %}
+                                <tr>
+                                    <th scope="row">{{aluno.matricula}}</th>
+                                    <td>{{aluno.nome}}</td>
+                                    <td>{{aluno.turma}}</td>
+                                    <td>{{aluno.periodo}}</td>
+                                    <td>{{aluno.genero}}</td>
+                                    <td>{{aluno.data_atualizacao}}</td>
+                                </tr>
+                                {% endfor %}
+                        </table>
+                        <!-- End Table with stripped rows -->
+                    </div>
                 </div>
             </div>
 

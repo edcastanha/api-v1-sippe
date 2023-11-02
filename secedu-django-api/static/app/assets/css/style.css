@@ -20,7 +20,7 @@ body {
 
 body {
   font-family: "Open Sans", sans-serif;
-  background: #0097fc;
+  background: #c9e6fa;
   color: #444444;
 }
 
@@ -964,6 +964,24 @@ h6 {
 }
 
 /*--------------------------------------------------------------
+# DataTAbles
+--------------------------------------------------------------*/
+/*Pagination*/
+.dataTables_paginate {
+  margin-top: 10px !important;
+}
+.dataTables_filter {
+  margin-bottom: 10px !important;
+}
+
+.dataTable_heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #012970;
+  margin-bottom: 20px;
+}
+
+/*--------------------------------------------------------------
 # Icons list page
 --------------------------------------------------------------*/
 .iconslist {
@@ -1236,3 +1254,4 @@ h6 {
   font-size: 13px;
   color: #012970;
 }
+

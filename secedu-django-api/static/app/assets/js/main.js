@@ -304,7 +304,18 @@
     new DataTable(datatable, {
       language: {
         url: "/static/app/assets/json/dataTable-pt-BR.json"
-      }
+      },
+  //   scrollX: true,
+      autoWidth: true,
+      paging: true,
+      pageLength: 15,
+      lengthChange: true,
+      searching: true,
+      autoWidth: true,
+      responsive: true,
+      bInfo: true,
+      bSort: true,
+
     });
   });
 
