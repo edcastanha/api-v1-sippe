@@ -19,20 +19,35 @@
                         <table id="dataAlunos" class="display table datatable">
                             <thead>
                                 <tr>
-                                    <th scope="col">#RA</th>
-                                    <th scope="col">Nome</th>
-                                    <th scope="col">Turma</th>
-                                    <th scope="col">Período</th>
-                                    <th scope="col">Género</th>
-                                    <th scope="col">Atualizado em</th>
+                                    <th scope="col" style="width: 5%;"> Ações </th>
+                                    <th scope="col"> Nome </th>
+                                    <th scope="col"> Turma </th>
+                                    <th scope="col"> R. Aluno </th>
+                                    <th scope="col"> Período </th>
+                                    <th scope="col"> Género </th>
+                                    <th scope="col"> Atualizado em </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for aluno in alunos %}
                                 <tr>
-                                    <th scope="row">{{aluno.matricula}}</th>
+                                    <th scope="row">
+                                        <ul class="list-group">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <a href="#" class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-calendar2-check"></i>
+                                                </a>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <a href="#" class="btn btn-danger btn-sm">
+                                                    <i class="bi bi-exclamation-octagon"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </th>
                                     <td>{{aluno.nome}}</td>
                                     <td>{{aluno.turma}}</td>
+                                    <td>{{aluno.matricula}}</td>
                                     <td>{{aluno.periodo}}</td>
                                     <td>{{aluno.genero}}</td>
                                     <td>{{aluno.data_atualizacao}}</td>
