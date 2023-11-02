@@ -297,16 +297,17 @@
     })
 
   /**
-   * Initiate Datatables
-   */
-  const datatables = select('.datatable', true)
+  * Initiate Datatables
+  */
+  const datatables = document.querySelectorAll('.datatable');
   datatables.forEach(datatable => {
-    new simpleDatatables.DataTable(datatable, {
+    new DataTable(datatable, {
       language: {
         url: "/static/app/assets/json/dataTable-pt-BR.json"
       }
     });
-  })
+  });
+
 
   /**
    * Autoresize echart charts
