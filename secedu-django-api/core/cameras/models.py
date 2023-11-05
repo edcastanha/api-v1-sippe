@@ -32,6 +32,15 @@ class Cameras(baseModel):
     class Meta:
         verbose_name_plural = "Câmeras"
         verbose_name = "Câmera"
+    
+    def get_data(self):
+        return {
+            'id': self.id,
+            'descricao': self.descricao,
+            'acesso': self.acesso,
+            'modelo': self.modelo,
+            'status': self.status,
+        }
 
     def __str__(self):
         return f"EM:{self.data_cadastro} - {self.descricao} - {self.modelo} - {self.status}"
@@ -46,6 +55,15 @@ class Locais(baseModel):
     class Meta:
         verbose_name_plural = "Locais"
         verbose_name = "Local"
+    
+    def get_data(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'ponto': self.ponto.nome,
+            'descricao': self.descricao,
+            'camera': self.camera.modelo,
+        }
 
     def __str__(self):
         return f"{self.nome} - {self.ponto} - {self.descricao} - {self.camera.acesso}"
@@ -97,14 +115,13 @@ class Processamentos(baseModel):
     
     def get_data(self):
         return {
-            'id': self.id,
             'camera': self.camera.modelo,
             'dia': self.dia,
             'horario': self.horario,
             'path': self.path,
             'status': self.status,
         } 
-    
+
 class Faces(baseModel):
     processamento = models.ForeignKey(Processamentos, on_delete=models.CASCADE)
     path_face = models.CharField(max_length=250, unique=True)
@@ -119,9 +136,6 @@ class Faces(baseModel):
     def __str__(self):
         return f"{self.id} :: {self.processamento.dia} as {self.processamento.horario} - {self.auditado}"
 
-
-
-
 class FrequenciasEscolar(baseModel):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE, null=True)
@@ -134,21 +148,3 @@ class FrequenciasEscolar(baseModel):
     def __str__(self):
         return f"{self.aluno.pessoa.nome} - {self.data} :: {self.camera} - {self.data} - {self.aluno.turma.nome}"
 
-
-class FaceVerify(baseModel):
-    captura_base = models.CharField(max_length=250)
-    data_captura = models.DateField()
-    hora_captura = models.CharField(max_length=20)
-    camera = models.ForeignKey(Cameras, on_delete=models.CASCADE, null=True)
-    caminho_do_face = models.CharField(max_length=250)
-    pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE, null=True)
-    file_dataset = models.CharField(max_length=250)
-    verify = models.BooleanField(default=False)
-    auditado = models.BooleanField(default=False)
-    
-    class Meta:
-        verbose_name_plural = "Auditados"
-        verbose_name = "Auditado"
-
-    def __str__(self):
-        return f"{self.id} - {self.pessoa.nome} - {self.data_captura} - {self.auditado}"

@@ -21,4 +21,9 @@ urlpatterns = [
 
     # Backend
     path('backend/', views.backend, name="backend"),
+
+    # JSON RESPONSE
+    path('json/', views.get_cameras, name="get_cameras"),
+    path('json/images/', views.get_images_path, name="get_images_path"),
+
 ]
