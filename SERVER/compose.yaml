@@ -244,6 +244,39 @@ services:
     networks:
       - server-hosts
 
+  ## SCRIPTS ANALYZE FACES
+  secedu-consumer-analyze-faces:
+    #image: apiv1sippe:tf-deepface-1.0.0
+    build:
+      context: ../secedu-jobs-faces/
+      dockerfile: Dockerfile
+    image: secedu-jobs-faces
+    container_name: secedu-consumer-analyze-faces
+    command: ["python", "consumer-analyze.py"]
+    environment:
+      - FPT_PATH = media/ftp/
+      - DATASET_PATH = media/dataset/
+      - CAPTURAS_PATH = media/capturas/
+    volumes:
+      - ../secedu-jobs-faces/:/app/
+      - dataset_data:/app/media/dataset/
+      - captura_data:/app/media/capturas/
+      - ftp_data:/app/media/ftp/
+      - logs_data:/app/media/logs/
+      - api_face_data:/root/.deepface/weights/
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - server-hosts
+
+
+
 networks:
   server-hosts:
     driver: bridge

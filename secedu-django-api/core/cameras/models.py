@@ -125,9 +125,9 @@ class Faces(baseModel):
         ('Error', 'Error'),
     )
     processamento = models.ForeignKey(Processamentos, on_delete=models.CASCADE)
-    path_face = models.CharField(max_length=250, unique=True)
+    path_face = models.CharField(max_length=350, unique=True)
     backend_detector = models.CharField(max_length=20, default='retinaface')
-    auditado = models.BooleanField(default=False)
+    auditado = models.BooleanField(default=False, null=True, blank=True)
     status = models.CharField(choices=CHOICE_STATUS, max_length=20, default='Criado', null=True, blank=True)
 
     class Meta:

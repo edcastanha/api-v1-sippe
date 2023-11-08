@@ -54,16 +54,15 @@ class FacesPrevisaoEmocional(baseModel):
         ('surprise', 'Surpresa')
     )
 
-    face = models.ForeignKey(Faces, on_delete=models.CASCADE)
-    auditado = models.BooleanField(default=False)
+    auditado = models.BooleanField(default=False, null=True, blank=True)
     predominante = models.CharField(max_length=10, choices=CHOICE_EMOTION, default='neutral')
-    zangado = models.FloatField(default=0.0)
-    repulsa = models.FloatField(default=0.0)
-    medo = models.FloatField(default=0.0)
-    feliz = models.FloatField(default=0.0)
-    neutro = models.FloatField(default=0.0)
-    triste = models.FloatField(default=0.0)
-    surpresa = models.FloatField(default=0.0)
+    zangado = models.FloatField(default=0)
+    repulsa = models.FloatField(default=0)
+    medo = models.FloatField(default=0)
+    feliz = models.FloatField(default=0)
+    neutro = models.FloatField(default=0)
+    triste = models.FloatField(default=0)
+    surpresa = models.FloatField(default=0)
     
     
     class Meta:
@@ -72,4 +71,4 @@ class FacesPrevisaoEmocional(baseModel):
         ordering = ['id', 'auditado',]
 
     def __str__(self):
-        return f"{self.id} - {self.face.id}:: {self.predominante} - {self.auditado}"
+        return f"{self.id} - {self.auditado} :: {self.predominante}"

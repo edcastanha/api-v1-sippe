@@ -19,6 +19,15 @@ class Configuration(config):
     DIR_CAPTURE = '/app/media/capturas/'
     DIR_DATASET = '/app/media/dataset/'
 
+    SELECT_QUERY = """
+        SELECT
+            id
+        FROM
+            cameras_faces
+        WHERE
+           path_face = %s
+    """
+
 
     INSER_QUERY = """
         INSERT INTO analytical_facesprevisaoemocional (
@@ -31,14 +40,13 @@ class Configuration(config):
             feliz,
             neutro,
             triste,
-            surpresa,
-            face_id
-          )
+            surpresa          
+        )
         VALUES 
-            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
-class ConsumerAnalizy:
+class ConsumerAnalyze:
     def __init__(self):
         logger.info(f' <**ConsumerEmbbeding**> : Init ')
         self.reconnect_attempts = 0  # Adicione uma contagem de tentativas de reconexão
@@ -102,34 +110,48 @@ class ConsumerAnalizy:
             file = data['caminho_do_face']
             
             if file.endswith(('.jpg', '.jpeg', '.png')):
-                print(file)
                 try:
-                    analizado = DeepFace.analyze(img_path=file, actions=['emotion'])
-                    json_analizy = json.loads(analizado)
-                    print(json_analizy)
-                    #[
-                    # {
-                    # 'emotion': {'
-                    # angry': 0.14176625991240144, 
-                    # 'disgust': 1.064139141249143e-05, 
-                    # 'fear': 0.0019596496713347733, 
-                    # 'happy': 99.65722560882568, 
-                    # 'sad': 0.07404087809845805, 
-                    # 'surprise': 0.0035963741538580507, 
-                    # 'neutral': 0.12140091275796294}, 
-                    #'dominant_emotion': 'happy', 
-                    # 'region': {'x': 3, 'y': 100, 'w': 65, 'h': 65}, 
-                    # 'face_confidence': 4.39553095161682
-                    # }
-                    # ]
- 
+                    emotion = DeepFace.analyze(img_path=file, actions=['emotion'])
+                    # Para acessar o dicionário de emoção:
+                    emotion_dict = emotion[0]['emotion']
+                    dominant_emotion = emotion[0]['dominant_emotion']
 
-                    #self.channel.basic_ack(delivery_tag=method.delivery_tag)
+                    logger.debug(f'<**ConsumerEmbbeding**> Emocoes :: {emotion_dict}')
+                    logger.debug(f'<**ConsumerEmbbeding**> Emocao Dominante :: {dominant_emotion}')
+                    # Em seguida, você pode acessar campos dentro do dicionário de emoção, por exemplo, o valor de 'angry':
+
+                    
+                    angry_value = format(emotion_dict['angry'],'.2f')
+                    disgust_value = format(emotion_dict['disgust'],'.2f')
+                    fear_value = format(emotion_dict['fear'],'.2f')
+                    happy_value = format(emotion_dict['happy'],'.2f')
+                    sad_value = format(emotion_dict['sad'],'.2f')
+                    surprise_value = format(emotion_dict['surprise'],'.2f')
+                    neutral_value = format(emotion_dict['neutral'],'.2f')
+                    
+                    logger.debug(f'<**ConsumerEmbbeding**> FLOATS :: {angry_value} - {disgust_value} - {fear_value} - {happy_value} - {sad_value} - {surprise_value} - {neutral_value}')
+
+
+                    self.db_connection.insert(Configuration.INSER_QUERY, (
+                        dt.now(), 
+                        dt.now(),
+                        dominant_emotion,
+                        angry_value,
+                        disgust_value,
+                        fear_value,
+                        happy_value,
+                        neutral_value,
+                        sad_value,
+                        surprise_value
+                        )
+                    )
+
+                    self.channel.basic_ack(delivery_tag=method.delivery_tag)
 
                 except Exception as e:
-                    logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
+                    logger.error(f'<**ConsumerEmbbeding**> Error :: {str(e)}')
                     self.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
 
 if __name__ == "__main__":
-    job = ConsumerAnalizy()
+    job = ConsumerAnalyze()
     job.run()
