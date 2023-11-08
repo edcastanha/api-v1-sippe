@@ -20,21 +20,30 @@ class Configuration(config):
     RMQ_ROUTE_KEY = 'verify'
     RMQ_RETRY_QUEUE = 'retry'
 
-    DIR_CAPTURE = '/app/media/capturas'
-    DIR_DATASET = '/app/media/dataset'
+    DIR_CAPTURE = '/app/media/capturas/'
+    DIR_DATASET = '/app/media/dataset/'
+
+    MODEL_BACKEND = 'Facenet'
+    BACKEND_DETECTOR = 'mtcnn'
+
 
     UPDATE_QUERY = """
         UPDATE 
-            cameras_processamentos 
+            cameras_faces 
         SET 
             status = %s WHERE id = %s
     """
 
     INSER_QUERY = """
-        INSERT INTO cameras_face
-            (data_cadastro, data_atualizacao, processamento_id, path_face, backend_detector, model_detector, distance_metric, auditado)
+        INSERT INTO cameras_frequenciasescolar (
+            data_cadastro,
+            data_atualizacao,
+            data,
+            aluno_id,
+            camera_id
+          )
         VALUES 
-            (%s, %s, %s, %s, %s, %s, %s, %s)
+            (%s, %s, %s, %s, %s)
     """
 
 class ConsumerEmbedding:
@@ -111,16 +120,17 @@ class ConsumerEmbedding:
                 logger.error(f' <**_**> ConsumerEmbbeding: finally RUN FUNCTION')
 
     def process_message(self, ch, method, properties, body):
-        try:
             data = json.loads(body)
             file = data['caminho_do_face']
+            camera_id = data['equipamento']
             
             if file.endswith(('.jpg', '.jpeg', '.png')):
                 id_procesamento = data['id_procesamento']
+                data_captura = data['data_captura']
                 message_dict = {
-                    'id_equipamento': data['nome_equipamento'],
+                    'id_equipamento': camera_id,
                     'id_procesamento': id_procesamento,
-                    'data_captura': data['data_captura'],
+                    'data_captura': data_captura,
                     'hora_captura': data['hora_captura'],
                     'captura_base': data['captura_base'],
                     'caminho_do_face': file,
@@ -130,69 +140,68 @@ class ConsumerEmbedding:
                     'normalization': Configuration.MODEL_BACKEND
                 }
 
-                # Exemplo de consulta de atualização
-
-                target_embedding = DeepFace.represent(
-                    img_path = file,
-                    model_name = Configuration.MODEL_BACKEND,
-                    detector_backend = Configuration.BACKEND_DETECTOR,
-                    enforce_detection = Configuration.ENFORCE_DETECTION,
-                    normalization=Configuration.MODEL_BACKEND
-                )[0]["embedding"]
-
-                query_vector = np.array(target_embedding).astype(np.float32).tobytes()
-
-                k = 2
-                base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
-                query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
-                results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
-                
-                for idx, result in enumerate(results.docs):
-                    logger.info(f"Index:: {idx+1} mais próximo {result.id} com distância {result.distance}")
-
-                    dataset_file = str(result.id)
-                
-
-                    verify = DeepFace.verify(
-                        img1_path = file,
-                        img2_path = dataset_file,
+                try:
+                    target_embedding = DeepFace.represent(
+                        img_path = file,
                         model_name = Configuration.MODEL_BACKEND,
                         detector_backend = Configuration.BACKEND_DETECTOR,
-                        distance_metric = Configuration.DISTANCE_METRIC,
                         enforce_detection = Configuration.ENFORCE_DETECTION,
                         normalization=Configuration.MODEL_BACKEND
-                    )
-                    logger.info(f"Index:: {result.id} Verify:: {verify['verified']}")
-                    confirm = verify['verified']
-                    if confirm == True:
-                        # Expressão regular para corresponder ao padrão "/app/media/dataset/188/" e capturar "188"
-                        pattern = r"/app/media/dataset/(\d+)/"
-                        # Use re.search para encontrar a correspondência
-                        match = re.search(pattern, str(dataset_file))
-                        # Verifique se houve uma correspondência antes de acessar o grupo capturado
-                        if match:
-                            dataset_id = match.group(1)  # Captura o valor "188"
-                            message_dict.update({'aluno_id': dataset_id})
+                    )[0]["embedding"]
 
-                        path_dataset = dataset_file.replace('/app/', '')
-                        message_dict.update({'file_dataset': str(path_dataset)})
-                        message_dict.update({'verify' : str(confirm)})
+                    query_vector = np.array(target_embedding).astype(np.float32).tobytes()
 
-                        message_str = json.dumps(message_dict)
-                        logger.debug(f' <*_ConsumerEmbbeding_*>DeepFace:: {message_str} ')
-                        self.publisher.start_publisher(exchange = Configuration.RMQ_EXCHANGE,
-                                                        queue_name = Configuration.RMQ_QUEUE_PUBLISHIR,
-                                                        routing_name = Configuration.RMQ_ROUTE_KEY, 
-                                                        message = message_str
-                                                    )
-                        self.db_connection.update(Configuration.UPDATE_QUERY, ('Verificado', id_procesamento))
-                        #self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), id_procesamento, file, Configuration.BACKEND_DETECTOR, Configuration.MODEL_BACKEND, Configuration.DISTANCE_METRIC, confirm))
+                    k = 2
+                    base_query = f"*=>[KNN {k} @embedding $query_vector AS distance]"
+                    query = Query(base_query).return_fields("distance").sort_by("distance").dialect(2)
+                    results = self.redis_client.ft().search(query, query_params={"query_vector": query_vector})
+                    
+                    for idx, result in enumerate(results.docs):
+                        logger.info(f"Index:: {idx+1} mais próximo {result.id} com distância {result.distance}")
 
-            self.channel.basic_ack(delivery_tag=method.delivery_tag)
+                        dataset_file = str(result.id)
+                    
 
-        except Exception as e:
-            logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
-            self.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+                        verify = DeepFace.verify(
+                            img1_path = file,
+                            img2_path = dataset_file,
+                            model_name = Configuration.MODEL_BACKEND,
+                            detector_backend = Configuration.BACKEND_DETECTOR,
+                            distance_metric = Configuration.DISTANCE_METRIC,
+                            normalization=Configuration.MODEL_BACKEND
+                        )
+                        logger.info(f"Index:: {result.id} Verify:: {verify['verified']}")
+                        confirm = verify['verified']
+                        if confirm == True:
+                            # Expressão regular para corresponder ao padrão "/app/media/dataset/188/" e capturar "188"
+                            pattern = r"/app/media/dataset/(\d+)/"
+                            # Use re.search para encontrar a correspondência
+                            match = re.search(pattern, str(dataset_file))
+                            # Verifique se houve uma correspondência antes de acessar o grupo capturado
+                            if match:
+                                dataset_id = match.group(1)  # Captura o valor "188"
+                                message_dict.update({'aluno_id': dataset_id})
+
+                            path_dataset = dataset_file.replace('/app/', '')
+                            message_dict.update({'file_dataset': str(path_dataset)})
+                            message_dict.update({'verify' : str(confirm)})
+
+                            message_str = json.dumps(message_dict)
+                            logger.debug(f' <*_ConsumerEmbbeding_*>Mensagem:: {message_str} ')
+                            self.publisher.start_publisher(exchange = Configuration.RMQ_EXCHANGE,
+                                                            queue_name = Configuration.RMQ_QUEUE_PUBLISHIR,
+                                                            routing_name = Configuration.RMQ_ROUTE_KEY, 
+                                                            message = message_str
+                                                        )
+            
+                            self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
+                            self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), data_captura, int(dataset_id), int(camera_id) ))
+
+                    self.channel.basic_ack(delivery_tag=method.delivery_tag)
+
+                except Exception as e:
+                    logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
+                    self.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
 
 if __name__ == "__main__":
     job = ConsumerEmbedding()

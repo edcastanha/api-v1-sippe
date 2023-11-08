@@ -24,25 +24,47 @@ class ImagensTratadas(baseModel):
         return f"{self.id} :: {self.face.id} - {self.auditado}"
 
 class FacesVerify(baseModel):
+    CHOICE_STATUS = (
+        ('0', 'Analisada'),
+        ('1', 'Auditada'),
+        ('2', 'Rejeitada'),
+    )
+
     face = models.ForeignKey(Faces, on_delete=models.CASCADE)
     verify = models.BooleanField(default=False)
     distance = models.FloatField(default=0.0)
-    pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE)
     auditado = models.BooleanField(default=False)
-    
+    pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE, null=True, blank=True)
+    status = models.CharField(max_length=1, choices=CHOICE_STATUS, default='0')
     class Meta:
-        verbose_name_plural = "FAces Auditadas"
-        verbose_name = "Face Auditada"
+        verbose_name_plural = "Faces Verificadas"
+        verbose_name = "Face Verifica"
 
     def __str__(self):
-        return f"{self.id} - {self.pessoa.nome} - {self.pessoa.nome} - {self.auditado}"
-
+        return f"{self.id} - {self.status} - {self.verify} - {self.auditado}"
 
 class FacesPrevisaoEmocional(baseModel):
+    CHOICE_EMOTION = (
+        ('angry', 'Zangada'),
+        ('disgust', 'Repulsa'),
+        ('fear', 'Medo'),
+        ('happy', 'Feliz'),
+        ('neutral', 'Neutra'),
+        ('sad', 'Triste'),
+        ('surprise', 'Surpresa')
+    )
+
     face = models.ForeignKey(Faces, on_delete=models.CASCADE)
-    pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE, blank=True)
-    previsao = models.JSONField
     auditado = models.BooleanField(default=False)
+    predominante = models.CharField(max_length=10, choices=CHOICE_EMOTION, default='neutral')
+    zangado = models.FloatField(default=0.0)
+    repulsa = models.FloatField(default=0.0)
+    medo = models.FloatField(default=0.0)
+    feliz = models.FloatField(default=0.0)
+    neutro = models.FloatField(default=0.0)
+    triste = models.FloatField(default=0.0)
+    surpresa = models.FloatField(default=0.0)
+    
     
     class Meta:
         verbose_name_plural = "Faces Previsão Emocional"
@@ -50,4 +72,4 @@ class FacesPrevisaoEmocional(baseModel):
         ordering = ['id', 'auditado',]
 
     def __str__(self):
-        return f"{self.id} - {self.face.id} - {self.auditado}"
+        return f"{self.id} - {self.face.id}:: {self.predominante} - {self.auditado}"

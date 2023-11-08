@@ -129,20 +129,20 @@ def extract_faces(
     """Extract faces from an image.
 
     Args:
-        img: um caminho, url, base64 ou array numpy.
-        target_size (tupla, opcional): o tamanho alvo das faces extraídas.
-        O padrão é (224, 224).
-        detector_backend (str, opcional): o backend do detetor de faces. A predefinição é "opencv".
-        grayscale (bool, opcional): se as faces extraídas devem ser convertidas em escala de cinzentos.
-        A predefinição é False.
-        enforce_detection (bool, opcional): se deve ser aplicada a deteção de rostos. A predefinição é Verdadeiro.
-        align (bool, opcional): se deve alinhar as faces extraídas. A predefinição é Verdadeiro.
+        img: a path, url, base64 or numpy array.
+        target_size (tuple, optional): the target size of the extracted faces.
+        Defaults to (224, 224).
+        detector_backend (str, optional): the face detector backend. Defaults to "opencv".
+        grayscale (bool, optional): whether to convert the extracted faces to grayscale.
+        Defaults to False.
+        enforce_detection (bool, optional): whether to enforce face detection. Defaults to True.
+        align (bool, optional): whether to align the extracted faces. Defaults to True.
 
-    Levanta:
-        ValueError: se a face não puder ser detectada e enforce_detection for True.
+    Raises:
+        ValueError: if face could not be detected and enforce_detection is True.
 
-    Retorna:
-        list: uma lista de faces extraídas.
+    Returns:
+        list: a list of extracted faces.
     """
 
     # this is going to store a list of img itself (numpy), it region and confidence
@@ -161,8 +161,8 @@ def extract_faces(
     # in case of no face found
     if len(face_objs) == 0 and enforce_detection is True:
         raise ValueError(
-            "Não foi possível detetar o rosto. Confirme se a imagem é uma fotografia de rosto "
-            + "ou considerar a possibilidade de definir o parâmetro enforce_detection como False."
+            "Face could not be detected. Please confirm that the picture is a face photo "
+            + "or consider to set enforce_detection param to False."
         )
 
     if len(face_objs) == 0 and enforce_detection is False:
@@ -188,7 +188,7 @@ def extract_faces(
                 diff_0 = target_size[0] - current_img.shape[0]
                 diff_1 = target_size[1] - current_img.shape[1]
                 if grayscale is False:
-                    # Colocar a imagem de base no meio da imagem almofadada
+                    # Put the base image in the middle of the padded image
                     current_img = np.pad(
                         current_img,
                         (
@@ -208,17 +208,17 @@ def extract_faces(
                         "constant",
                     )
 
-            # verificação dupla: se a imagem de destino não tiver ainda o mesmo tamanho que a imagem de destino.
+            # double check: if target image is not still the same size with target.
             if current_img.shape[0:2] != target_size:
                 current_img = cv2.resize(current_img, target_size)
 
-            # normalizar os pixéis da imagem
-            # o que é que esta linha faz? deve?
+            # normalizing the image pixels
+            # what this line doing? must?
             img_pixels = image.img_to_array(current_img)
             img_pixels = np.expand_dims(img_pixels, axis=0)
             img_pixels /= 255  # normalize input in [0, 1]
 
-            # O int cast é para a exceção - o objeto do tipo 'float32' não é serializável em JSON
+            # int cast is for the exception - object of type 'float32' is not JSON serializable
             region_obj = {
                 "x": int(current_region[0]),
                 "y": int(current_region[1]),
@@ -241,68 +241,68 @@ def normalize_input(img, normalization="base"):
     """Normalize input image.
 
     Args:
-        img (numpy array): a imagem de entrada.
-        normalization (str, opcional): a técnica de normalização. O padrão é "base",
-        para nenhuma normalização.
+        img (numpy array): the input image.
+        normalization (str, optional): the normalization technique. Defaults to "base",
+        for no normalization.
 
     Returns:
         numpy array: the normalized image.
     """
 
-    # A questão 131 declara que algumas técnicas de normalização melhoram a exatidão
+    # issue 131 declares that some normalization techniques improves the accuracy
 
     if normalization == "base":
         return img
 
-    # @trevorgribble e @davedgd contribuíram com esta funcionalidade
-    # restaurar a entrada na escala de [0, 255] porque foi normalizada na escala de
-    # [0, 1] em preprocess_face
+    # @trevorgribble and @davedgd contributed this feature
+    # restore input in scale of [0, 255] because it was normalized in scale of
+    # [0, 1] in preprocess_face
     img *= 255
 
     if normalization == "raw":
-        pass  # devolver apenas os pixéis restaurados
+        pass  # return just restored pixels
 
     elif normalization == "Facenet":
         mean, std = img.mean(), img.std()
         img = (img - mean) / std
 
     elif normalization == "Facenet2018":
-        # simply / 127.5 - 1 (semelhante ao passo de pré-processamento do modelo facenet 2018, tal como @iamrishab publicou)
+        # simply / 127.5 - 1 (similar to facenet 2018 model preprocessing step as @iamrishab posted)
         img /= 127.5
         img -= 1
 
     elif normalization == "VGGFace":
-        # subtração média baseada nos dados de treino VGGFace1
+        # mean subtraction based on VGGFace1 training data
         img[..., 0] -= 93.5940
         img[..., 1] -= 104.7624
         img[..., 2] -= 129.1863
 
     elif normalization == "VGGFace2":
-        # subtração média baseada em dados de treino VGGFace2
+        # mean subtraction based on VGGFace2 training data
         img[..., 0] -= 91.4953
         img[..., 1] -= 103.8827
         img[..., 2] -= 131.0912
 
     elif normalization == "ArcFace":
-        # Estudo de referência: Os rostos são cortados e redimensionados para 112×112,
-        # e cada pixel (variando entre [0, 255]) nas imagens RGB é normalizado
-        # subtraindo 127,5 e dividindo por 128.
+        # Reference study: The faces are cropped and resized to 112×112,
+        # and each pixel (ranged between [0, 255]) in RGB images is normalised
+        # by subtracting 127.5 then divided by 128.
         img -= 127.5
         img /= 128
     else:
-        raise ValueError(f"tipo de normalização não implementado - {normalization}")
+        raise ValueError(f"unimplemented normalization type - {normalization}")
 
     return img
 
 
 def find_target_size(model_name):
-    """Encontra o tamanho alvo do modelo.
+    """Find the target size of the model.
 
     Args:
-        nome_do_modelo (str): o nome do modelo.
+        model_name (str): the model name.
 
-    Retorna:
-        tuple: o tamanho alvo.
+    Returns:
+        tuple: the target size.
     """
 
     target_sizes = {
@@ -320,7 +320,58 @@ def find_target_size(model_name):
     target_size = target_sizes.get(model_name)
 
     if target_size == None:
-        raise ValueError(f"nome do modelo não implementado - {model_name}")
+        raise ValueError(f"unimplemented model name - {model_name}")
 
     return target_size
 
+
+# ---------------------------------------------------
+# deprecated functions
+
+
+@deprecated(version="0.0.78", reason="Use extract_faces instead of preprocess_face")
+def preprocess_face(
+    img,
+    target_size=(224, 224),
+    detector_backend="opencv",
+    grayscale=False,
+    enforce_detection=True,
+    align=True,
+):
+    """Preprocess face.
+
+    Args:
+        img (numpy array): the input image.
+        target_size (tuple, optional): the target size. Defaults to (224, 224).
+        detector_backend (str, optional): the detector backend. Defaults to "opencv".
+        grayscale (bool, optional): whether to convert to grayscale. Defaults to False.
+        enforce_detection (bool, optional): whether to enforce face detection. Defaults to True.
+        align (bool, optional): whether to align the face. Defaults to True.
+
+    Returns:
+        numpy array: the preprocessed face.
+
+    Raises:
+        ValueError: if face is not detected and enforce_detection is True.
+
+    Deprecated:
+        0.0.78: Use extract_faces instead of preprocess_face.
+    """
+    print("⚠️ Function preprocess_face is deprecated. Use extract_faces instead.")
+    result = None
+    img_objs = extract_faces(
+        img=img,
+        target_size=target_size,
+        detector_backend=detector_backend,
+        grayscale=grayscale,
+        enforce_detection=enforce_detection,
+        align=align,
+    )
+
+    if len(img_objs) > 0:
+        result, _, _ = img_objs[0]
+        # discard expanded dimension
+        if len(result.shape) == 4:
+            result = result[0]
+
+    return result

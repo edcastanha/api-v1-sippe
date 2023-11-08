@@ -11,7 +11,7 @@ class Configuration:
     REDIS_SERVER = 'redis-server'
     REDIS_PORT = 6379
     REDIS_DB = 0
-    REDIS_SSL = True
+    REDIS_SSL = False
     # ---------------------------------- END REDIS ----------------------------------
 
     # ---------------------------------- PATH DIRS ----------------------------------

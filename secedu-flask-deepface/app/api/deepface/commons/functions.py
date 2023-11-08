@@ -271,7 +271,7 @@ def normalize_input(img, normalization="base"):
         img /= 127.5
         img -= 1
 
-    elif normalization == "VGG-Face":
+    elif normalization == "VGGFace":
         # mean subtraction based on VGGFace1 training data
         img[..., 0] -= 93.5940
         img[..., 1] -= 104.7624

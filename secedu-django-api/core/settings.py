@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     # Apps
     'core.cadastros.apps.CadastrosConfig',
     'core.cameras.apps.CamerasConfig',
+    'core.analytical.apps.AnalyticalConfig',
     # Forms
     'crispy_forms',
     'crispy_bootstrap5',

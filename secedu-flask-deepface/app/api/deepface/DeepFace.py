@@ -96,15 +96,15 @@ def verify(
     normalization="base",
 ):
     """
-    Esta função verifica se um par de imagens é a mesma pessoa ou pessoas diferentes. Em segundo plano,
-    função de verificação representa as imagens faciais como vectores e depois calcula a semelhança
-    entre esses vectores. Os vectores das imagens da mesma pessoa devem ter mais semelhança (ou menos
-    distância) do que os vectores de pessoas diferentes.
+    This function verifies an image pair is same person or different persons. In the background,
+    verification function represents facial images as vectors and then calculates the similarity
+    between those vectors. Vectors of same person images should have more similarity (or less
+    distance) than vectors of different persons.
 
     Parameters:
-            img1_path, img2_path: ecaminho da imagem xact como string. matriz numpy (BGR) ou codificadas com base64
-            também são bem-vindas. Se um dos pares tiver mais do que um rosto, então comparamos o
-            par de faces com a máxima similaridade.
+            img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded
+            images are also welcome. If one of pair has more than one face, then we will compare the
+            face pair with max similarity.
 
             model_name (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib
             , ArcFace and SFace
@@ -115,15 +115,15 @@ def verify(
             function will return exception by default. Set this to False not to have this exception.
             This might be convenient for low resolution images.
 
-            detector_backend (string): definir o backend do detetor facial para opencv, retinaface, mtcnn, ssd,
+            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib, mediapipe or yolov8.
 
-            align (boolean): alinhamento de acordo com as posições dos olhos.
+            align (boolean): alignment according to the eye positions.
 
-            normalization (string): normalizar a imagem de entrada antes de a alimentar com o modelo
+            normalization (string): normalize the input image before feeding to model
 
     Returns:
-            A função Verify devolve um dicionário.
+            Verify function returns a dictionary.
 
             {
                     "verified": True
@@ -145,7 +145,7 @@ def verify(
     # --------------------------------
     target_size = functions.find_target_size(model_name=model_name)
 
-    # os pares de imagens podem ter muitas faces
+    # img pairs might have many faces
     img1_objs = functions.extract_faces(
         img=img1_path,
         target_size=target_size,
@@ -166,7 +166,7 @@ def verify(
     # --------------------------------
     distances = []
     regions = []
-    # Agora vamos encontrar o par de faces com a distância mínima
+    # now we will find the face pair with minimum distance
     for img1_content, img1_region, _ in img1_objs:
         for img2_content, img2_region, _ in img2_objs:
             img1_embedding_obj = represent(
@@ -199,7 +199,7 @@ def verify(
                     dst.l2_normalize(img1_representation), dst.l2_normalize(img2_representation)
                 )
             else:
-                raise ValueError("Passagem de distance_metric inválida - ", distance_metric)
+                raise ValueError("Invalid distance_metric passed - ", distance_metric)
 
             distances.append(distance)
             regions.append((img1_region, img2_region))
@@ -234,36 +234,37 @@ def analyze(
     silent=False,
 ):
     """
-    Esta função analisa os atributos faciais, incluindo a idade, o sexo, a emoção e a raça.
-    Em segundo plano, a função de análise constrói modelos de rede neural convolucional para
-    classificar a idade, o gênero, a emoção e a raça da imagem de entrada.
+    This function analyzes facial attributes including age, gender, emotion and race.
+    In the background, analysis function builds convolutional neural network models to
+    classify age, gender, emotion and race of the input image.
 
     Parameters:
-            img_path: pode ser passado o caminho exato da imagem, uma matriz numpy (BGR) ou uma imagem codificada em base64.
-            Se a imagem de origem tiver mais de uma face, então o resultado será o tamanho do número de faces
-            que aparecem na imagem.
+            img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed.
+            If source image has more than one face, then result will be size of number of faces
+            appearing in the image.
 
-            actions (tuple): A predefinição é ('idade', 'género', 'emoção', 'raça'). Pode eliminar
-            alguns desses atributos.
+            actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop
+            some of those attributes.
 
-            enforce_detection (bool): Por predefinição, a função lança uma exceção se não for detectada nenhuma face.
-            Defina isto como False se não quiser obter uma exceção. Isto pode ser conveniente para imagens de baixa
-            imagens de baixa resolução.
+            enforce_detection (bool): The function throws exception if no face detected by default.
+            Set this to False if you don't want to get exception. This might be convenient for low
+            resolution images.
 
-            detector_backend (string): definir o backend do detetor facial para opencv, retinaface, mtcnn, ssd,
+            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib, mediapipe or yolov8.
 
-            align (boolean): alinhamento de acordo com as posições dos olhos.
+            align (boolean): alignment according to the eye positions.
 
-            silent (boolean): desativar (algumas) mensagens de registo
+            silent (boolean): disable (some) log messages
 
     Returns:
-            A função devolve uma lista de dicionários para cada rosto que aparece na imagem.
+            The function returns a list of dictionaries for each face appearing in the image.
 
             [
                     {
                             "region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
                             "age": 28.66,
+                            'face_confidence': 0.9993908405303955,
                             "dominant_gender": "Woman",
                             "gender": {
                                     'Woman': 99.99407529830933,
@@ -292,17 +293,17 @@ def analyze(
             ]
     """
     # ---------------------------------
-    # validar acções
+    # validate actions
     if isinstance(actions, str):
         actions = (actions,)
 
-    # verificar se as ações não são um iterável ou estão vazias.
+    # check if actions is not an iterable or empty.
     if not hasattr(actions, "__getitem__") or not actions:
         raise ValueError("`actions` must be a list of strings.")
 
     actions = list(actions)
 
-    # Para cada ação, verificar se é válida
+    # For each action, check if it is valid
     for action in actions:
         if action not in ("emotion", "age", "gender", "race"):
             raise ValueError(
@@ -335,7 +336,7 @@ def analyze(
         align=align,
     )
 
-    for img_content, img_region, _ in img_objs:
+    for img_content, img_region, img_confidence in img_objs:
         if img_content.shape[0] > 0 and img_content.shape[1] > 0:
             obj = {}
             # facial attribute analysis
@@ -390,6 +391,8 @@ def analyze(
                 # -----------------------------
                 # mention facial areas
                 obj["region"] = img_region
+                # include image confidence
+                obj["face_confidence"] = img_confidence
 
             resp_objects.append(obj)
 
@@ -408,45 +411,45 @@ def find(
     silent=False,
 ):
     """
-    Esta função aplica a verificação várias vezes e encontra as identidades numa base de dados
+    This function applies verification several times and find the identities in a database
 
     Parameters:
-            img_path: caminho exato da imagem, matriz numpy (BGR) ou imagem codificada com base64.
-            A imagem de origem pode ter muitas faces. Então, o resultado será o tamanho do número de
-            faces na imagem de origem.
+            img_path: exact image path, numpy array (BGR) or based64 encoded image.
+            Source image can have many faces. Then, result will be the size of number of
+            faces in the source image.
 
-            db_path (string): Deve armazenar alguns ficheiros de imagem numa pasta e passar o
-            caminho exato para esta pasta. Uma imagem da base de dados também pode ter muitas faces.
-            Nesse caso, todas as faces detectadas na base de dados serão consideradas na decisão.
+            db_path (string): You should store some image files in a folder and pass the
+            exact folder path to this. A database image can also have many faces.
+            Then, all detected faces in db side will be considered in the decision.
 
             model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID,
             Dlib, ArcFace, SFace or Ensemble
 
             distance_metric (string): cosine, euclidean, euclidean_l2
 
-            enforce_detection (bool): A função lança uma exceção se não for possível detetar uma face.
-            Defina isto como False se não quiser obter uma exceção. Isto pode ser conveniente para imagens de baixa
-            imagens de baixa resolução.
+            enforce_detection (bool): The function throws exception if a face could not be detected.
+            Set this to False if you don't want to get exception. This might be convenient for low
+            resolution images.
 
-            detector_backend (string): set detetor facial backend para opencv, retinaface, mtcnn, ssd,
+            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
             dlib, mediapipe or yolov8.
 
-            align (boolean): alinhamento de acordo com as posições dos olhos.
+            align (boolean): alignment according to the eye positions.
 
-            normalization (string): normalizar a imagem de entrada antes de a alimentar com o modelo
+            normalization (string): normalize the input image before feeding to model
 
-            silent (boolean): desativar alguns registos e barras de progresso
+            silent (boolean): disable some logging and progress bars
 
     Returns:
-            Esta função devolve uma lista de quadros de dados pandas. Cada item da lista corresponde a
-            uma identidade no img_path.
+            This function returns list of pandas data frame. Each item of the list corresponding to
+            an identity in the img_path.
     """
 
     tic = time.time()
 
     # -------------------------------
     if os.path.isdir(db_path) is not True:
-        raise ValueError("O db_path passado não existe!")
+        raise ValueError("Passed db_path does not exist!")
 
     target_size = functions.find_target_size(model_name=model_name)
 
@@ -459,18 +462,18 @@ def find(
 
         if not silent:
             print(
-                f"AVISO: As representações das imagens na pasta {db_path} foram armazenadas anteriormente"
-                + f" em {file_name}. Se adicionou novas instâncias após a criação, por favor "
-                + "apague este ficheiro e chame novamente a função find. Esta criá-lo-á novamente."
+                f"WARNING: Representations for images in {db_path} folder were previously stored"
+                + f" in {file_name}. If you added new instances after the creation, then please "
+                + "delete this file and call find function again. It will create it again."
             )
 
         with open(f"{db_path}/{file_name}", "rb") as f:
             representations = pickle.load(f)
 
         if not silent:
-            print("Existem ", len(representations), " representações encontradas em ", file_name)
+            print("There are ", len(representations), " representations found in ", file_name)
 
-    else:  # criar representation.pkl a partir do zero
+    else:  # create representation.pkl from scratch
         employees = []
 
         for r, _, f in os.walk(db_path):
@@ -485,17 +488,17 @@ def find(
 
         if len(employees) == 0:
             raise ValueError(
-                "Não existe nenhuma imagem no caminho especificado: ",
+                "There is no image in ",
                 db_path,
-                "! Verificar a existência de ficheiros .jpg ou .png neste caminho.",
+                " folder! Validate .jpg or .png files exist in this path.",
             )
 
         # ------------------------
-        # encontrar representações para imagens db
+        # find representations for db images
 
         representations = []
 
-        # para empregado em empregados:
+        # for employee in employees:
         pbar = tqdm(
             range(0, len(employees)),
             desc="Finding representations",
@@ -537,15 +540,15 @@ def find(
 
         if not silent:
             print(
-                f"Representações armazenadas no ficheiro {db_path}/{file_name}."
-                + "Por favor, exclua este ficheiro quando adicionar novas identidades à sua base de dados."
+                f"Representations stored in {db_path}/{file_name} file."
+                + "Please delete this file when you add new identities in your database."
             )
 
     # ----------------------------
-    # agora, temos representações para a base de dados facial
+    # now, we got representations for facial database
     df = pd.DataFrame(representations, columns=["identity", f"{model_name}_representation"])
 
-    # O caminho da imagem pode ter mais do que uma face
+    # img path might have more than once face
     target_objs = functions.extract_faces(
         img=img_path,
         target_size=target_size,
@@ -569,7 +572,7 @@ def find(
 
         target_representation = target_embedding_obj[0]["embedding"]
 
-        result_df = df.copy()  # df será filtrado em cada imagem
+        result_df = df.copy()  # df will be filtered in each img
         result_df["source_x"] = target_region["x"]
         result_df["source_y"] = target_region["y"]
         result_df["source_w"] = target_region["w"]
@@ -589,7 +592,7 @@ def find(
                     dst.l2_normalize(target_representation),
                 )
             else:
-                raise ValueError(f"métrica de distância inválida - {distance_metric}")
+                raise ValueError(f"invalid distance metric passes - {distance_metric}")
 
             distances.append(distance)
 
@@ -611,7 +614,7 @@ def find(
     toc = time.time()
 
     if not silent:
-        print("find function executou em ", toc - tic, " segundos")
+        print("find function lasts ", toc - tic, " seconds")
 
     return resp_obj
 
@@ -625,8 +628,8 @@ def represent(
     normalization="base",
 ):
     """
-    Esta função representa imagens faciais como vectores. A função utiliza modelos de redes neurais convolucionais
-    neurais convolucionais para gerar a incorporação de vectores.
+    This function represents facial images as vectors. The function uses convolutional neural
+    networks models to generate vector embeddings.
 
     Parameters:
             img_path (string): exact image path. Alternatively, numpy array (BGR) or based64
@@ -648,16 +651,16 @@ def represent(
             normalization (string): normalize the input image before feeding to model
 
     Returns:
-            A função Represent devolve uma lista de objectos com um vetor multidimensional (incorporação).
-            O número de dimensões está a mudar com base no modelo de referência.
-            Por exemplo, FaceNet devolve um vetor de 128 dimensões; VGG-Face devolve um vetor de 2622 dimensões.
+            Represent function returns a list of object with multidimensional vector (embedding).
+            The number of dimensions is changing based on the reference model.
+            E.g. FaceNet returns 128 dimensional vector; VGG-Face returns 2622 dimensional vector.
     """
     resp_objs = []
 
     model = build_model(model_name)
 
     # ---------------------------------
-    # executamos o pré-processamento na verificação, pelo que este pode ser ignorado se vier da verificação.
+    # we have run pre-process in verification. so, this can be skipped if it is coming from verify.
     target_size = functions.find_target_size(model_name=model_name)
     if detector_backend != "skip":
         img_objs = functions.extract_faces(
@@ -668,13 +671,13 @@ def represent(
             enforce_detection=enforce_detection,
             align=align,
         )
-    else:  # saltar
+    else:  # skip
         if isinstance(img_path, str):
             img = functions.load_image(img_path)
         elif type(img_path).__module__ == np.__name__:
             img = img_path.copy()
         else:
-            raise ValueError(f"tipo inesperado para img_path - {type(img_path)}")
+            raise ValueError(f"unexpected type for img_path - {type(img_path)}")
         # --------------------------------
         if len(img.shape) == 4:
             img = img[0]  # e.g. (1, 224, 224, 3) to (224, 224, 3)
@@ -687,15 +690,16 @@ def represent(
     # ---------------------------------
 
     for img, region, confidence in img_objs:
-        # normalização personalizada
+        # custom normalization
         img = functions.normalize_input(img=img, normalization=normalization)
 
         # represent
         if "keras" in str(type(model)):
-            # as novas versões do tf mostram uma barra de progresso e isso é irritante
-            embedding = model.predict(img, verbose=0)[0].tolist()
+            # model.predict causes memory issue when it is called in a for loop
+            # embedding = model.predict(img, verbose=0)[0].tolist()
+            embedding = model(img, training=False).numpy()[0].tolist()
         else:
-            # SFace e Dlib não são modelos keras e não têm argumentos detalhados
+            # SFace and Dlib are not keras models and no verbose arguments
             embedding = model.predict(img)[0].tolist()
 
         resp_obj = {}
@@ -718,10 +722,10 @@ def stream(
     frame_threshold=5,
 ):
     """
-    Esta função aplica o reconhecimento facial em tempo real e a análise dos atributos faciais
+    This function applies real time face recognition and facial attribute analysis
 
     Parameters:
-            db_path (string): caminho da base de dados facial. Deve guardar alguns ficheiros .jpg nesta pasta.
+            db_path (string): facial database path. You should store some .jpg files in this folder.
 
             model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
             ArcFace, SFace
@@ -730,24 +734,24 @@ def stream(
 
             distance_metric (string): cosine, euclidean, euclidean_l2
 
-            enable_facial_analysis (boolean): Defina este valor como Falso para executar apenas o reconhecimento facial
+            enable_facial_analysis (boolean): Set this to False to just run face recognition
 
-            source: Defina este valor como 0 para aceder à câmara Web. Caso contrário, passe o caminho exato do vídeo.
+            source: Set this to 0 for access web cam. Otherwise, pass exact video path.
 
-            time_threshold (int): quantos segundos a imagem analisada será apresentada
+            time_threshold (int): how many second analyzed image will be displayed
 
-            frame_threshold (int): quantos fotogramas são necessários para focar o rosto
+            frame_threshold (int): how many frames required to focus on face
 
     """
 
     if time_threshold < 1:
         raise ValueError(
-            "time_threshold deve ser maior do que o valor 1, mas o utilizador passou " + str(time_threshold)
+            "time_threshold must be greater than the value 1 but you passed " + str(time_threshold)
         )
 
     if frame_threshold < 1:
         raise ValueError(
-            "frame_threshold deve ser maior do que o valor 1, mas o utilizador passou "
+            "frame_threshold must be greater than the value 1 but you passed "
             + str(frame_threshold)
         )
 
@@ -772,8 +776,8 @@ def extract_faces(
     grayscale=False,
 ):
     """
-    Esta função aplica as fases de pré-processamento de um pipeline de reconhecimento facial
-    incluindo deteção e alinhamento
+    This function applies pre-processing stages of a face recognition pipeline
+    including detection and alignment
 
     Parameters:
             img_path: exact image path, numpy array (BGR) or base64 encoded image.
@@ -795,8 +799,8 @@ def extract_faces(
             grayscale (boolean): extracting faces in rgb or gray scale
 
     Returns:
-            lista de dicionários. Cada dicionário terá a própria imagem facial,
-            a área extraída da imagem original e a pontuação de confiança.
+            list of dictionaries. Each dictionary will have facial image itself,
+            extracted area from the original image and confidence score.
 
     """
 
@@ -829,12 +833,12 @@ def extract_faces(
 # deprecated functions
 
 
-@deprecated(version="0.0.78", reason="Utilizar DeepFace.extract_faces em vez de DeepFace.detectFace")
+@deprecated(version="0.0.78", reason="Use DeepFace.extract_faces instead of DeepFace.detectFace")
 def detectFace(
     img_path, target_size=(224, 224), detector_backend="opencv", enforce_detection=True, align=True
 ):
     """
-    Função obsoleta. Use extract_faces para a mesma funcionalidade.
+    Deprecated function. Use extract_faces for same functionality.
 
     This function applies pre-processing stages of a face recognition pipeline
     including detection and alignment
@@ -862,7 +866,7 @@ def detectFace(
             detected and aligned face as numpy array
 
     """
-    print("⚠️ A função detectFace está obsoleta. Em vez disso, utilize extract_faces.")
+    print("⚠️ Function detectFace is deprecated. Use extract_faces instead.")
     face_objs = extract_faces(
         img_path=img_path,
         target_size=target_size,
@@ -886,7 +890,7 @@ functions.initialize_folder()
 
 def cli():
     """
-    função de interface de linha de comando será oferecida neste bloco
+    command line interface function will be offered in this block
     """
     import fire
 

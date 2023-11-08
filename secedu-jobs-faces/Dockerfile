@@ -31,13 +31,13 @@ RUN pip install  -r requirements.txt
 # -----------------------------------
 RUN apt-get install libgl1-mesa-glx
 RUN pip install async-timeout
-RUN pip install mediapipe==0.9.*
+RUN pip install deepface==0.0.79
 
 # -----------------------------------
 
 COPY . /app/
 # install deepface from source code (always up-to-date)
-RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
+#RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
 
 #COPY ./consumer-extrair-faces-files.py /app/
 

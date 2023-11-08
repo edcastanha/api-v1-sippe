@@ -47,6 +47,16 @@ class DatabaseConnection:
             self.conn.rollback()
             logger.error(f"Error executing insert query: {e}")
 
+    def select(self, query, params=None):
+        if not self.conn:
+            self.connect()
+
+        try:
+            self.cursor.execute(query, params)
+            return self.cursor.fetchall()
+        except psycopg2.Error as e:
+            logger.error(f"Error executing select query: {e}")
+
     def close(self):
         logger.info(f"<*_ConnectionDB_*> Close Connection DB")
         if self.cursor:

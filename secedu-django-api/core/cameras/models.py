@@ -93,9 +93,6 @@ class Processamentos(baseModel):
     CHOICE_STATUS = (
         ('Criado', 'Criado'),
         ('Processado', 'Processado'),
-        ('Enviado', 'Enviado'),
-        ('Verificado', 'Verificado'),
-        ('Analisado', 'Analisado'),
         ('Error', 'Error'),
     )
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE)
@@ -123,18 +120,24 @@ class Processamentos(baseModel):
         } 
 
 class Faces(baseModel):
+    CHOICE_STATUS = (
+        ('Criado', 'Criado'),
+        ('Processado', 'Processado'),
+        ('Error', 'Error'),
+    )
     processamento = models.ForeignKey(Processamentos, on_delete=models.CASCADE)
     path_face = models.CharField(max_length=250, unique=True)
     backend_detector = models.CharField(max_length=20, default='retinaface')
     auditado = models.BooleanField(default=False)
+    status = models.CharField(choices=CHOICE_STATUS, max_length=20, default='Criado', null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Faces Detectadas"
         verbose_name = "Face Detectada"
-        ordering = ['id', 'auditado',]
+        ordering = ['status', 'auditado',]
     
     def __str__(self):
-        return f"{self.id} :: {self.processamento.dia} as {self.processamento.horario} - {self.auditado}"
+        return f"{self.status} :: {self.processamento.dia} as {self.processamento.horario} - {self.auditado}"
 
 class FrequenciasEscolar(baseModel):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)

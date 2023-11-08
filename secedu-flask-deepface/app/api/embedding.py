@@ -44,8 +44,7 @@ class Trainning:
         embedding_obj = DeepFace.represent(
             img_path=img_path, 
             model_name=self.models[1], 
-            detector_backend=self.detector[4],
-            enforce_detection=False,
+            detector_backend=self.detector[1],
             normalization=self.models[1]
         )
         print(embedding_obj)
@@ -53,6 +52,7 @@ class Trainning:
         return embedding
 
     def add_to_representations(self, img_path, embedding):
+        #print(f'IMG:: {img_path}')
         self.representations.append((img_path, embedding))
 
     def add_to_redis(self,embeddings):
@@ -83,9 +83,12 @@ class Trainning:
         )
 
     def process_images(self):
+        
         for dir_path, dir_names, file_names in os.walk(self.dir_db_img):
             for file_name in file_names:
                 img_path = os.path.join(dir_path, file_name)
+                #path_img = img_path.replace('/app/', '')
+                #print(f'DIR:: {img_path}')
                 if img_path.endswith((".png", ".jpg", ".jpeg")):
                     print(f'IMG:: {img_path}')
                     embedding = self.calculate_embedding(img_path)
