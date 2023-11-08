@@ -5,11 +5,10 @@ from django.views.decorators.cache import cache_control
 from django.http import JsonResponse
 
 # Function Querys personalizadas
-from django.db.models import Max, Min
-from django.db.models import Count
+from django.db.models import Max, Min, Avg, Count
 
 # ======== Models ========
-from core.cameras.models import Cameras, Processamentos, Faces
+from core.cameras.models import Cameras, Processamentos, Faces, FrequenciasEscolar
 from core.analytical.models import FacesPrevisaoEmocional
 
 # Frontend
@@ -24,37 +23,46 @@ def backend(request):
 
     # Consulta para obter todos os registros e ordená-los por dia em ordem decrescente
     registros_ordenados = Processamentos.objects.values('dia').annotate(registros=Count('id')).order_by('-dia')
-
     # Pegue os 5 últimos registros
     registros_ultimos_dia = registros_ordenados[:5]
-
     # Resultados
     media_registros = Processamentos.objects.all().count() / len(registros_ordenados)
-    print(registros_ordenados)
-    print(registros_ultimos_dia)
-    #for item in registros_por_dia:
-    #    print(f"No dia {item['dia']}: Quantidade de registros - {item['registros']}")
-    
+
     # ---- Emotions
-     # Lista de campos de emoção que você deseja analisar
     campos_emocao = ['zangado', 'repulsa', 'medo', 'feliz', 'neutro', 'triste', 'surpresa']
-
-    # Inicialize um dicionário para armazenar os resultados
     results = {}
-
-    # Crie uma consulta para cada campo de emoção e obtenha os valores máximos e mínimos
     for campo in campos_emocao:
+        #min_value = FacesPrevisaoEmocional.objects.filter(**{f'{campo}__gt': 10}).aggregate(Min(campo))[f'{campo}__min']
+        #min_value = FacesPrevisaoEmocional.objects.aggregate(Min(campo))[f'{campo}__min']
+        min_value =     media_value = FacesPrevisaoEmocional.objects.filter(**{f'{campo}__gte': 5, f'{campo}__lte': 20}).aggregate(Avg(campo))[f'{campo}__avg']
         max_value = FacesPrevisaoEmocional.objects.aggregate(Max(campo))[f'{campo}__max']
-        min_value = FacesPrevisaoEmocional.objects.aggregate(Min(campo))[f'{campo}__min']
-        results[campo] = [min_value, max_value]
+        media_value = FacesPrevisaoEmocional.objects.aggregate(Avg(campo))[f'{campo}__avg']
 
-    faces = Faces.objects.all().order_by('-id')[:10]
+        results[campo] = [min_value, max_value, media_value]
+    
+
+    frequencias_values = []
+
+    # Consulta para obter a lista de pessoas que têm registros e seus nomes
+    pessoas_com_registros = FrequenciasEscolar.objects.values('pessoa__id', 'pessoa__nome').annotate(contagem=Count('pessoa')).filter(contagem__gt=0)
+
+    # O resultado será um queryset contendo o ID da pessoa, o nome e a contagem de registros
+    for pessoa in pessoas_com_registros:
+        pessoa_id = pessoa['pessoa__id']
+        nome = pessoa['pessoa__nome']
+        contagem = pessoa['contagem']
+        frequencias_values.append({'id': pessoa_id, 'nome': nome, 'contagem': contagem})
+        print(f'Pessoa com ID {pessoa_id} (Nome: {nome}) tem {contagem} registros.')
+
+
+    faces = Faces.objects.all().order_by('-id')[:3]
 
     context = {
         'faces': faces,
         'results': results,
         'media_registros': int(media_registros),
         'registros_ultimos_dia': registros_ultimos_dia,
+        'frequencias_values': frequencias_values,
     }
 
     return render(request, "app/backend.html", context)

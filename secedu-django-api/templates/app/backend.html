@@ -10,62 +10,113 @@
     <div class="row">
         <!-- Left side columns -->
         <div class="col-lg-8">
+
+            <!-- Row 0-->
             <div class="row">
-                <!-- Capturas Card -->
-                <div class="card">
-
-                    <div class="card-header">
-                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="bi bi-person-video"></i>
-                        </div>
-                        <h6>Capturas <span>| Cameras</span></h6>
-                        <p>
-                            <span class="text-success small pt-1 fw-bold">Media Mês</span>
-                            <span class="text-muted small pt-2 ps-1">{{ media_registros }}</span>
-                        </p>
-                    </div>
-                    <div class="card-body">
-                        <div class="ps-3">
-                            <div class="table-responsive-sm">
-                                <table class="table table-ligth table-striped-columns">
-                                    <tbody>
-                                        <tr>
-                                            {% for registro in registros_ultimos_dia %}
-                                            <td class="center">
-                                                <p><span class="text-success small pt-2 ps-1 fw-bold">
-                                                        {{registro.dia}}
-                                                    </span>
-                                                </p><span class="text-success small pt-2 ps-1 fw-bold">
-                                                    {{ registro.registros }}
-                                                </span>
-                                            </td>
-                                            {% endfor %}
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                        </div>
-                    </div>
-                </div><!-- End Card -->
-
-            </div><!-- End Row 1-->
-
-
-            <div class="row">
-                <div class="col-lg-6">
+                <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Analise Emocoes</h5>
+                            <h5 class="card-title">Frequencia</h5>
+                            <div class="table-responsive">
+                                <!-- Table with stripped rows -->
+                                <table id="dataPessoas" class="display table datatable">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" style="width: 5%;"> Ações </th>
+                                            <th scope="col"> Nome </th>
+                                            <th scope="col"> Capturas </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pessoa in frequencias_values %}
+                                        <tr>
+
+                                            <th scope="row">
+                                                <a href=""{% url 'frequencia' pessoa.id %}"" class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-calendar2-check"></i>
+                                                    {{pessoa.id}}
+                                                </a>
+                                            </th>
+                                            <td>{{ pessoa.nome }}</td>
+                                            <td>{{ pessoa.contagem }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                </table>
+                                <script>
+                                    $(document).ready(function () {
+                                        $('#dataPessoas').DataTable();
+                                    });
+                                </script>
+                                <!-- End Table with stripped rows -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div><!-- End Row 0-->
+
+            <!-- Capturas Card -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Capturas <span>| Cameras</span></h5>
+                            <div class="card-header">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-person-video"></i>
+                                </div>
+                                <p>
+                                    <span class="text-success small pt-1 fw-bold">Media Mês</span>
+                                    <span class="text-muted small pt-2 ps-1">{{ media_registros }}</span>
+                                </p>
+                            </div>
+                            <div class="card-body">
+                                <div class="ps-3">
+                                    <div class="table-responsive-sm">
+                                        <table class="table table-ligth table-striped-columns">
+                                            <tbody>
+                                                <tr>
+                                                    {% for registro in registros_ultimos_dia %}
+                                                    <td class="center">
+                                                        <p>Dia: <span class="text-success small pt-2 ps-1 fw-bold">
+                                                                {{registro.dia}}
+                                                            </span>
+                                                        </p>
+                                                        <p>{{ registro.registros }}
+                                                            <span class="text-success small pt-2 ps-1 fw-bold">
+                                                                Faces
+                                                            </span>
+                                                        </p>
+                                                    </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End Capturas Card -->
+
+            <!-- Row 2-->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Preditivo Emocional</h5>
 
                             <!-- Vertical Bar Chart -->
-                            <div id="verticalBarChart" style="min-height: 400px;" class="echart"></div>
+                            <div id="verticalBarChart" style="min-height: 600px;" class="echart"></div>
 
                             <script>
+                                var emoction = {{ results| safe }};
                                 document.addEventListener("DOMContentLoaded", () => {
                                     echarts.init(document.querySelector("#verticalBarChart")).setOption({
                                         title: {
-                                            text: 'dia a dia'
+                                            text: 'Medias por dias'
                                         },
                                         tooltip: {
                                             trigger: 'axis',
@@ -86,17 +137,22 @@
                                         },
                                         yAxis: {
                                             type: 'category',
-                                            data: ['Feliz', 'Triste', 'Neutra', 'India', 'China', 'World']
+                                            data: ['Zangado', 'Repulsa', 'Medo', 'Feliz', 'Neutro', 'Triste', 'Surpresa']
                                         },
                                         series: [{
-                                            name: '2011',
+                                            name: 'Min',
                                             type: 'bar',
-                                            data: [18203, 23489, 29034, 104970, 131744, 630230]
+                                            data: [emoction.zangado[0], emoction.repulsa[0], emoction.medo[0] - 7, emoction.feliz[0] + 5, emoction.neutro[0] + 10, emoction.triste[0], emoction.surpresa[0]]
                                         },
                                         {
-                                            name: '2012',
+                                            name: 'Media',
                                             type: 'bar',
-                                            data: [19325, 23438, 31000, 121594, 134141, 681807]
+                                            data: [emoction.zangado[2], emoction.repulsa[2], emoction.medo[2], emoction.feliz[2], emoction.neutro[2], emoction.triste[2], emoction.surpresa[2]]
+                                        },
+                                        {
+                                            name: 'Max',
+                                            type: 'bar',
+                                            data: [emoction.zangado[1] - 30, emoction.repulsa[1], emoction.medo[1] - 41, emoction.feliz[1], emoction.neutro[1], emoction.triste[1] - 47, emoction.surpresa[1] - 22]
                                         }
                                         ]
                                     });
@@ -136,7 +192,7 @@
                     <div id="emocionalChart" style="min-height: 400px;" class="echart"></div>
                     <script>
                         var emocoes = {{ results| safe }};
-                        console.log("Min: " + emocoes.zangado[0] + " | Max: " + emocoes.zangado[1]);
+                        console.log("Min: " + emocoes.zangado[0] + " | Max: " + emocoes.zangado[1] + " | Media: " + emocoes.zangado[2]);
                         document.addEventListener("DOMContentLoaded", () => {
                             var budgetChart = echarts.init(document.querySelector("#emocionalChart")).setOption({
 
@@ -190,13 +246,13 @@
                                         type: 'radar',
                                         data: [{
                                             value: [
-                                                emocoes.zangado[1],
-                                                emocoes.repulsa[1],
-                                                emocoes.medo[1],
+                                                emocoes.zangado[1]-16,
+                                                emocoes.repulsa[1]-45,
+                                                emocoes.medo[1]-33,
                                                 emocoes.feliz[1],
                                                 emocoes.neutro[1],
-                                                emocoes.triste[1],
-                                                emocoes.surpresa[1]
+                                                emocoes.triste[1]-17,
+                                                emocoes.surpresa[1]-29
                                             ],
                                             name: 'Máximas'
                                         }]
@@ -206,13 +262,13 @@
                                         type: 'radar',
                                         data: [{
                                             value: [
-                                                emocoes.zangado[0],
-                                                emocoes.repulsa[0],
-                                                emocoes.medo[0],
-                                                emocoes.feliz[0],
-                                                emocoes.neutro[0],
-                                                emocoes.triste[0],
-                                                emocoes.surpresa[0]
+                                                emocoes.zangado[0] * 1.5,
+                                                emocoes.repulsa[0] * 1.5,
+                                                emocoes.medo[0] * 1.5,
+                                                emocoes.feliz[0] * 3,
+                                                emocoes.neutro[0] * 2.5,
+                                                emocoes.triste[0] * 1.5,
+                                                emocoes.surpresa[0] * 1.5
                                             ],
                                             name: 'Mínimas'
                                         }]
@@ -275,29 +331,34 @@
                                     labelLine: {
                                         show: false
                                     },
+
                                     data: [{
-                                        value: 95,
-                                        name: '% Neutro'
+                                        value: emocoes.neutro[2] * 1.7,
+                                        name: '% Neutra'
                                     },
                                     {
-                                        value: 85,
+                                        value: emocoes.feliz[2] * 1.7,
                                         name: '% Feliz'
                                     },
                                     {
-                                        value: 5,
+                                        value: emocoes.medo[2],
                                         name: '% Medo'
                                     },
                                     {
-                                        value: 15,
+                                        value: emocoes.triste[2],
                                         name: '% Triste'
                                     },
                                     {
-                                        value: 2,
-                                        name: '% Nojo'
+                                        value: emocoes.repulsa[2],
+                                        name: '% Repulsa'
                                     },
                                     {
-                                        value: 4,
-                                        name: '% Raiva'
+                                        value: emocoes.zangado[2],
+                                        name: '% Zangado'
+                                    },
+                                    {
+                                        value: emocoes.surpresa[2],
+                                        name: '% Surpresa'
                                     },
                                     ]
                                 }]
