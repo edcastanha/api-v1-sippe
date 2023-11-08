@@ -5,24 +5,24 @@ from core.cadastros.models import Contratos, Escolas, Turmas, Pessoas, Fotos
 class ContratosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contratos
-        fields = ['protocolo', 'assinado_em', 'responsavel']
+        fields = '__all__'
 
 class EscolasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Escolas
-        fields = ['nome', 'contrato']
+        fields = '__all__'
 
 class TurmasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turmas
-        fields = ['nome', 'periodo']
+        fields = '__all__'
 
 class PessoasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pessoas
-        fields = ['nome', 'turma', 'sexo', 'perfil']   
+        fields = '__all__'
 
 class FotosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fotos
-        fields = ['pessoa', 'foto']
+        fields = '__all__'

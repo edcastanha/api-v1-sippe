@@ -68,6 +68,28 @@ def backend(request):
     return render(request, "app/backend.html", context)
 
 
+# Backend
+@login_required(login_url="login")
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def frequencia_view(request,  id):
+    # Consulta para obter registros de FrequenciasEscolar relacionados à pessoa com o ID específico
+    registros = FrequenciasEscolar.objects.filter(pessoa_id=id)
+    print(f"Registros: {registros}")
+    context = {
+        'registros': registros,
+    }
+
+    return render(request, "app/pages/frequencia_view.html", context)
+
+
+
+
+
+
+
+
+
+
 # ============ JSON ============
 @login_required(login_url="login")
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

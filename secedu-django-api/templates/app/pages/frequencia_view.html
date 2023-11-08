@@ -1,0 +1,56 @@
+{% extends 'app/layout/base_admin.html' %}
+<!-- Block title -->
+{% block title %} SecEdu IA {% endblock %}
+
+
+
+<!-- Page content -->
+{% block content %}
+
+<section class="section dashboard">
+    <div class="row">
+        <div class="col-12">
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Frequencias Pessoa</h5>
+                    <div class="table-responsive">
+                        <!-- Table with stripped rows -->
+                        <table id="dataPessoa" class="display table datatable">
+                            <thead>
+                                <tr>
+                                    <th scope="col"> Nome </th>
+                                    <th scope="col"> Local </th>
+                                    <th scope="col"> Câmaras </th>
+                                    <th scope="col"> Períodos </th>
+                                    <th scope="col"> Atualizado em </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for aluno in registros %}
+                                <tr>
+                                    <td>{{aluno.pessoa.nome}}</td>
+                                    <td>Sala 1 - Jogos</td>
+                                    <td>{{aluno.camera.descricao}}</td>
+                                    <td>{{aluno.data}}</td>
+                                    <td>{{aluno.data_atualizacao}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <script>
+                            $(document).ready(function () {
+                                $('#dataPessoa').DataTable();
+                            });
+                        </script>
+                        <!-- End Table with stripped rows -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div><!-- Row 1-->
+</section>
+
+{% endblock content %}<!-- End Page Content -->

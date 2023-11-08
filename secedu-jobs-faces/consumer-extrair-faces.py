@@ -185,7 +185,9 @@ class ConsumerExtractor:
 
                 error_message = f"Uma exceção do tipo {type(e).__name__} ocorreu com a mensagem: {str(e)}"
                 logger.error(f'<*_ConsumerExtractor_*> Process_Message: {error_message}')
-                self.channel.basic_nack(method.delivery_tag, requeue=True)  
+                #self.channel.basic_nack(method.delivery_tag, requeue=True) 
+                #                 self.channel.basic_ack(method.delivery_tag)
+                self.channel.basic_ack(method.delivery_tag)
             finally:
                 self.channel.basic_ack(method.delivery_tag)
                 logger.info(f'<*_ConsumerExtractor_*> Process_Message - Finish')

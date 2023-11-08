@@ -32,7 +32,8 @@
                                         <tr>
 
                                             <th scope="row">
-                                                <a href=""{% url 'frequencia' pessoa.id %}"" class="btn btn-primary btn-sm">
+                                                <a href="{% url 'frequencia' pessoa.id %}"
+                                                    class="btn btn-primary btn-sm">
                                                     <i class="bi bi-calendar2-check"></i>
                                                     {{pessoa.id}}
                                                 </a>
@@ -41,6 +42,7 @@
                                             <td>{{ pessoa.contagem }}</td>
                                         </tr>
                                         {% endfor %}
+                                    </tbody>
                                 </table>
                                 <script>
                                     $(document).ready(function () {
@@ -246,13 +248,13 @@
                                         type: 'radar',
                                         data: [{
                                             value: [
-                                                emocoes.zangado[1]-16,
-                                                emocoes.repulsa[1]-45,
-                                                emocoes.medo[1]-33,
+                                                emocoes.zangado[1] - 16,
+                                                emocoes.repulsa[1] - 45,
+                                                emocoes.medo[1] - 33,
                                                 emocoes.feliz[1],
                                                 emocoes.neutro[1],
-                                                emocoes.triste[1]-17,
-                                                emocoes.surpresa[1]-29
+                                                emocoes.triste[1] - 17,
+                                                emocoes.surpresa[1] - 29
                                             ],
                                             name: 'Máximas'
                                         }]

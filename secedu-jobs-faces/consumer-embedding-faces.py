@@ -203,7 +203,9 @@ class ConsumerEmbedding:
 
                 except Exception as e:
                     logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
-                    self.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+                    #self.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+                    self.channel.basic_ack(delivery_tag=method.delivery_tag)
+                    self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
 
 if __name__ == "__main__":
     job = ConsumerEmbedding()

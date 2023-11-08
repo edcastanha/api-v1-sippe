@@ -32,13 +32,13 @@ class FacesAdmin(admin.ModelAdmin):
 
     def foto_preview(self, obj):
         return format_html(
-            f"<img src='{obj.path_face} style='border-radius: 50% 50%;'/>")
+            f"<img src='{obj.path_face}' style='border-radius: 50% 50%;'/>")
 
 
     readonly_fields = ['foto_preview']
     list_display = ('id', 'processamento', 'auditado', 'backend_detector')
-    list_filter = ('auditado', 'backend_detector')
-    search_fields = ('processamento__dia', 'processamento__horario')
+    list_filter = ('auditado', 'backend_detector', 'status',)
+    search_fields = ('processamento__dia', 'processamento__horario',)
 
 admin.site.register(Faces, FacesAdmin)
 #admin.site.register(Faces)

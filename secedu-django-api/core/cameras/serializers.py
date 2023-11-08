@@ -6,30 +6,30 @@ from core.cameras.models import NotaFiscal, Cameras, Locais, FrequenciasEscolar,
 class AlunoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Aluno
-        fields = ['nome', 'matricula']
+        fields = '__all__'
     
 
 
 class NotaFiscalSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotaFiscal
-        fields = ['id', 'numero', 'data']
+        fields = '__all__'
 
 class CamerasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cameras
-        fields = ['id', 'descricao', 'acesso', 'modelo']
+        fields = '__all__'
 
 class LocaisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Locais
-        fields = ['id', 'nome', 'descricao', 'camera', 'ponto']
-
+        fields = '__all__'
 class FrequenciasEscolarSerializer(serializers.ModelSerializer):
     #aluno = serializers.PrimaryKeyRelatedField(many=True, queryset=Aluno.objects.all())
     class Meta:
         model = FrequenciasEscolar
-        fields = ['aluno', 'local' ,'data', ] 
+        fields = '__all__'
+
 class EscalasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Escalas

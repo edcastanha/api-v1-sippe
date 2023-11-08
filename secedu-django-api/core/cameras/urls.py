@@ -21,6 +21,7 @@ urlpatterns = [
 
     # Backend
     path('backend/', views.backend, name="backend"),
+    path('frequencia/<int:id>/', views.frequencia_view, name='frequencia'),
 
     # JSON RESPONSE
     path('json/', views.get_cameras, name="get_cameras"),
