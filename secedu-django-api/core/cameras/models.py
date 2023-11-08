@@ -1,6 +1,5 @@
 from django.db import models
-from core.cadastros.models import Escolas, Aluno, Escalas
-from core.cadastros.models import Pessoas
+from core.cadastros.models import Escolas, Aluno, Escalas, Pessoas
 
 class baseModel(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
@@ -140,7 +139,7 @@ class Faces(baseModel):
         return f"{self.status} :: {self.processamento.dia} as {self.processamento.horario} - {self.auditado}"
 
 class FrequenciasEscolar(baseModel):
-    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE,  null=True)
+    pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE,  null=True)
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE, null=True)
     data = models.DateField()
 
@@ -149,5 +148,5 @@ class FrequenciasEscolar(baseModel):
         verbose_name = "Frequência Escolar"
 
     def __str__(self):
-        return f"{self.aluno.pessoa.nome} - {self.data} :: {self.camera} - {self.data} - {self.aluno.turma.nome}"
+        return f"{self.pessoa} - {self.data} :: {self.camera} - {self.data}"
 

@@ -39,9 +39,10 @@ class Configuration(config):
             data_cadastro,
             data_atualizacao,
             data,
-            aluno_id,
+            pessoa_id,
             camera_id
           )
+        
         VALUES 
             (%s, %s, %s, %s, %s)
     """
@@ -127,6 +128,7 @@ class ConsumerEmbedding:
             if file.endswith(('.jpg', '.jpeg', '.png')):
                 id_procesamento = data['id_procesamento']
                 data_captura = data['data_captura']
+                date_time_captura = dt.strptime(f'{data_captura}', '%Y-%m-%d')  
                 message_dict = {
                     'id_equipamento': camera_id,
                     'id_procesamento': id_procesamento,
@@ -195,7 +197,7 @@ class ConsumerEmbedding:
                                                         )
             
                             self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
-                            self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), data_captura, int(dataset_id), int(camera_id) ))
+                            self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), date_time_captura, int(dataset_id), int(camera_id) ))
 
                     self.channel.basic_ack(delivery_tag=method.delivery_tag)
 
