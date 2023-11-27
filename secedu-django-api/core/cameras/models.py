@@ -128,7 +128,7 @@ class Faces(baseModel):
     path_face = models.CharField(max_length=350, unique=True)
     backend_detector = models.CharField(max_length=20, default='retinaface')
     auditado = models.BooleanField(default=False, null=True, blank=True)
-    status = models.CharField(choices=CHOICE_STATUS, max_length=20, default='Criado', null=True, blank=True)
+    status = models.CharField(choices=CHOICE_STATUS, max_length=20, default='Criado')
 
     class Meta:
         verbose_name_plural = "Faces Detectadas"
@@ -141,7 +141,11 @@ class Faces(baseModel):
 class FrequenciasEscolar(baseModel):
     pessoa = models.ForeignKey(Pessoas, on_delete=models.CASCADE,  null=True)
     camera = models.ForeignKey(Cameras, on_delete=models.CASCADE, null=True)
+    file_dataset = models.CharField(null=False, blank=False, max_length=500)
+    caminho_do_face = models.CharField(null=False, blank=False, max_length=500)
+    processo = models.ForeignKey(Processamentos, on_delete=models.CASCADE, null=True)
     data = models.DateField()
+    horario = models.TimeField()
 
     class Meta:
         verbose_name_plural = "Frequências Escolar"

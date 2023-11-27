@@ -103,6 +103,52 @@
                 </div>
             </div><!-- End Capturas Card -->
 
+             <!-- Capturas Card -->
+             <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Faces <span>| Detectadas</span></h5>
+                            <div class="card-header">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-person-video"></i>
+                                </div>
+                                <p>
+                                    <span class="text-success small pt-1 fw-bold">Media Mês</span>
+                                    <span class="text-muted small pt-2 ps-1">{{ media_faces }}</span>
+                                </p>
+                            </div>
+                            <div class="card-body">
+                                <div class="ps-3">
+                                    <div class="table-responsive-sm">
+                                        <table class="table table-ligth table-striped-columns">
+                                            <tbody>
+                                                <tr>
+                                                    {% for faces in faces_ultimos_dia %}
+                                                    <td class="center">
+                                                        <p>Dia: <span class="text-success small pt-2 ps-1 fw-bold">
+                                                                {{faces.processamento__dia}}
+                                                            </span>
+                                                        </p>
+                                                        <p>{{ faces.faces }}
+                                                            <span class="text-success small pt-2 ps-1 fw-bold">
+                                                                Faces
+                                                            </span>
+                                                        </p>
+                                                    </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End Capturas Card -->
+
             <!-- Row 2-->
             <div class="row">
                 <div class="col-lg-12">

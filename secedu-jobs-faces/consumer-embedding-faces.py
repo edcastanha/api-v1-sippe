@@ -39,12 +39,16 @@ class Configuration(config):
             data_cadastro,
             data_atualizacao,
             data,
+            horario,
             pessoa_id,
-            camera_id
+            camera_id,
+            processo_id,
+            file_dataset,
+            caminho_do_face
           )
         
         VALUES 
-            (%s, %s, %s, %s, %s)
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
 class ConsumerEmbedding:
@@ -119,29 +123,55 @@ class ConsumerEmbedding:
                     self.redis_client.connection_pool.disconnect()
                     self.redis_client.close()
                 logger.error(f' <**_**> ConsumerEmbbeding: finally RUN FUNCTION')
-
+    
+    # Função para converter o formato de hora
+    def converter_formato_hora(self, hora_str):
+        # Encontrar apenas os números no formato 'HHhMMmSSs'
+        match = re.search(r'(\d+)h(\d+)m(\d+)s', hora_str)
+        
+        if match:
+            horas = match.group(1)
+            minutos = match.group(2)
+            segundos = match.group(3)
+            # Formatar para o padrão '%H:%M:%S'
+            hora_formatada = f"{horas.zfill(2)}:{minutos.zfill(2)}:{segundos.zfill(2)}"
+            return hora_formatada
+        else:
+            return None
+        
     def process_message(self, ch, method, properties, body):
             data = json.loads(body)
             file = data['caminho_do_face']
             camera_id = data['equipamento']
             
             if file.endswith(('.jpg', '.jpeg', '.png')):
+                url = file.replace("/app/", "")
                 id_procesamento = data['id_procesamento']
                 data_captura = data['data_captura']
-                date_time_captura = dt.strptime(f'{data_captura}', '%Y-%m-%d')  
-                message_dict = {
-                    'id_equipamento': camera_id,
-                    'id_procesamento': id_procesamento,
-                    'data_captura': data_captura,
-                    'hora_captura': data['hora_captura'],
-                    'captura_base': data['captura_base'],
-                    'caminho_do_face': file,
-                    'detector_backend': Configuration.BACKEND_DETECTOR,
-                    'model_detector': Configuration.MODEL_BACKEND,
-                    'metrics': Configuration.DISTANCE_METRIC,
-                    'normalization': Configuration.MODEL_BACKEND
-                }
-
+                date_time_captura = dt.strptime(f'{data_captura}', '%Y-%m-%d')
+                # Converte o objeto data['hora_captura'] para o padrao para horario = models.TimeField()
+                # Conversão do formato de hora antes de usar strptime
+                hora_captura = data['hora_captura']
+                hora_convertida = self.converter_formato_hora(hora_captura)
+                
+                if hora_convertida:
+                    horario_captura = dt.strptime(hora_convertida, '%H:%M:%S').time()  # Convertendo para formato TimeField
+                    print(f' <**HORARIO**> : {horario_captura} do tipo: {type(horario_captura)}')
+                    message_dict = {
+                        'id_equipamento': camera_id,
+                        'id_procesamento': id_procesamento,
+                        'data_captura': data_captura,
+                        'hora_captura': hora_captura,  # Usando o horário convertido
+                        'captura_base': data['captura_base'],
+                        'caminho_do_face': url,
+                        'detector_backend': Configuration.BACKEND_DETECTOR,
+                        'model_detector': Configuration.MODEL_BACKEND,
+                        'metrics': Configuration.DISTANCE_METRIC,
+                        'normalization': Configuration.MODEL_BACKEND
+                    }
+                else:
+                    print('Formato de hora inválido')              
+                
                 try:
                     target_embedding = DeepFace.represent(
                         img_path = file,
@@ -197,15 +227,14 @@ class ConsumerEmbedding:
                                                         )
             
                             self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
-                            self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), date_time_captura, int(dataset_id), int(camera_id) ))
+                            self.db_connection.insert(Configuration.INSER_QUERY, (dt.now(), dt.now(), date_time_captura, horario_captura, int(dataset_id), int(camera_id), int(id_procesamento), str(path_dataset), str(url) ))
 
                     self.channel.basic_ack(delivery_tag=method.delivery_tag)
 
                 except Exception as e:
-                    logger.error(f'<**ConsumerEmbbeding**> process_message :: {str(e)}')
-                    #self.channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+                    logger.error(f'<**ConsumerEmbbeding**> process_message :: Exception= {str(e)}')
                     self.channel.basic_ack(delivery_tag=method.delivery_tag)
-                    self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
+                    self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', id_procesamento))
 
 if __name__ == "__main__":
     job = ConsumerEmbedding()

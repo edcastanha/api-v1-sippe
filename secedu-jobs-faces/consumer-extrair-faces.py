@@ -32,10 +32,11 @@ class Configuration(config):
             path_face,
             backend_detector,
             auditado,
-            processamento_id
+            processamento_id,
+            status
           )
         VALUES (
-           %s, %s, %s, %s, %s, %s
+           %s, %s, %s, %s, %s, %s, %s
            )
     """
 
@@ -164,7 +165,7 @@ class ConsumerExtractor:
                             message_str = json.dumps(message_dict)
                             db_path = save_path.replace('/app/', '')
 
-                            values =  (now, now, db_path, Configuration.BACKEND_DETECTOR, False, id_procesamento)
+                            values =  (now, now, db_path, Configuration.BACKEND_DETECTOR, False, id_procesamento, 'Criado')
                             self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
                             self.db_connection.insert(Configuration.INSER_QUERY, values)
 
@@ -174,11 +175,10 @@ class ConsumerExtractor:
                                                         message=message_str
                                                     )
                     # Update Status Processamento -  Enviado devido localizado face`s
-                    self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
+                    #self.db_connection.update(Configuration.UPDATE_QUERY, ('Enviado', id_procesamento))
 
                             
-                # Update Status Processamento -  Processado devido nao haver faces
-                self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
+
                     
             except Exception as e:
                 self.db_connection.update(Configuration.UPDATE_QUERY, ('Error', id_procesamento))
@@ -190,6 +190,8 @@ class ConsumerExtractor:
                 self.channel.basic_ack(method.delivery_tag)
             finally:
                 self.channel.basic_ack(method.delivery_tag)
+                # Update Status Processamento -  Processado devido nao haver faces
+                self.db_connection.update(Configuration.UPDATE_QUERY, ('Processado', id_procesamento))
                 logger.info(f'<*_ConsumerExtractor_*> Process_Message - Finish')
          
 if __name__ == "__main__":

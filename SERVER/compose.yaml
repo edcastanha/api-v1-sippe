@@ -325,7 +325,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: B:\SIPPE\FTP
+      device: C:\workspace\volumes\server_ftp
   
   captura_data:
     driver: local

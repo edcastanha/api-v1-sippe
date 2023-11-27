@@ -83,7 +83,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://secedu.com.br', 'http://localhost']
+CSRF_TRUSTED_ORIGINS = ['https://secedu.com.br', 'https://www.secedu.com.br','http://localhost', 'http://127.0.0.1', 'http://localhost']
 
 ROOT_URLCONF = 'core.urls'
 
@@ -144,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 20
 }
 
 # Internationalization
