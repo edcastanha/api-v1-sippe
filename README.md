@@ -1,42 +1,41 @@
-# SecEdu - SIPPE
+# Nome do Projeto: SecEdu - SIPPE (Sistema de Identificação e Prevenção de Problemas Educacionais)
 
-### SOBRE CUDA - GPU
-
-#      Versão	        | versão Python   |	Compilador  |	ferramentas de construção |	cuDNN |	CUDA
-# tensorflow_gpu-2.10.0	| 3.7-3.10        |	MSVC 2019   |	Bazel 5.1.1               |	8.1	  | 11.2
-
-# Escolha o número de réplicas conforme necessário
+Autor: Edson Lourenço Bezerra Filho
+email: edsonlourenco.contato@gmail
+São Paulo / SP - Brasil
 
 
-## Relacionamento Reverso:
-prefetch_related('nome do related_name da relacao):
+Criado sistema distribuido usando TensorFlow com suporte a GPU (CUDA) para realizar detecção e reconhecimento de faces em imagens de câmeras de segurança (CFTV).
 
-Ex: pessoas = Pessoas.objects.all()
-for pessoa in pessoas:
-    turma = pessoa.turma.all()
+Além disso, a integração com Celery para tarefas assíncronas e o uso de Docker para facilitar a implantação.
 
 
-## COMMAND Celery:
-python -m celery -A core worker -l info
+## Descrição
+Este projeto utiliza TensorFlow GPU para capturar imagens de câmeras de segurança (CFTV) e realizar detecção e reconhecimento de faces. O sistema é destinado a aprimorar a segurança e a prevenção de problemas educacionais.
 
-celery -A core beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+## Requisitos do Sistema
+- **CUDA-GPU Version**: 8.1
+- **TensorFlow Version**: 2.10.0
+- **Python Version**: 3.7-3.10
+- **Compilador**: MSVC 2019
+- **Ferramentas de Construção**: Bazel 5.1.1
+- **cuDNN Version**: 11.2
 
-## Tensorflow-gpu-jupter:::
-docker run -it --rm tensorflow/tensorflow:latest-gpu-jupyter python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+## Configuração de Ambiente
+Certifique-se de ter o ambiente configurado corretamente para aproveitar a aceleração da GPU.
 
-  
+## Instruções de Uso
+1. Clone o repositório.
+2. cd secedu-system-face-recognition/servies
+3. Execute docker-compose up -d
 
+## Uso de TensorFlow GPU com Docker
+Para testar o ambiente TensorFlow GPU com Docker, execute o seguinte comando:
 
-# DOCKER TensorFlow
-
-docker pull tensorflow/tensorflow:devel-gpu
-docker pull tensorflow/tensorflow:latest-gpu
-
-## TEST de Docker
-
+```bash
 docker run --gpus all -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
-docker run --runtime=nvidia -it --rm tensorflow/tensorflow:latest-gpu python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+```
 
+Lembre-se de ajustar as configurações conforme necessário para o seu ambiente.
 
-
-
+# Imformações entre em contato;
