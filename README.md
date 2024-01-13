@@ -1,17 +1,12 @@
-# Nome do Projeto: SecEdu - SIPPE (Sistema de Identificação e Prevenção de Problemas Educacionais)
+# PoC para testes de sistema distribuido para Visão Computacional
 
 Autor: Edson Lourenço Bezerra Filho
 email: edsonlourenco.contato@gmail
 São Paulo / SP - Brasil
 
 
-Criado sistema distribuido usando TensorFlow com suporte a GPU (CUDA) para realizar detecção e reconhecimento de faces em imagens de câmeras de segurança (CFTV).
-
-Além disso, a integração com Celery para tarefas assíncronas e o uso de Docker para facilitar a implantação.
-
-
 ## Descrição
-Este projeto utiliza TensorFlow GPU para capturar imagens de câmeras de segurança (CFTV) e realizar detecção e reconhecimento de faces. O sistema é destinado a aprimorar a segurança e a prevenção de problemas educacionais.
+Criado sistema distribuido usando TensorFlow com suporte a GPU (CUDA) para realizar detecção e reconhecimento de faces em imagens, filas de mensageria e tarefas agendadas com a integração com Celery para tarefas assíncronas e o uso de Docker para facilitar a implantação.
 
 ## Requisitos do Sistema
 - **CUDA-GPU Version**: 8.1
