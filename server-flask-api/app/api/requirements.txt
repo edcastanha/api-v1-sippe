@@ -6,7 +6,7 @@ cachetools==5.3.1
 certifi==2023.7.22
 charset-normalizer==3.2.0
 click==8.1.7
-cryptography==41.0.6
+cryptography==42.0.4
 dbus-python==1.2.18
 Deprecated==1.2.14
 distro==1.7.0
