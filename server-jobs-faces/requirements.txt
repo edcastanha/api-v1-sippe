@@ -1,6 +1,6 @@
 numpy>=1.14.0
 gdown>=3.10.1
-tqdm==4.66.1
+tqdm==4.66.3
 opencv-contrib-python==4.8.1.78
 opencv-python==4.8.1.78
 opt-einsum==3.3.0
