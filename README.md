@@ -1,8 +1,8 @@
 # PoC para testes de sistema distribuido para Visão Computacional
 
 Autor: Edson Lourenço Bezerra Filho
-email: edsonlourenco.contato@gmail
-São Paulo / SP - Brasil
+email: edcastanha@gmail
+Fortaleza / CE - Brasil
 
 
 ## Descrição
