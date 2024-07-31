@@ -2,6 +2,16 @@
 
 **Autor:** Edson Lourenço Bezerra Filho ([endereço de e-mail removido])
 
+## Agradecimentos Especiais: DeepFace
+
+Este projeto não seria possível sem o apoio da biblioteca DeepFace, Uma biblioteca leve e poderoso para reconhecimento facial e análise de atributos faciais. Sua capacidade de integrar modelos de última geração como VGG-Face, Google FaceNet, OpenFace, Facebook DeepFace, DeepID, ArcFace e Dlib SFace proporcionou a base sólida para o desenvolvimento do nosso sistema distribuído de reconhecimento facial.
+
+Agradecemos à  por criar e manter essa ferramenta incrível, que nos permitiu explorar o potencial da visão computacional e construir soluções inovadoras para detecção e reconhecimento facial.
+
+**Obrigado, DeepFace! https://github.com/serengil**
+
+
+
 Este projeto apresenta uma arquitetura inovadora para solucionar desafios complexos em visão computacional, especificamente na área de detecção e reconhecimento facial. Ao combinar o poder do TensorFlow, um framework de deep learning de renome, com a aceleração proporcionada pelas GPUs através da plataforma CUDA, este sistema distribuído oferece um desempenho excepcional e escalabilidade para lidar com grandes volumes de dados de imagem.
 
 **Funcionalidades em Detalhes:**
